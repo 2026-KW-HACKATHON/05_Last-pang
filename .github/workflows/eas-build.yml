@@ -1,0 +1,32 @@
+# 실제 배포용 워크플로우 (선택 사용)
+# main에 머지되면 EAS로 Android/iOS 빌드를 자동으로 만듭니다.
+# 사용하려면: 1) https://expo.dev 계정 생성  2) EXPO_TOKEN을 GitHub Secrets에 등록  3) eas.json 설정
+name: EAS Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build (preview profile, Android)
+        run: eas build --platform android --profile preview --non-interactive
