@@ -10,3 +10,4 @@ web-build/
 *.key
 *.mobileprovision
 .DS_Store
+.claude/
