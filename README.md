@@ -587,11 +587,11 @@ test(db): 수량 5개 딜 동시 20건 발급 테스트
 
 <div align="center">
 
-| <img src="https://github.com/<GITHUB_ID>.png" width="100" /> | <img src="https://github.com/JeongYunLim.png" width="100" /> | 
-|:---:|:---:|:---:|:---:|
+| <img src="https://github.com/GITHUB_ID.png" width="100" /> | <img src="https://github.com/JeongYunLim.png" width="100" /> |
+|:---:|:---:|
 | **정연진** | **임정윤** |
 | 기획/디자인/FE/BE | 기획/디자인/FE/BE |
-| [@github](https://github.com/<GITHUB_ID>) | [@JeongYunLim](https://github.com/JeongYunLim) |
+| [@GITHUB_ID](https://github.com/GITHUB_ID) | [@JeongYunLim](https://github.com/JeongYunLim) |
 
 </div>
 
