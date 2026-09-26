@@ -589,9 +589,9 @@ test(db): 수량 5개 딜 동시 20건 발급 테스트
 
 | <img src="https://github.com/<GITHUB_ID>.png" width="100" /> | <img src="https://github.com/<GITHUB_ID>.png" width="100" /> | <img src="https://github.com/<GITHUB_ID>.png" width="100" /> | <img src="https://github.com/<GITHUB_ID>.png" width="100" /> |
 |:---:|:---:|:---:|:---:|
-| **정연진** | **이름** | **이름** | **이름** |
-| 역할 | 역할 | 역할 | 역할 |
-| [@github](https://github.com/<GITHUB_ID>) | [@github](https://github.com/<GITHUB_ID>) | [@github](https://github.com/<GITHUB_ID>) | [@github](https://github.com/<GITHUB_ID>) |
+| **정연진** | **임정윤** |
+| 기획/디자인/FE/BE | 기획/디자인/FE/BE |
+| [@github](https://github.com/<GITHUB_ID>) | [@github](https://github.com/<JeongYunLim>) | [@github](https://github.com/<GITHUB_ID>) | [@github](https://github.com/<GITHUB_ID>) |
 
 </div>
 
