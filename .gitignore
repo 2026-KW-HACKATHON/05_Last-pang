@@ -1,13 +1,23 @@
+# 의존성 · 빌드 결과
 node_modules/
-.expo/
 dist/
-web-build/
+dev-dist/
+coverage/
+*.tsbuildinfo
 *.log
+
+# 비밀 값 (.env, .env.local, .env.*.local, supabase/.env, supabase/functions/.env 포함)
+# 키 이름만 담은 .env.example은 커밋한다
 .env*
-*.jks
-*.p8
-*.p12
+!.env.example
 *.key
-*.mobileprovision
+
+# Supabase CLI 로컬 상태
+supabase/.temp/
+supabase/.branches/
+
+# 에디터 · OS
 .DS_Store
+.vscode/*
+!.vscode/extensions.json
 .claude/
