@@ -1,4 +1,1 @@
-/* Tailwind와 @theme 토큰은 chore/setup-tailwind에서 추가한다. */
-body {
-  margin: 0;
-}
+@import 'tailwindcss';
