@@ -1,1 +1,20 @@
+/* 색·모서리 토큰은 여기 한 곳에만. 코드에서는 bg-accent 처럼 이름으로만 쓴다 */
 @import 'tailwindcss';
+
+@theme {
+  /* 메인 색은 팀 확정 전 임시값 (#E8492A 계열 vs 팀원 앱의 코랄 그라데이션) */
+  --color-accent: #e8492a;
+  --color-accent-soft: #f5941f;
+  --color-surface: #ffffff;
+  --color-cream: #fff8f2;
+  --color-ink: #1f1a17;
+  --color-muted: #8a817c;
+  --color-success: #1f9d55;
+  --color-danger: #d93025;
+  --radius-card: 16px;
+  --radius-pill: 999px;
+}
+
+body {
+  @apply bg-cream text-ink;
+}
