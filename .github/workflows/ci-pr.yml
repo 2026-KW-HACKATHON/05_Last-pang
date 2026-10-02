@@ -1,0 +1,27 @@
+# develop·main으로 가는 PR마다. 브랜치 보호 규칙의 필수 체크(build-test)
+name: Build · Test
+
+on:
+  pull_request:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    env: # 빌드용 가짜 값. 실제 키는 CI에 두지 않는다
+      VITE_SUPABASE_URL: http://127.0.0.1:54321
+      VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder
+      VITE_VAPID_PUBLIC_KEY: ci-placeholder
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test -- --run --passWithNoTests # 테스트 파일이 아직 없어도 통과
+      - run: npm run build
