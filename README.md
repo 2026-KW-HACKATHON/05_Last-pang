@@ -646,19 +646,47 @@ db: claim_coupon 함수에 행 잠금 추가 (#15)
 
 ## 📚 오픈소스 및 출처
 
-본 프로젝트에서 사용한 오픈소스와 외부 리소스입니다. 추가 시 이 목록을 갱신합니다.
+대회 규정에 따라 사용한 오픈소스·템플릿·에셋을 모두 적습니다. 새로 가져오면 **가져온 날** 이 표에 추가합니다.
 
-| 이름                                                                  | 용도                | 라이선스 |
-| --------------------------------------------------------------------- | ------------------- | -------- |
-| [React](https://github.com/facebook/react)                            | UI 라이브러리       | MIT      |
-| [Vite](https://github.com/vitejs/vite)                                | 빌드 도구           | MIT      |
-| [vite-plugin-pwa](https://github.com/vite-pwa/vite-plugin-pwa)        | PWA                 | MIT      |
-| [TanStack Query](https://github.com/TanStack/query)                   | 서버 상태 관리      | MIT      |
-| [React Router](https://github.com/remix-run/react-router)             | 라우팅              | MIT      |
-| [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss)           | 스타일              | MIT      |
-| [Zod](https://github.com/colinhacks/zod)                              | 스키마 검증         | MIT      |
-| [React Hook Form](https://github.com/react-hook-form/react-hook-form) | 폼 관리             | MIT      |
-| [supabase-js](https://github.com/supabase/supabase-js)                | Supabase 클라이언트 | MIT      |
+### 코드 템플릿
+
+| 이름                            | 링크                                                          | 라이선스 | 용도                                                                      |
+| ------------------------------- | ------------------------------------------------------------- | -------- | ------------------------------------------------------------------------- |
+| create-vite (`react-ts` 템플릿) | https://github.com/vitejs/vite/tree/main/packages/create-vite | MIT      | 프로젝트 초기 구조 (`index.html`, `main.tsx`, tsconfig, eslint.config.js) |
+
+### 앱 라이브러리
+
+| 이름                                    | 링크                                               | 라이선스 | 용도                               |
+| --------------------------------------- | -------------------------------------------------- | -------- | ---------------------------------- |
+| React                                   | https://github.com/facebook/react                  | MIT      | UI 라이브러리                      |
+| React Router (`react-router-dom`)       | https://github.com/remix-run/react-router          | MIT      | 라우팅                             |
+| TanStack Query                          | https://github.com/TanStack/query                  | MIT      | 서버 상태 관리                     |
+| supabase-js                             | https://github.com/supabase/supabase-js            | MIT      | Supabase 클라이언트                |
+| Zod                                     | https://github.com/colinhacks/zod                  | MIT      | 스키마 검증                        |
+| React Hook Form · `@hookform/resolvers` | https://github.com/react-hook-form/react-hook-form | MIT      | 폼 관리, zod 연결                  |
+| Tailwind CSS                            | https://github.com/tailwindlabs/tailwindcss        | MIT      | 스타일                             |
+| vite-plugin-pwa                         | https://github.com/vite-pwa/vite-plugin-pwa        | MIT      | PWA manifest · Service Worker 빌드 |
+| Workbox (`workbox-precaching`)          | https://github.com/GoogleChrome/workbox            | MIT      | 오프라인 캐시                      |
+| web-push                                | https://github.com/web-push-libs/web-push          | MPL-2.0  | Edge Function의 웹 푸시 발송       |
+
+### 개발 도구
+
+| 이름                                                                                                        | 링크                                    | 라이선스   | 용도                     |
+| ----------------------------------------------------------------------------------------------------------- | --------------------------------------- | ---------- | ------------------------ |
+| Vite · `@vitejs/plugin-react`                                                                               | https://github.com/vitejs/vite          | MIT        | 개발 서버 · 빌드         |
+| TypeScript                                                                                                  | https://github.com/microsoft/TypeScript | Apache-2.0 | 타입 검사                |
+| Vitest                                                                                                      | https://github.com/vitest-dev/vitest    | MIT        | 단위 테스트              |
+| ESLint · typescript-eslint · eslint-plugin-react-hooks · eslint-plugin-react-refresh · eslint-plugin-import | https://github.com/eslint/eslint        | MIT        | 코드 검사                |
+| Prettier · eslint-config-prettier                                                                           | https://github.com/prettier/prettier    | MIT        | 코드 포맷                |
+| Husky · lint-staged                                                                                         | https://github.com/typicode/husky       | MIT        | 커밋 전 검사             |
+| Supabase CLI                                                                                                | https://github.com/supabase/cli         | MIT        | 로컬 DB, 타입 생성, 배포 |
+
+### 디자인 에셋
+
+| 이름              | 위치                     | 출처                    | 용도                      |
+| ----------------- | ------------------------ | ----------------------- | ------------------------- |
+| 마스코트 일러스트 | `assets/mascot/`         | 자체 제작 (팀 라스트팡) | 화면 일러스트 · 앱 아이콘 |
+| README 배너       | `docs/assets/banner.png` | 자체 제작 (팀 라스트팡) | README                    |
 
 <br />
 
