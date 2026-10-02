@@ -9,13 +9,14 @@
 
 <br />
 
-[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-PWA-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vite.dev/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3FCF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Kakao Login](https://img.shields.io/badge/Login-Kakao-FFCD00?style=flat-square&logo=kakao&logoColor=black)](https://developers.kakao.com/)
 [![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=flat-square&logo=vercel&logoColor=white)](https://vercel.com/)
-[![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)](.github/workflows/ci.yml)
+[![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)](https://github.com/2026-KW-HACKATHON/05_Last-pang/actions)
 
 [서비스 소개](#-서비스-소개) · [핵심 기능](#-핵심-기능) · [아키텍처](#-시스템-아키텍처) · [기술 스택](#-기술-스택) · [핵심 구현](#-핵심-구현) · [시작하기](#-시작하기) · [팀](#-팀-라스트팡)
 
@@ -122,42 +123,39 @@ sequenceDiagram
 
 ## 🏗 시스템 아키텍처
 
-별도 API 서버 없이 **Supabase**를 백엔드로 사용합니다. 수량 차감·쿠폰 사용·매칭 같은 핵심 규칙은 모두 **DB 함수(RPC)** 에서 처리하고, 클라이언트는 화면만 담당합니다. 따라서 조작된 요청으로 수량이나 쿠폰 상태를 바꿀 수 없습니다.
+별도 API 서버 없이 **Supabase**를 백엔드로 사용합니다. 브라우저 앱(PWA)이 HTTPS로 Supabase에 붙고, 수량 차감·쿠폰 사용·매칭 같은 핵심 규칙은 모두 **DB 함수(RPC)** 에서 처리합니다. 클라이언트는 화면만 담당하므로 조작된 요청으로 수량이나 쿠폰 상태를 바꿀 수 없습니다. 코드는 GitHub에 머지하면 Vercel과 Supabase에 자동으로 배포됩니다.
 
 ```mermaid
 flowchart LR
-  subgraph Client["PWA (Vite + React)"]
-    R["주민 화면<br/>/"]
-    O["사장님 화면<br/>/owner"]
-    A["운영자 화면<br/>/admin"]
-    SW["Service Worker<br/>푸시 수신 · 딥링크"]
-  end
-
-  subgraph Supabase
-    AUTH["Auth<br/>OTP 로그인"]
-    RPC["DB 함수 (RPC)<br/>쿠폰 · 매칭 · 검증"]
-    RT["Realtime<br/>수량 · 사용 상태"]
-    DB[("PostgreSQL<br/>+ Row Level Security")]
-    CRON["pg_cron<br/>매분 실행"]
-    EF["Edge Function<br/>send-push"]
-  end
-
-  R & O & A --> AUTH
-  R & O & A --> RPC --> DB
-  RT --> R & O
-  DB --> RT
-  CRON --> DB
-  CRON --> EF
-  EF -- Web Push (VAPID) --> SW --> R
+  U["주민 · 사장님 · 운영자"] --> V["Vercel 호스팅<br/>React + Vite PWA<br/>Service Worker · Geolocation"]
+  V -->|HTTPS| G["Supabase API Gateway"]
+  G --> AU["Auth<br/>카카오 로그인"]
+  G --> EF["Edge Functions<br/>send-push"]
+  G --> RT["Realtime<br/>남은 수량 · 처리 내역"]
+  AU --> PG[("PostgreSQL<br/>가게 · 딜 · 코드 · 집계")]
+  EF --> PG
+  RT -->|변경 구독| PG
+  PG --- CR["pg_cron<br/>쿠폰 만료 · 반복딜 · 푸시"]
+  PG --- RLS["RLS 접근 정책"]
+  PG --- FN["RPC<br/>수량 원자 차감 등"]
+  EF -- "Web Push (VAPID)" --> V
+  GH["GitHub"] -->|push| A1["Actions<br/>Build · Lint"]
+  GH -->|PR| A2["Actions<br/>Typecheck · Test · Build"]
+  GH -->|develop·main 머지| A3["Actions + Supabase CLI<br/>migration · functions deploy"]
+  A3 --> PG
+  GH -->|auto deploy| V
 ```
 
-| 구성 요소         | 역할                                                                         |
-| ----------------- | ---------------------------------------------------------------------------- |
-| **RPC 함수**      | 쿠폰 발급·사용·재발급 등 상태를 바꾸는 모든 쓰기 작업을 트랜잭션 안에서 처리 |
-| **RLS**           | 역할(주민/사장님/운영자)별 읽기·쓰기 권한을 DB 레벨에서 강제                 |
-| **Realtime**      | 딜 잔여 수량, 쿠폰 사용 완료를 클라이언트에 즉시 반영                        |
-| **pg_cron**       | 만료 쿠폰 정리와 수량 복귀, 일정 15분 전 알림 대상 선정, 요일반복딜 생성     |
-| **Edge Function** | VAPID 비밀키를 서버에만 두고 웹 푸시를 발송                                  |
+| 구성 요소          | 역할                                                                                     |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| **Auth**           | 카카오 로그인(OAuth). 로그인 후 `/auth/callback`에서 역할·동의 여부에 따라 화면 이동     |
+| **RPC 함수**       | 쿠폰 발급·사용·코드 재발급 등 규칙이 있는 쓰기 작업을 트랜잭션 안에서 처리               |
+| **RLS**            | 역할(주민/사장님/운영자)별 읽기·쓰기 권한을 DB 레벨에서 강제                             |
+| **Realtime**       | 딜 남은 수량, 쿠폰 사용 완료를 클라이언트에 즉시 반영                                    |
+| **pg_cron**        | 만료 쿠폰 정리와 수량 복귀, 일정 15분 전 알림 대상 선정, 요일반복딜 생성, 푸시 발송 호출 |
+| **Edge Function**  | VAPID 비밀키를 서버에만 두고 웹 푸시를 발송                                              |
+| **GitHub Actions** | push마다 Build·Lint, PR마다 Typecheck·Test·Build, develop·main 머지 시 DB·함수 자동 배포 |
+| **Vercel**         | `main`은 Production(시연 URL), 그 외 브랜치·PR은 Preview URL                             |
 
 <br />
 
@@ -165,36 +163,37 @@ flowchart LR
 
 ### Frontend
 
-| 기술                      | 용도      | 선택 이유                                                         |
-| ------------------------- | --------- | ----------------------------------------------------------------- |
-| **React 18 + TypeScript** | UI        | DB 스키마에서 자동 생성한 타입으로 프론트-백 접점을 고정          |
-| **Vite**                  | 빌드      | 빠른 개발 서버, PWA 플러그인 연동                                 |
-| **vite-plugin-pwa**       | PWA       | manifest · Service Worker 자동 생성, 홈 화면 설치                 |
-| **React Router**          | 라우팅    | 주민(`/`) · 사장님(`/owner`) · 운영자(`/admin`) 영역 분리, 딥링크 |
-| **TanStack Query**        | 서버 상태 | 캐시 · 재시도 · 로딩 상태 관리                                    |
-| **Tailwind CSS**          | 스타일    | 디자인 토큰(색·모서리·간격)을 설정 파일 한 곳에서 관리            |
-| **React Hook Form + Zod** | 폼 검증   | 딜 등록·일정 입력의 예외 규칙을 스키마로 선언                     |
+| 기술                               | 용도      | 선택 이유                                                         |
+| ---------------------------------- | --------- | ----------------------------------------------------------------- |
+| **React 19 + TypeScript (strict)** | UI        | DB 스키마에서 자동 생성한 타입으로 프론트-백 접점을 고정          |
+| **Vite**                           | 빌드      | 빠른 개발 서버, PWA 플러그인 연동                                 |
+| **vite-plugin-pwa**                | PWA       | manifest · Service Worker 자동 생성, 홈 화면 설치                 |
+| **React Router**                   | 라우팅    | 주민(`/`) · 사장님(`/owner`) · 운영자(`/admin`) 영역 분리, 딥링크 |
+| **TanStack Query**                 | 서버 상태 | 캐시 · 재시도 · 로딩 상태 관리                                    |
+| **Tailwind CSS**                   | 스타일    | 디자인 토큰(색·모서리·간격)을 설정 파일 한 곳에서 관리            |
+| **React Hook Form + Zod**          | 폼 검증   | 딜 등록·일정 입력의 예외 규칙을 스키마로 선언                     |
 
 ### Backend (BaaS)
 
-| 기술                                  | 용도                                      |
-| ------------------------------------- | ----------------------------------------- |
-| **Supabase PostgreSQL**               | 트랜잭션과 행 잠금으로 수량 동시성 보장   |
-| **Row Level Security + RPC**          | 권한 규칙을 DB에서 강제                   |
-| **Supabase Auth**                     | OTP 기반 로그인                           |
-| **Supabase Realtime**                 | 실시간 수량·처리 내역                     |
-| **pg_cron**                           | 예약 작업                                 |
-| **pgcrypto**                          | 가게 고유코드 해시 저장, 안전한 난수 생성 |
-| **Edge Functions + Web Push (VAPID)** | 푸시 발송                                 |
+| 기술                                  | 용도                                              |
+| ------------------------------------- | ------------------------------------------------- |
+| **Supabase PostgreSQL**               | 트랜잭션과 행 잠금으로 수량 동시성 보장           |
+| **Row Level Security + RPC**          | 권한 규칙을 DB에서 강제                           |
+| **Supabase Auth**                     | 카카오 로그인 (Kakao provider, `signInWithOAuth`) |
+| **Supabase Realtime**                 | 실시간 수량·처리 내역                             |
+| **pg_cron**                           | 예약 작업                                         |
+| **pgcrypto**                          | 가게 고유코드 해시 저장, 안전한 난수 생성         |
+| **Edge Functions + Web Push (VAPID)** | 푸시 발송                                         |
 
 ### DevOps & Quality
 
-| 기술                          | 용도                                        |
-| ----------------------------- | ------------------------------------------- |
-| **GitHub Actions**            | PR마다 타입 검사 · 린트 · 테스트 · 빌드     |
-| **Vercel**                    | `main` 머지 시 자동 배포, PR별 미리보기 URL |
-| **Vitest**                    | 거리 계산 · 매칭 규칙 단위 테스트           |
-| **ESLint + Prettier + Husky** | 코드 스타일 통일, 커밋 전 자동 검사         |
+| 기술                          | 용도                                                        |
+| ----------------------------- | ----------------------------------------------------------- |
+| **GitHub Actions**            | push마다 린트 · 빌드, PR마다 타입 검사 · 테스트 · 빌드      |
+| **Supabase CLI**              | develop·main 머지 시 마이그레이션 · Edge Function 자동 배포 |
+| **Vercel**                    | `main` 머지 시 자동 배포, PR별 미리보기 URL                 |
+| **Vitest**                    | 거리 계산 · 매칭 규칙 단위 테스트                           |
+| **ESLint + Prettier + Husky** | 코드 스타일 통일, 커밋 전 자동 검사                         |
 
 > **의도적으로 도입하지 않은 것:** 지도 SDK, 전역 상태관리 라이브러리(Redux 등).
 > 월계1동 범위(가게 수십~수백 개)에서는 하버사인 거리 계산으로 충분하고, 로그인 사용자 같은 전역 상태는 React Context로 처리합니다.
@@ -420,9 +419,12 @@ export function walkingMinutes(meters: number): number {
 기능(feature) 단위로 폴더를 나눠 두 개발자가 같은 파일을 동시에 수정하지 않도록 했습니다.
 
 ```
-dongne-nyangnyang/
+05_Last-pang/
 ├─ .github/
-│  ├─ workflows/ci.yml            # PR마다 lint · typecheck · test · build
+│  ├─ workflows/
+│  │  ├─ ci-push.yml              # push마다 lint · build
+│  │  ├─ ci-pr.yml                # PR마다 typecheck · test · build
+│  │  └─ deploy-supabase.yml      # develop·main 머지 시 DB·함수 배포
 │  ├─ pull_request_template.md
 │  └─ ISSUE_TEMPLATE/
 ├─ docs/
@@ -430,43 +432,49 @@ dongne-nyangnyang/
 │  └─ ...                         # ERD, API 목록, 화면 흐름도
 ├─ public/icons/                  # PWA 아이콘
 ├─ src/
-│  ├─ app/                        # 라우터, 레이아웃, AuthProvider
+│  ├─ app/                        # 라우터, AuthProvider, 로그인·역할 가드
 │  ├─ shared/
-│  │  ├─ ui/                      # Button, Card, CodeInput, CountdownTimer ...
-│  │  ├─ lib/                     # supabase.ts, geo.ts, time.ts
+│  │  ├─ ui/                      # LoadingState, ErrorState, EmptyState, CodeInput, CountdownTimer ...
+│  │  ├─ lib/                     # supabase.ts, errors.ts, rpc.ts, geo.ts, time.ts
+│  │  ├─ constants/               # 카테고리·시간대, 쿼리 키
 │  │  └─ types/database.ts        # Supabase CLI 자동 생성 타입
 │  ├─ features/
-│  │  ├─ auth/                    # 로그인 · OTP
+│  │  ├─ auth/                    # 카카오 로그인, 로그인 후 이동
 │  │  ├─ resident/                # 온보딩, 선호 설정, 일정, 딜, 쿠폰, 알림
 │  │  ├─ owner/                   # 가입, 가게, 딜 등록, 처리 내역, 리포트
 │  │  └─ admin/                   # 입점 승인
 │  ├─ sw.ts                       # Service Worker
+│  ├─ index.css                   # Tailwind @theme 디자인 토큰
 │  └─ main.tsx
 ├─ supabase/
+│  ├─ config.toml                 # 로컬 설정 (카카오 provider, 리다이렉트 URL)
 │  ├─ migrations/                 # 테이블 · RLS · 함수 SQL
 │  ├─ functions/send-push/        # Edge Function
 │  ├─ tests/                      # 동시성 · RPC 테스트
 │  └─ seed.sql                    # 시연용 월계1동 가게 · 딜 데이터
 ├─ .env.example
+├─ vercel.json                    # 모든 경로를 index.html로 (SPA · 푸시 딥링크)
 └─ README.md
 ```
 
 ### 화면 라우트
 
-| 영역   | 경로                              | 화면                                                 |
-| ------ | --------------------------------- | ---------------------------------------------------- |
-| 주민   | `/login`                          | OTP 로그인                                           |
-| 주민   | `/onboarding/*`                   | 동의 → 프로필 · 자주 있는 곳 → 생활 패턴 → 알림 권한 |
-| 주민   | `/`                               | 홈 (거리순 딜 목록)                                  |
-| 주민   | `/deals/:id`                      | 딜 상세 · 쿠폰 받기                                  |
-| 주민   | `/coupons`, `/coupons/:id`        | 내 쿠폰, 카운트다운 · 코드 입력 · 사용 완료          |
-| 주민   | `/me/schedules`                   | 반복 일정 관리                                       |
-| 사장님 | `/owner/signup`, `/owner/pending` | 가입 · 승인 대기                                     |
-| 사장님 | `/owner`, `/owner/deals/new`      | 홈 · 딜 등록                                         |
-| 사장님 | `/owner/redemptions`              | 실시간 처리 내역                                     |
-| 사장님 | `/owner/report`                   | 성과 리포트                                          |
-| 사장님 | `/owner/settings`                 | 가게 고유코드 재발급                                 |
-| 운영자 | `/admin/stores`                   | 입점 승인 · 거절                                     |
+| 영역   | 경로                                                                | 화면                                                       |
+| ------ | ------------------------------------------------------------------- | ---------------------------------------------------------- |
+| 공통   | `/login`                                                            | 카카오 로그인                                              |
+| 공통   | `/auth/callback`                                                    | 로그인 후 역할·동의 여부에 따라 이동                       |
+| 주민   | `/onboarding/consent` → `profile` → `preferences` → `notifications` | 동의 → 닉네임 · 자주 있는 곳 → 생활 패턴 → 알림 권한       |
+| 주민   | `/`                                                                 | 홈 (거리순 딜 목록)                                        |
+| 주민   | `/deals/:dealId`                                                    | 딜 상세 · 쿠폰 받기 (`?src=push`면 푸시 클릭 기록)         |
+| 주민   | `/coupons`, `/coupons/:couponId`                                    | 내 쿠폰, 카운트다운 · 코드 입력 · 사용 완료                |
+| 주민   | `/me/schedules`                                                     | 반복 일정 관리                                             |
+| 사장님 | `/owner/signup`                                                     | 현재 위치로 가게 등록                                      |
+| 사장님 | `/owner`                                                            | 홈 · 진행 중 딜 (승인 대기 · 거절도 이 화면의 상태로 표시) |
+| 사장님 | `/owner/deals/new`, `/owner/weekly-deals/new`                       | 즉시딜 · 요일반복딜 등록                                   |
+| 사장님 | `/owner/redemptions`                                                | 실시간 처리 내역                                           |
+| 사장님 | `/owner/report`                                                     | 성과 리포트                                                |
+| 사장님 | `/owner/settings`                                                   | 가게 고유코드 발급 · 재발급                                |
+| 운영자 | `/admin/stores`                                                     | 입점 승인 · 거절                                           |
 
 <br />
 
