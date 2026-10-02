@@ -23,6 +23,8 @@ export default defineConfig([
       globals: globals.browser,
     },
     plugins: { import: importPlugin },
+    // '@/...'는 scoped 패키지처럼 보여 external로 분류되므로 내부 모듈로 알려 준다
+    settings: { 'import/internal-regex': '^@/' },
     rules: {
       'no-console': 'warn',
       '@typescript-eslint/no-explicit-any': 'error',
