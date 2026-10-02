@@ -508,50 +508,54 @@ export function walkingMinutes(meters: number): number {
 
 ### 요구 사항
 
-- Node.js 20+
-- Supabase CLI
-- (로컬 DB 실행 시) Docker
+- Node.js 24 (`.nvmrc`. nvm을 쓰면 `nvm use`)
+- Docker (로컬 Supabase 실행용)
+- Supabase CLI는 devDependency로 들어 있어 `npx supabase`로 실행합니다
 
-### 설치 및 실행
+### 로컬 실행
 
 ```bash
-# 1. 저장소 클론
-git clone https://github.com/<ORG>/<REPO>.git
-cd <REPO>
-
-# 2. 의존성 설치
+# 1. 저장소 클론과 의존성 설치 (Husky 커밋 훅도 함께 설치됨)
+git clone https://github.com/2026-KW-HACKATHON/05_Last-pang.git
+cd 05_Last-pang
 npm install
 
-# 3. 환경 변수 설정
-cp .env.example .env.local
-# .env.local에 Supabase URL, anon key, VAPID 공개키 입력
-
-# 4. 로컬 Supabase 실행 및 마이그레이션 적용
+# 2. 로컬 Supabase 실행 (Docker 필요). migrations와 seed.sql이 적용되고
+#    API URL · Publishable 키 · Studio 주소가 출력됨
 npx supabase start
-npx supabase db reset        # migrations + seed.sql 적용
 
-# 5. 개발 서버 실행
+# 3. 브라우저용 환경 변수: 2번 출력값을 .env.local에 입력
+cp .env.example .env.local
+
+# 4. 개발 서버 (http://localhost:5173)
 npm run dev
 ```
 
+카카오 로그인까지 로컬에서 확인하려면 `supabase/.env.example`을 `supabase/.env`로 복사해 카카오 키를 넣고 `npx supabase stop && npx supabase start`로 다시 시작합니다. DB가 바뀐 브랜치를 받았다면 `npx supabase db reset && npm run gen:types`로 로컬 DB와 타입을 다시 맞춥니다.
+
 ### 환경 변수
 
-| 변수                     | 설명                    | 노출 범위                    |
-| ------------------------ | ----------------------- | ---------------------------- |
-| `VITE_SUPABASE_URL`      | Supabase 프로젝트 URL   | 클라이언트                   |
-| `VITE_SUPABASE_ANON_KEY` | 공개 anon 키 (RLS 전제) | 클라이언트                   |
-| `VITE_VAPID_PUBLIC_KEY`  | 웹 푸시 공개키          | 클라이언트                   |
-| `VAPID_PRIVATE_KEY`      | 웹 푸시 비밀키          | **Edge Function 시크릿에만** |
+`VITE_`로 시작하는 값은 빌드 결과물에 들어가 누구나 볼 수 있습니다. 비밀 값에는 절대 `VITE_`를 붙이지 않고, 어떤 값도 커밋하지 않습니다(`.env.example`에는 이름만).
+
+| 변수                                                                   | 설명                                        | 두는 곳                                    |
+| ---------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------ |
+| `VITE_SUPABASE_URL`                                                    | Supabase API URL                            | `.env.local`, Vercel                       |
+| `VITE_SUPABASE_PUBLISHABLE_KEY`                                        | 브라우저용 Publishable 키 (RLS가 권한 제한) | `.env.local`, Vercel                       |
+| `VITE_VAPID_PUBLIC_KEY`                                                | 웹 푸시 공개키                              | `.env.local`, Vercel                       |
+| `SUPABASE_AUTH_EXTERNAL_KAKAO_CLIENT_ID`, `..._KAKAO_SECRET`           | 로컬 카카오 로그인                          | `supabase/.env` (원격은 Supabase 대시보드) |
+| `VAPID_PRIVATE_KEY`                                                    | 웹 푸시 비밀키                              | **Edge Function 시크릿에만**               |
+| `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_ID` | Actions의 Supabase 자동 배포                | **GitHub Secrets에만**                     |
 
 ### 스크립트
 
-| 명령                                                                       | 설명           |
-| -------------------------------------------------------------------------- | -------------- |
-| `npm run dev`                                                              | 개발 서버      |
-| `npm run build`                                                            | 프로덕션 빌드  |
-| `npm run lint`                                                             | ESLint 검사    |
-| `npm test`                                                                 | Vitest 실행    |
-| `npx supabase gen types typescript --local > src/shared/types/database.ts` | DB 타입 재생성 |
+| 명령                | 설명                                                 |
+| ------------------- | ---------------------------------------------------- |
+| `npm run dev`       | 개발 서버                                            |
+| `npm run build`     | 타입 검사 후 프로덕션 빌드                           |
+| `npm run lint`      | ESLint 검사                                          |
+| `npm run typecheck` | TypeScript 타입 검사                                 |
+| `npm test`          | Vitest (CI에서는 `npm test -- --run`)                |
+| `npm run gen:types` | 로컬 DB에서 `src/shared/types/database.ts` 다시 생성 |
 
 > **iOS 참고:** iOS에서 웹 푸시는 iOS 16.4 이상에서 **홈 화면에 추가한 PWA**로 실행했을 때만 동작합니다. 앱은 Safari 접속 시 설치 안내 배너를 표시합니다.
 
@@ -560,6 +564,8 @@ npm run dev
 ## 🤝 개발 컨벤션
 
 ### 브랜치 전략
+
+모든 작업은 `develop`에서 가지를 치고 PR로 `develop`에 돌아옵니다. `main`과 `develop`에는 직접 push하지 않습니다.
 
 ```mermaid
 gitGraph
@@ -578,33 +584,40 @@ gitGraph
   merge develop tag: "v0.1-mvp"
 ```
 
-| 브랜치                | 용도                              | 예시                              |
-| --------------------- | --------------------------------- | --------------------------------- |
-| `main`                | 시연 · 배포 (항상 동작 상태 유지) | —                                 |
-| `develop`             | 통합 · 미리보기                   | —                                 |
-| `feat/영역-기능-이슈` | 기능 개발                         | `feat/resident-claim-coupon-12`   |
-| `fix/영역-내용-이슈`  | 버그 수정                         | `fix/owner-report-empty-state-31` |
-| `db/내용-이슈`        | 마이그레이션                      | `db/coupon-expire-cron-15`        |
-| `hotfix/내용`         | 긴급 수정                         | `hotfix/push-deeplink-crash`      |
+| 브랜치                | 용도                                                    | 예시                              |
+| --------------------- | ------------------------------------------------------- | --------------------------------- |
+| `main`                | 시연 · Vercel Production (항상 동작 상태 유지)          | —                                 |
+| `develop`             | 통합 · Vercel Preview, 머지되면 원격 DB에 자동 반영     | —                                 |
+| `feat/영역-기능-이슈` | 기능 개발                                               | `feat/resident-claim-coupon-12`   |
+| `fix/영역-내용-이슈`  | 버그 수정                                               | `fix/owner-report-empty-state-31` |
+| `db/내용-이슈`        | 마이그레이션 · RLS · RPC · cron (마이그레이션은 여기만) | `db/coupon-expire-cron-15`        |
+| `style/영역-화면`     | 확정 디자인 적용                                        | `style/resident-home-card`        |
+| `chore/내용`          | 설정 · 패키지 · CI                                      | `chore/setup-ci`                  |
+| `docs/내용`           | 문서                                                    | `docs/readme`                     |
+| `hotfix/내용`         | main 긴급 수정                                          | `hotfix/push-deeplink-crash`      |
+
+영역은 `resident` `owner` `admin` `shared` `auth` `pwa` `app` 중 하나이고, 이름은 소문자 영어와 하이픈만 씁니다.
 
 ### 커밋 메시지 (Conventional Commits)
 
 ```
-<type>(<scope>): <내용> (#이슈)
+<type>(<scope>): <한국어 설명> (#이슈)
 
 feat(resident): 딜 받기 버튼에 쿠폰 발급 RPC 연결 (#12)
 fix(owner): 재발급 후 이전 코드가 통과하던 문제 수정 (#27)
-test(db): 수량 5개 딜 동시 20건 발급 테스트
+db: claim_coupon 함수에 행 잠금 추가 (#15)
 ```
 
-- **type:** `feat` `fix` `refactor` `style` `test` `docs` `chore` `ci`
-- **scope:** `resident` `owner` `admin` `shared` `db` `pwa`
+- **type:** `feat` `fix` `db` `refactor` `style` `test` `docs` `chore` `ci` (`db` `docs` `chore` `ci`는 scope 생략 가능)
+- **scope:** 브랜치 영역과 같음
+- 한 커밋에 변경 하나, 커밋마다 빌드가 되어야 합니다. 커밋 전에 Husky가 lint-staged(ESLint · Prettier)를 실행합니다.
 
 ### PR 규칙
 
-- 기능 → `develop`: 리뷰 승인 1건 + CI 통과 후 **Rebase and merge**
+- 작업 브랜치 → `develop`: `build-test` 체크 통과 + 리뷰 승인 1건 후 **Rebase and merge** (Squash 사용 안 함)
 - `develop` → `main`: 마일스톤마다 **Merge commit** + 태그 (`v0.1-mvp`, `v1.0-final`)
-- DB 변경은 반드시 `supabase/migrations`의 SQL 파일로 커밋 (대시보드 직접 수정 금지)
+- PR은 400줄 이하, 화면 변경이면 390px 스크린샷, 올리기 전 `npm run lint && npm run typecheck && npm test -- --run`
+- DB 변경은 반드시 `supabase/migrations`의 SQL 파일로 커밋 (대시보드 직접 수정 금지). 머지되면 Actions가 원격 DB에 반영
 
 <br />
 
