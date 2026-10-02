@@ -634,11 +634,11 @@ db: claim_coupon 함수에 행 잠금 추가 (#15)
 
 <div align="center">
 
-| <img src="https://github.com/GITHUB_ID.png" width="100" /> | <img src="https://github.com/JeongYunLim.png" width="100" /> |
-| :--------------------------------------------------------: | :----------------------------------------------------------: |
-|                         **정연진**                         |                          **임정윤**                          |
-|                     기획/디자인/FE/BE                      |                      기획/디자인/FE/BE                       |
-|         [@GITHUB_ID](https://github.com/GITHUB_ID)         |        [@JeongYunLim](https://github.com/JeongYunLim)        |
+| <img src="https://github.com/yeonjin597-dev.png" width="100" /> | <img src="https://github.com/JeongYunLim.png" width="100" /> |
+| :-------------------------------------------------------------: | :----------------------------------------------------------: |
+|                           **정연진**                            |                          **임정윤**                          |
+|                        기획/디자인/FE/BE                        |                      기획/디자인/FE/BE                       |
+|      [@yeonjin597-dev](https://github.com/yeonjin597-dev)       |        [@JeongYunLim](https://github.com/JeongYunLim)        |
 
 </div>
 
