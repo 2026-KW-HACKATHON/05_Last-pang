@@ -92,9 +92,9 @@
 
 ### 운영자
 
-| 기능           | 설명                                                  |
-| -------------- | ----------------------------------------------------- |
-| 가게 입점 승인 | 신청 목록 확인, 좌표 검증, 승인 시 고유코드 자동 발급 |
+| 기능           | 설명                                                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 가게 입점 승인 | 신청 목록 확인, 지도 링크로 좌표 검증, 승인·거절(사유). 고유코드는 승인 후 사장님이 직접 발급하므로 운영자도 모른다 |
 
 <br />
 
@@ -206,9 +206,11 @@ flowchart LR
 erDiagram
   profiles ||--o| resident_preferences : has
   profiles ||--o{ schedules : registers
-  profiles ||--o{ stores : owns
+  profiles ||--o| stores : owns
   profiles ||--o{ coupons : claims
   profiles ||--o{ push_subscriptions : subscribes
+  profiles ||--o{ push_queue : receives
+  stores ||--|| store_secrets : "code hash"
   stores ||--o{ deals : opens
   stores ||--o{ deal_rules : repeats
   deal_rules ||--o{ deals : generates
@@ -227,7 +229,11 @@ erDiagram
     text status "pending | approved | rejected"
     float lat
     float lng
+  }
+  store_secrets {
+    uuid store_id PK
     text redeem_code_hash
+    int code_version
   }
   deals {
     uuid id PK
@@ -248,18 +254,20 @@ erDiagram
   }
 ```
 
-| 테이블                 | 설명                               | 핵심 제약                                            |
-| ---------------------- | ---------------------------------- | ---------------------------------------------------- |
-| `profiles`             | 사용자와 역할                      | role은 본인이 수정 불가                              |
-| `stores`               | 가게 정보, 승인 상태               | 고유코드는 **해시로만 저장**, 주민은 조회 불가       |
-| `resident_preferences` | 요일·시간대·카테고리·반경          | 반경 200~2000m, 기본 800m                            |
-| `schedules`            | 주민 반복 일정                     | 종료 시각 > 시작 시각                                |
-| `deals`                | 실제 진행되는 딜                   | `remaining_qty ≥ 0`                                  |
-| `deal_rules`           | 요일반복딜 규칙                    | 예약 작업이 요일마다 `deals` 행을 생성               |
-| `coupons`              | 발급된 쿠폰                        | 한 사람당 한 딜에 유효 쿠폰 1개 (부분 유니크 인덱스) |
-| `redemption_attempts`  | 코드 입력 시도 기록                | 실패 횟수 제한 판단                                  |
-| `deal_events`          | 노출·조회·발급·사용·만료·푸시 클릭 | 성과 리포트 집계 원천                                |
-| `push_subscriptions`   | 웹 푸시 구독 정보                  | endpoint 유니크                                      |
+| 테이블                 | 설명                                                         | 핵심 제약                                                    |
+| ---------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `profiles`             | 사용자와 역할, 동의 시각 (카카오 첫 로그인 때 트리거가 생성) | role은 본인이 수정 불가                                      |
+| `stores`               | 가게 정보, 승인 상태                                         | 사장님 1명 = 가게 1개                                        |
+| `store_secrets`        | 가게 고유코드                                                | **해시로만 저장**, 정책이 없어 클라이언트는 누구도 조회 불가 |
+| `resident_preferences` | 요일·시간대·카테고리·반경                                    | 반경 200~2000m, 기본 800m                                    |
+| `schedules`            | 주민 반복 일정                                               | 종료 시각 > 시작 시각                                        |
+| `deals`                | 실제 진행되는 딜                                             | `remaining_qty ≥ 0`                                          |
+| `deal_rules`           | 요일반복딜 규칙                                              | 예약 작업이 요일마다 `deals` 행을 생성                       |
+| `coupons`              | 발급된 쿠폰                                                  | 한 사람당 한 딜에 유효 쿠폰 1개 (부분 유니크 인덱스)         |
+| `redemption_attempts`  | 코드 입력 시도 기록                                          | 실패 횟수 제한 판단                                          |
+| `deal_events`          | 노출·조회·발급·사용·만료·푸시 클릭                           | 성과 리포트 집계 원천                                        |
+| `push_subscriptions`   | 웹 푸시 구독 정보                                            | endpoint 유니크                                              |
+| `push_queue`           | 보낼 알림 대기열                                             | 같은 주민에게 같은 딜 알림 1번, 하루 3회 제한                |
 
 <br />
 
@@ -267,17 +275,18 @@ erDiagram
 
 ### 역할별 접근 권한 (RLS)
 
-| 테이블                              | 주민                           | 사장님                                   | 운영자               |
-| ----------------------------------- | ------------------------------ | ---------------------------------------- | -------------------- |
-| `stores`                            | 승인된 가게의 공개 정보만 (뷰) | 본인 가게 조회·수정, 승인 상태 변경 불가 | 전체 조회, 승인 처리 |
-| `deals`                             | 진행 중인 딜 조회              | 승인된 본인 가게 딜 생성·종료            | 전체 조회            |
-| `coupons`                           | 본인 쿠폰 조회, 쓰기는 RPC로만 | 본인 가게 딜의 쿠폰 조회                 | 전체 조회            |
-| `resident_preferences`, `schedules` | 본인 행만 CRUD                 | 접근 불가                                | 접근 불가            |
+| 테이블                              | 주민                           | 사장님                                                          | 운영자                  |
+| ----------------------------------- | ------------------------------ | --------------------------------------------------------------- | ----------------------- |
+| `stores`                            | 승인된 가게 조회               | 본인 가게 조회, 이름·카테고리·주소만 수정 (승인 상태 변경 불가) | 전체 조회, 승인은 RPC로 |
+| `store_secrets`                     | 접근 불가                      | 접근 불가 (발급·재발급은 RPC로만)                               | 접근 불가               |
+| `deals`                             | 진행 중인 딜 조회              | 승인된 본인 가게 딜 생성·종료                                   | 전체 조회               |
+| `coupons`                           | 본인 쿠폰 조회, 쓰기는 RPC로만 | 본인 가게 딜의 쿠폰 조회                                        | 전체 조회               |
+| `resident_preferences`, `schedules` | 본인 행만 CRUD                 | 접근 불가                                                       | 접근 불가               |
 
 ### 설계 원칙
 
 - **권한 검사는 화면이 아니라 DB가 강제합니다.** 수량과 쿠폰 상태를 바꾸는 쓰기는 클라이언트에 직접 허용하지 않고 `security definer` RPC로만 처리합니다.
-- **가게 고유코드는 주민 기기로 내려가지 않습니다.** 서버에서 `pgcrypto`의 `crypt()`로 해시 비교만 합니다.
+- **가게 고유코드는 주민 기기로 내려가지 않습니다.** 서버에서 `pgcrypto`의 `crypt()`로 해시 비교만 합니다. 원문은 사장님이 발급·재발급한 직후 한 번만 보이고, 재발급하면 이전 코드는 즉시 무효가 됩니다. 운영자 승인 응답에도 코드는 들어 있지 않습니다.
 - **무차별 대입 방지:** 같은 주민이 10분 안에 5회 틀리면 사용 처리가 차단됩니다. 가게 단위가 아닌 주민 단위로 제한해, 악의적인 한 명이 가게 전체를 막지 못하게 했습니다.
 - **위치정보 최소화:** 주민의 실시간 위치는 어떤 테이블에도 저장하지 않습니다. 추천 함수의 입력값으로만 쓰고 버리며, 푸시 매칭용 "자주 있는 곳"은 약 100m 단위로 반올림해 저장합니다.
 - **비밀키 관리:** `service_role` 키와 VAPID 비밀키는 저장소와 클라이언트에 포함하지 않습니다.
@@ -296,6 +305,10 @@ create or replace function claim_coupon(p_deal_id uuid)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare v_deal deals; v_coupon coupons;
 begin
+  if auth.uid() is null then
+    return jsonb_build_object('ok', false, 'error', 'UNAUTHENTICATED');
+  end if;
+
   select * into v_deal from deals where id = p_deal_id for update;  -- 행 잠금
 
   if not found or v_deal.status <> 'active'
@@ -311,15 +324,19 @@ begin
   end if;
 
   update deals set remaining_qty = remaining_qty - 1 where id = p_deal_id;
-  insert into coupons (deal_id, user_id, expires_at, status)
-  values (p_deal_id, auth.uid(),
-          now() + make_interval(mins => v_deal.coupon_ttl_min), 'issued')
+  insert into coupons (deal_id, user_id, expires_at)
+  values (p_deal_id, auth.uid(), now() + make_interval(mins => v_deal.coupon_ttl_min))
   returning * into v_coupon;
   insert into deal_events (deal_id, user_id, type) values (p_deal_id, auth.uid(), 'claim');
 
-  return jsonb_build_object('ok', true, 'coupon', to_jsonb(v_coupon));
+  return jsonb_build_object(
+    'ok', true,
+    'data', jsonb_build_object('coupon_id', v_coupon.id, 'expires_at', v_coupon.expires_at)
+  );
 end $$;
 ```
+
+> 상태를 바꾸는 RPC는 모두 `{ ok, data | error }` 모양으로 결과를 돌려주고, 프론트는 `unwrapRpc()`로 풀어 에러 코드를 한국어 문구로 바꿔 보여줍니다.
 
 **검증 방법:** 수량 5개 딜에 20건을 동시에 호출해 발급이 정확히 5건인지 확인합니다. → [`supabase/tests`](supabase/tests)
 
@@ -327,24 +344,31 @@ end $$;
 
 ```sql
 -- redeem_coupon 핵심부
-select c.* into v_coupon from coupons c
-  where c.id = p_coupon_id and c.user_id = auth.uid() for update;
+select * into v_coupon from coupons
+  where id = p_coupon_id and user_id = auth.uid() for update;
 
-if v_coupon.status <> 'issued' or v_coupon.expires_at < now() then
+if not found or v_coupon.status <> 'issued' or v_coupon.expires_at < now() then
   return jsonb_build_object('ok', false, 'error', 'COUPON_NOT_USABLE');
 end if;
 
+-- 코드 해시는 클라이언트가 읽을 수 없는 store_secrets에만 있다
+select d.store_id, s.redeem_code_hash into v_store_id, v_hash
+  from deals d join store_secrets s on s.store_id = d.store_id
+  where d.id = v_coupon.deal_id;
+
 -- 10분 내 5회 실패 시 차단
-if (select count(*) from redemption_attempts
-    where user_id = auth.uid() and success = false
-      and created_at > now() - interval '10 minutes') >= 5 then
+select count(*) into v_fails from redemption_attempts
+  where user_id = auth.uid() and success = false
+    and created_at > now() - interval '10 minutes';
+if v_fails >= 5 then
   return jsonb_build_object('ok', false, 'error', 'TOO_MANY_ATTEMPTS');
 end if;
 
-if v_store.redeem_code_hash <> crypt(p_code, v_store.redeem_code_hash) then
+if v_hash is null or v_hash <> crypt(p_code, v_hash) then
   insert into redemption_attempts (user_id, store_id, coupon_id, success)
-  values (auth.uid(), v_store.id, p_coupon_id, false);
-  return jsonb_build_object('ok', false, 'error', 'WRONG_CODE');
+  values (auth.uid(), v_store_id, p_coupon_id, false);
+  return jsonb_build_object('ok', false, 'error', 'WRONG_CODE',
+                            'remaining_attempts', 5 - (v_fails + 1));
 end if;
 
 update coupons set status = 'used', used_at = now() where id = p_coupon_id;
@@ -357,14 +381,16 @@ update coupons set status = 'used', used_at = now() where id = p_coupon_id;
 `pg_cron`이 1분마다 만료된 쿠폰을 정리하고, 같은 트랜잭션 안에서 수량을 되돌립니다.
 
 ```sql
-create or replace function expire_coupons() returns void language sql as $$
+create or replace function expire_coupons() returns void
+language sql security definer set search_path = public as $$
   with expired as (
     update coupons set status = 'expired'
     where status = 'issued' and expires_at < now()
     returning deal_id
   )
-  update deals d set remaining_qty = d.remaining_qty + x.cnt
-  from (select deal_id, count(*) cnt from expired group by deal_id) x
+  update deals d
+  set remaining_qty = least(d.total_qty, d.remaining_qty + x.expired_count)  -- 전체 수량을 넘지 않게
+  from (select deal_id, count(*) as expired_count from expired group by deal_id) x
   where d.id = x.deal_id;
 $$;
 
@@ -386,14 +412,14 @@ $$
 const EARTH_RADIUS_M = 6_371_000;
 const WALK_M_PER_MIN = 67; // 약 4km/h, 가정치
 
-const toRad = (deg: number) => (deg * Math.PI) / 180;
+const toRadian = (degree: number) => (degree * Math.PI) / 180;
 
 export function distanceMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const dPhi = toRad(lat2 - lat1);
-  const dLambda = toRad(lng2 - lng1);
+  const deltaLat = toRadian(lat2 - lat1);
+  const deltaLng = toRadian(lng2 - lng1);
   const a =
-    Math.sin(dPhi / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLambda / 2) ** 2;
+    Math.sin(deltaLat / 2) ** 2 +
+    Math.cos(toRadian(lat1)) * Math.cos(toRadian(lat2)) * Math.sin(deltaLng / 2) ** 2;
   return 2 * EARTH_RADIUS_M * Math.asin(Math.sqrt(a));
 }
 
