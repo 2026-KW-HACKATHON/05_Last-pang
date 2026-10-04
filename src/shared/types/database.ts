@@ -295,6 +295,9 @@ isOneToOne: true
                            },
 "my_approved_store_id":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"redeem_coupon":
+{ Args: { "p_code": string,"p_coupon_id": string }; Returns: Json
                            }
           }
           Enums: {
