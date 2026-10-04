@@ -290,6 +290,9 @@ isOneToOne: true
             "claim_coupon":
 { Args: { "p_deal_id": string }; Returns: Json
                            },
+"expire_coupons":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
