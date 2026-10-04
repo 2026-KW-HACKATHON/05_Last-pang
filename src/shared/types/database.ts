@@ -299,6 +299,9 @@ isOneToOne: true
 "generate_redeem_code":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"get_store_report":
+{ Args: { "p_from": string,"p_to": string }; Returns: Json
+                           },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
