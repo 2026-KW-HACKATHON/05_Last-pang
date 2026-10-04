@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "test": "vitest",
-    "prepare": "husky"
+    "prepare": "husky",
+    "gen:types": "supabase gen types typescript --local > src/shared/types/database.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
