@@ -287,11 +287,17 @@ isOneToOne: true
             [_ in never]: never
           }
           Functions: {
-            "claim_coupon":
+            "approve_store":
+{ Args: { "p_approve": boolean,"p_reject_reason"?: string,"p_store_id": string }; Returns: Json
+                           },
+"claim_coupon":
 { Args: { "p_deal_id": string }; Returns: Json
                            },
 "expire_coupons":
 { Args: Record<PropertyKey, never>; Returns: undefined
+                           },
+"generate_redeem_code":
+{ Args: Record<PropertyKey, never>; Returns: string
                            },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
@@ -301,6 +307,12 @@ isOneToOne: true
                            },
 "redeem_coupon":
 { Args: { "p_code": string,"p_coupon_id": string }; Returns: Json
+                           },
+"register_store":
+{ Args: { "p_address": string,"p_category": string,"p_lat": number,"p_lng": number,"p_name": string }; Returns: Json
+                           },
+"rotate_store_code":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            }
           }
           Enums: {
