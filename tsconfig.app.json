@@ -24,5 +24,7 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // sw.ts는 WebWorker 환경이라 tsconfig.sw.json이 따로 검사한다
+  "exclude": ["src/sw.ts"]
 }
