@@ -302,6 +302,9 @@ isOneToOne: true
 "generate_redeem_code":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"generate_weekly_deals":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
 "get_store_report":
 { Args: { "p_from": string,"p_to": string }; Returns: Json
                            },
