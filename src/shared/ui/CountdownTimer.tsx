@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useNow } from '@/shared/hooks/useNow';
 import { formatRemaining } from '@/shared/lib/time';
@@ -15,9 +15,18 @@ export function CountdownTimer({ expiresAt, onExpire }: CountdownTimerProps) {
   const now = useNow();
   const remainingMs = new Date(expiresAt).getTime() - now;
   const isExpired = remainingMs <= 0;
+  // 만료 후에도 useNow가 매초 다시 그리므로, 부모가 onExpire를 인라인 함수로 넘기면
+  // effect가 매초 다시 돈다. 만료 한 번에 onExpire도 한 번만 부르도록 기억한다
+  const hasExpiredRef = useRef(false);
 
   useEffect(() => {
-    if (isExpired) onExpire?.();
+    if (!isExpired) {
+      hasExpiredRef.current = false; // expiresAt이 미래로 바뀌면(새 쿠폰) 다시 알릴 수 있게
+      return;
+    }
+    if (hasExpiredRef.current) return;
+    hasExpiredRef.current = true;
+    onExpire?.();
   }, [isExpired, onExpire]);
 
   return (
