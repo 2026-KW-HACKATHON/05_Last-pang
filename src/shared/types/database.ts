@@ -299,11 +299,22 @@ isOneToOne: true
 "generate_redeem_code":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"get_store_report":
+{ Args: { "p_from": string,"p_to": string }; Returns: Json
+                           },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"log_deal_event":
+{ Args: { "p_deal_id": string,"p_type": string }; Returns: undefined
+                           },
 "my_approved_store_id":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"recommend_deals":
+{ Args: { "p_lat": number,"p_lng": number }; Returns: {
+              "category": string,"deal_id": string,"deal_price": number,"distance_m": number,"ends_at": string,"original_price": number,"remaining_qty": number,"store_id": string,"store_name": string,"title": string,"total_qty": number
+            }[]
                            },
 "redeem_coupon":
 { Args: { "p_code": string,"p_coupon_id": string }; Returns: Json
