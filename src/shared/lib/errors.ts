@@ -11,6 +11,7 @@ export type ErrorCode =
   | 'STORE_NOT_APPROVED'
   | 'ALREADY_REGISTERED'
   | 'INVALID_INPUT'
+  | 'NOT_FOUND'
   | 'NETWORK_ERROR'
   | 'UNKNOWN';
 
@@ -26,6 +27,7 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   STORE_NOT_APPROVED: '가게 승인 후 이용할 수 있어요',
   ALREADY_REGISTERED: '이미 등록한 가게가 있어요',
   INVALID_INPUT: '입력값을 확인해 주세요',
+  NOT_FOUND: '페이지를 찾을 수 없어요',
   NETWORK_ERROR: '인터넷 연결을 확인해 주세요',
   UNKNOWN: '문제가 생겼어요. 잠시 후 다시 시도해 주세요',
 };
