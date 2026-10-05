@@ -293,6 +293,9 @@ isOneToOne: true
 "claim_coupon":
 { Args: { "p_deal_id": string }; Returns: Json
                            },
+"estimate_push_targets":
+{ Args: { "p_starts_at": string }; Returns: number
+                           },
 "expire_coupons":
 { Args: Record<PropertyKey, never>; Returns: undefined
                            },
