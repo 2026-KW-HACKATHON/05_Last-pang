@@ -287,7 +287,10 @@ isOneToOne: true
             [_ in never]: never
           }
           Functions: {
-            "is_admin":
+            "claim_coupon":
+{ Args: { "p_deal_id": string }; Returns: Json
+                           },
+"is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
 "my_approved_store_id":
