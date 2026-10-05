@@ -1,20 +1,34 @@
 /* 색·모서리 토큰은 여기 한 곳에만. 코드에서는 bg-accent 처럼 이름으로만 쓴다 */
+/* 값은 로고·마스코트에서 뽑은 Stitch 디자인 시스템 기준 (팀 확정 전 임시값) */
 @import 'tailwindcss';
 
 @theme {
-  /* 메인 색은 팀 확정 전 임시값 (#E8492A 계열 vs 팀원 앱의 코랄 그라데이션) */
-  --color-accent: #e8492a;
-  --color-accent-soft: #f5941f;
+  --font-sans: 'Pretendard Variable', Pretendard, 'Noto Sans KR', system-ui, sans-serif;
+
+  --color-accent: #c61747; /* 로고 "동네" — 주요 버튼, 선택, 가격 */
+  --color-accent-pressed: #9c0633;
+  --color-accent-soft: #f2426c; /* 로고 "냠냠" — 작은 강조(LIVE, 마감 임박)만 */
+  --color-accent-tint: #fdecef; /* 배지·강조 카드 배경 */
+  --color-accent-disabled: #f3c6d1;
   --color-surface: #ffffff;
-  --color-cream: #fff8f2;
-  --color-ink: #1f1a17;
-  --color-muted: #8a817c;
+  --color-cream: #fbf7f2; /* 화면 배경 */
+  --color-ink: #1c1c1c;
+  --color-muted: #5f5f5d; /* 보조 글자 */
+  --color-faint: #9a9893; /* 3차 글자 */
+  --color-line: #ece6df; /* 카드·입력 테두리 */
+  --color-line-strong: rgb(28 28 28 / 0.4);
+  --color-busy: #efeae4;
   --color-success: #1f9d55;
+  --color-warning: #e07b00;
   --color-danger: #d93025;
+  --color-kakao: #fee500; /* 카카오 로그인 버튼 (카카오 디자인 가이드 색, 바꾸지 않음) */
   --radius-card: 16px;
+  --radius-field: 12px;
+  --radius-button: 14px;
   --radius-pill: 999px;
 }
 
 body {
-  @apply bg-cream text-ink;
+  @apply bg-cream font-sans text-ink antialiased;
+  word-break: keep-all;
 }
