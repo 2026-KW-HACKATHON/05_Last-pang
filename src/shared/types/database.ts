@@ -290,11 +290,17 @@ isOneToOne: true
             "claim_coupon":
 { Args: { "p_deal_id": string }; Returns: Json
                            },
+"expire_coupons":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
 "my_approved_store_id":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"redeem_coupon":
+{ Args: { "p_code": string,"p_coupon_id": string }; Returns: Json
                            }
           }
           Enums: {
