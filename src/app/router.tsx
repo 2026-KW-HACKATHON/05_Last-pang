@@ -14,6 +14,7 @@ import { CouponPage } from '@/features/resident/coupons/pages/CouponPage';
 import { MyCouponsPage } from '@/features/resident/coupons/pages/MyCouponsPage';
 import { DealDetailPage } from '@/features/resident/deals/pages/DealDetailPage';
 import { HomePage } from '@/features/resident/deals/pages/HomePage';
+import { MyInfoPage } from '@/features/resident/my-info/pages/MyInfoPage';
 import { NotificationsOnboardingPage } from '@/features/resident/notifications/pages/NotificationsOnboardingPage';
 import { ConsentPage } from '@/features/resident/onboarding/pages/ConsentPage';
 import { ProfilePage } from '@/features/resident/onboarding/pages/ProfilePage';
@@ -42,6 +43,8 @@ export const router = createBrowserRouter([
           { path: '/deals/:dealId', element: <DealDetailPage /> },
           { path: '/coupons', element: <MyCouponsPage /> },
           { path: '/coupons/:couponId', element: <CouponPage /> },
+          // 내 정보(화면 명세 S11): 닉네임·생활 패턴·알림·로그아웃. 하단 탭 "내 정보"
+          { path: '/me', element: <MyInfoPage /> },
           { path: '/me/schedules', element: <SchedulesPage /> },
           { path: '/owner/signup', element: <OwnerSignupPage /> },
           {
