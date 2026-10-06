@@ -8,3 +8,6 @@ export const storeSignupSchema = z.object({
   address: z.string().trim().min(1, '주소를 입력해 주세요'),
 });
 export type StoreSignupInput = z.infer<typeof storeSignupSchema>;
+
+export const storeInfoSchema = storeSignupSchema.pick({ name: true, category: true });
+export type StoreInfoInput = z.infer<typeof storeInfoSchema>;

@@ -54,6 +54,22 @@ export async function fetchStoresByStatus(status: StoreStatus): Promise<StoreApp
   });
 }
 
+/** 탭 숫자용: 상태별 가게 수 (행은 받지 않고 개수만) */
+export async function fetchStoreCounts(): Promise<Record<StoreStatus, number>> {
+  const statuses: StoreStatus[] = ['pending', 'approved', 'rejected'];
+  const results = await Promise.all(
+    statuses.map((status) =>
+      supabase.from('stores').select('id', { count: 'exact', head: true }).eq('status', status),
+    ),
+  );
+  const counts = { pending: 0, approved: 0, rejected: 0 };
+  results.forEach((result, index) => {
+    if (result.error) throw toAppError(result.error);
+    counts[statuses[index] as StoreStatus] = result.count ?? 0;
+  });
+  return counts;
+}
+
 export async function approveStore(input: {
   storeId: string;
   isApproved: boolean;

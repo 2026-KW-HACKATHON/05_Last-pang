@@ -2,11 +2,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ROOT_KEYS } from '@/shared/constants/queryKeys';
 
-import { approveStore, fetchStoresByStatus, type StoreStatus } from './api';
+import { approveStore, fetchStoreCounts, fetchStoresByStatus, type StoreStatus } from './api';
 
 export const adminStoreKeys = {
   byStatus: (status: StoreStatus) => [...ROOT_KEYS.admin, 'stores', status] as const,
+  counts: [...ROOT_KEYS.admin, 'stores', 'counts'] as const,
 };
+
+export function useStoreCounts() {
+  return useQuery({ queryKey: adminStoreKeys.counts, queryFn: fetchStoreCounts });
+}
 
 export function useStoresByStatus(status: StoreStatus) {
   return useQuery({
