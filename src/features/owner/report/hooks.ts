@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ROOT_KEYS } from '@/shared/constants/queryKeys';
 import { toKstDateString } from '@/shared/lib/time';
 
-import { fetchStoreReport } from './api';
+import { fetchDealPerformance, fetchStoreReport } from './api';
 
 export function useStoreReport(from: string, to: string) {
   return useQuery({
@@ -25,4 +25,12 @@ const PERIOD_DAYS: Record<ReportPeriod, number> = { today: 1, week: 7, month: 30
 export function periodRange(period: ReportPeriod, now = new Date()): { from: string; to: string } {
   const from = new Date(now.getTime() - (PERIOD_DAYS[period] - 1) * 86_400_000);
   return { from: toKstDateString(from), to: toKstDateString(now) };
+}
+
+export function useDealPerformance(storeId: string, from: string, to: string) {
+  return useQuery({
+    queryKey: [...ROOT_KEYS.report, 'deals', storeId, from, to] as const,
+    queryFn: () => fetchDealPerformance(storeId, from, to),
+    enabled: Boolean(storeId),
+  });
 }
