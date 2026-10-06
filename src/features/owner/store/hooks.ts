@@ -3,7 +3,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/app/useAuth';
 import { ROOT_KEYS } from '@/shared/constants/queryKeys';
 
-import { fetchMyStore, registerStore, rotateStoreCode } from './api';
+import { fetchMyStore, registerStore, rotateStoreCode, updateStoreInfo } from './api';
+
+import type { StoreInfoInput } from './schema';
 
 export const storeKeys = { mine: [...ROOT_KEYS.store, 'mine'] as const };
 
@@ -25,4 +27,12 @@ export function useRegisterStore() {
 
 export function useRotateStoreCode() {
   return useMutation({ mutationFn: rotateStoreCode });
+}
+
+export function useUpdateStoreInfo(storeId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: StoreInfoInput) => updateStoreInfo(storeId, input),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ROOT_KEYS.store }),
+  });
 }

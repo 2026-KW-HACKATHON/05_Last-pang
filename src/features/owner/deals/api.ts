@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { toAppError } from '@/shared/lib/errors';
 import { supabase } from '@/shared/lib/supabase';
 
+import { kstTodayWindow } from '../lib/period';
+
 import type { DealFormInput, WeeklyDealInput } from './schema';
 
 export async function createDeal(
@@ -33,6 +35,7 @@ export async function createDeal(
 
 export interface OwnerDeal {
   id: string;
+  type: 'instant' | 'weekly';
   title: string;
   originalPrice: number;
   dealPrice: number;
@@ -42,25 +45,63 @@ export interface OwnerDeal {
   endsAt: string;
 }
 
-export async function fetchMyActiveDeals(storeId: string): Promise<OwnerDeal[]> {
+const DEAL_COLUMNS =
+  'id, type, title, original_price, deal_price, remaining_qty, total_qty, starts_at, ends_at';
+
+interface DealRow {
+  id: string;
+  type: string;
+  title: string;
+  original_price: number;
+  deal_price: number;
+  remaining_qty: number;
+  total_qty: number;
+  starts_at: string;
+  ends_at: string;
+}
+
+const toOwnerDeal = (row: DealRow): OwnerDeal => ({
+  id: row.id,
+  type: row.type === 'weekly' ? 'weekly' : 'instant',
+  title: row.title,
+  originalPrice: row.original_price,
+  dealPrice: row.deal_price,
+  remainingQty: row.remaining_qty,
+  totalQty: row.total_qty,
+  startsAt: row.starts_at,
+  endsAt: row.ends_at,
+});
+
+/** 지금 진행 중인 딜 (시작했고 아직 안 끝난 것) */
+export async function fetchMyActiveDeals(storeId: string, now = new Date()): Promise<OwnerDeal[]> {
   const { data, error } = await supabase
     .from('deals')
-    .select('id, title, original_price, deal_price, remaining_qty, total_qty, starts_at, ends_at')
+    .select(DEAL_COLUMNS)
     .eq('store_id', storeId)
     .eq('status', 'active')
-    .gt('ends_at', new Date().toISOString())
+    .lte('starts_at', now.toISOString())
+    .gt('ends_at', now.toISOString())
     .order('ends_at');
   if (error) throw toAppError(error);
-  return data.map((row) => ({
-    id: row.id,
-    title: row.title,
-    originalPrice: row.original_price,
-    dealPrice: row.deal_price,
-    remainingQty: row.remaining_qty,
-    totalQty: row.total_qty,
-    startsAt: row.starts_at,
-    endsAt: row.ends_at,
-  }));
+  return data.map(toOwnerDeal);
+}
+
+/** 오늘 안에 시작할 예정인 딜. 요일 반복딜은 밤 12시 5분에 그날 딜이 미리 만들어진다 (6-5 cron) */
+export async function fetchTodayScheduledDeals(
+  storeId: string,
+  now = new Date(),
+): Promise<OwnerDeal[]> {
+  const today = kstTodayWindow(now);
+  const { data, error } = await supabase
+    .from('deals')
+    .select(DEAL_COLUMNS)
+    .eq('store_id', storeId)
+    .eq('status', 'active')
+    .gt('starts_at', now.toISOString())
+    .lt('starts_at', today.to)
+    .order('starts_at');
+  if (error) throw toAppError(error);
+  return data.map(toOwnerDeal);
 }
 
 export interface DealCouponCounts {
@@ -125,31 +166,64 @@ export async function createDealRule(storeId: string, input: WeeklyDealInput): P
 export interface DealRule {
   id: string;
   title: string;
+  originalPrice: number;
   dealPrice: number;
   repeatDays: number[];
   startTime: string; // "15:00"
   endTime: string;
   qty: number;
+  couponTtlMin: number;
   isActive: boolean;
 }
+
+const RULE_COLUMNS =
+  'id, title, original_price, deal_price, repeat_days, start_time, end_time, qty, coupon_ttl_min, is_active';
+
+interface RuleRow {
+  id: string;
+  title: string;
+  original_price: number;
+  deal_price: number;
+  repeat_days: number[];
+  start_time: string;
+  end_time: string;
+  qty: number;
+  coupon_ttl_min: number;
+  is_active: boolean;
+}
+
+const toDealRule = (row: RuleRow): DealRule => ({
+  id: row.id,
+  title: row.title,
+  originalPrice: row.original_price,
+  dealPrice: row.deal_price,
+  repeatDays: row.repeat_days,
+  startTime: row.start_time.slice(0, 5), // DB time "15:00:00" → "15:00"
+  endTime: row.end_time.slice(0, 5),
+  qty: row.qty,
+  couponTtlMin: row.coupon_ttl_min,
+  isActive: row.is_active,
+});
 
 export async function fetchDealRules(storeId: string): Promise<DealRule[]> {
   const { data, error } = await supabase
     .from('deal_rules')
-    .select('id, title, deal_price, repeat_days, start_time, end_time, qty, is_active')
+    .select(RULE_COLUMNS)
     .eq('store_id', storeId)
     .order('created_at');
   if (error) throw toAppError(error);
-  return data.map((row) => ({
-    id: row.id,
-    title: row.title,
-    dealPrice: row.deal_price,
-    repeatDays: row.repeat_days,
-    startTime: row.start_time.slice(0, 5), // DB time "15:00:00" → "15:00"
-    endTime: row.end_time.slice(0, 5),
-    qty: row.qty,
-    isActive: row.is_active,
-  }));
+  return data.map(toDealRule);
+}
+
+/** 반복딜 하나. 다른 가게 규칙이거나 지워졌으면 null (RLS로 안 보임) */
+export async function fetchDealRule(ruleId: string): Promise<DealRule | null> {
+  const { data, error } = await supabase
+    .from('deal_rules')
+    .select(RULE_COLUMNS)
+    .eq('id', ruleId)
+    .maybeSingle();
+  if (error) throw toAppError(error);
+  return data ? toDealRule(data) : null;
 }
 
 export async function setDealRuleActive(ruleId: string, isActive: boolean): Promise<void> {
@@ -157,5 +231,33 @@ export async function setDealRuleActive(ruleId: string, isActive: boolean): Prom
     .from('deal_rules')
     .update({ is_active: isActive })
     .eq('id', ruleId);
+  if (error) throw toAppError(error);
+}
+
+/** 반복딜 수정. 오늘 이미 만들어진 딜은 그대로, 내일 만들어지는 딜부터 바뀐다 */
+export async function updateDealRule(
+  ruleId: string,
+  input: WeeklyDealInput & { isActive: boolean },
+): Promise<void> {
+  const { error } = await supabase
+    .from('deal_rules')
+    .update({
+      title: input.title,
+      original_price: input.originalPrice,
+      deal_price: input.dealPrice,
+      repeat_days: input.repeatDays,
+      start_time: input.startTime,
+      end_time: input.endTime,
+      qty: input.qty,
+      coupon_ttl_min: input.couponTtlMin,
+      is_active: input.isActive,
+    })
+    .eq('id', ruleId);
+  if (error) throw toAppError(error);
+}
+
+/** 반복딜 삭제. 이미 만들어진 딜은 rule_id만 비워지고 그대로 진행된다 (on delete set null) */
+export async function deleteDealRule(ruleId: string): Promise<void> {
+  const { error } = await supabase.from('deal_rules').delete().eq('id', ruleId);
   if (error) throw toAppError(error);
 }
