@@ -48,7 +48,8 @@ export function MyInfoPage() {
     (sum, coupon) => sum + coupon.originalPrice - coupon.dealPrice,
     0,
   );
-  const isKakao = session?.user.app_metadata.provider === 'kakao';
+  const isKakao =
+    (session?.user.app_metadata as { provider?: string } | undefined)?.provider === 'kakao';
 
   const handleSignOutConfirm = () => {
     signOut.mutate(undefined, { onSuccess: () => navigate('/login', { replace: true }) });

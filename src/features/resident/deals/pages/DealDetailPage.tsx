@@ -40,7 +40,7 @@ export function DealDetailPage() {
   const geo = useGeolocation();
   const isOnline = useIsOnline();
   const now = useNow();
-  useRecordDealView(dealId, searchParams.get('src') === 'push');
+  useRecordDealView(dealId, searchParams.get('src') === 'push', Boolean(deal.data));
   // useNow가 매초 다시 그리므로 Toast의 타이머가 매초 다시 시작되지 않게 같은 함수를 넘긴다
   const handleToastClose = useCallback(() => setToastMessage(null), []);
 

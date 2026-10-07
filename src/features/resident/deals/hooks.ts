@@ -88,11 +88,12 @@ export function useClaimCoupon(dealId: string) {
   });
 }
 
-/** 상세 조회(또는 푸시 클릭) 기록을 화면에 들어올 때 한 번만 남긴다 */
-export function useRecordDealView(dealId: string, isFromPush: boolean) {
+/** 상세 조회(또는 푸시 클릭) 기록을 딜을 불러온 뒤 한 번만 남긴다 (없는 딜이면 남기지 않음) */
+export function useRecordDealView(dealId: string, isFromPush: boolean, isDealLoaded: boolean) {
   useEffect(() => {
+    if (!isDealLoaded) return;
     createDealEvent(dealId, isFromPush ? 'push_click' : 'detail_view').catch(() => {
       // 통계용 기록이라 실패해도 사용자에게 알리지 않는다
     });
-  }, [dealId, isFromPush]);
+  }, [dealId, isFromPush, isDealLoaded]);
 }
