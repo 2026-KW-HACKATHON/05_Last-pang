@@ -13,7 +13,7 @@ export function CouponExpired({ coupon }: CouponExpiredProps) {
     <section className="flex flex-col items-center pt-10 text-center">
       <Mascot pose="wave" size={112} />
       <h2 className="mt-4 text-2xl font-bold">쿠폰 시간이 지났어요</h2>
-      <p className="mt-2 leading-relaxed text-sub">
+      <p className="mt-2 leading-relaxed text-muted">
         쿠폰은 자동으로 반환됐어요.
         <br />
         딜이 남아 있으면 다시 받을 수 있어요.
@@ -21,11 +21,11 @@ export function CouponExpired({ coupon }: CouponExpiredProps) {
       <div className="mt-6 w-full rounded-card p-4 text-left ring-1 ring-line">
         <div className="flex items-center justify-between">
           <p className="font-bold">{coupon.storeName}</p>
-          <span className="rounded-pill bg-cream px-2.5 py-0.5 text-xs font-semibold text-sub">
+          <span className="rounded-pill bg-gray px-2.5 py-0.5 text-xs font-semibold text-muted">
             만료
           </span>
         </div>
-        <p className="mt-1 text-sm text-sub">
+        <p className="mt-1 text-sm text-muted">
           {coupon.title} · {formatPrice(coupon.dealPrice)}
         </p>
       </div>

@@ -24,7 +24,7 @@ export function DealList({ deals, sortLabel, isDistanceKnown, onSortClick }: Dea
         <button
           type="button"
           onClick={onSortClick}
-          className="flex items-center gap-0.5 text-sm text-sub"
+          className="flex items-center gap-0.5 text-sm text-muted"
         >
           {sortLabel}
           <Icon name="sort" size={16} />

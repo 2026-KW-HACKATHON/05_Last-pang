@@ -14,7 +14,7 @@ export function EmptyState({ title, description, pose = 'wave', action }: EmptyS
     <div className="flex flex-col items-center px-8 py-12 text-center">
       <Mascot pose={pose} size={112} />
       <p className="mt-4 text-lg font-bold">{title}</p>
-      {description && <p className="mt-2 text-sm text-sub">{description}</p>}
+      {description && <p className="mt-2 text-sm text-muted">{description}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>
   );

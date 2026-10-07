@@ -10,7 +10,7 @@ interface CategoryIconProps {
 export function CategoryIcon({ category, isMuted = false }: CategoryIconProps) {
   return (
     <span
-      className={`flex size-12 shrink-0 items-center justify-center rounded-xl ${isMuted ? 'bg-surface text-muted ring-1 ring-line' : 'bg-accent-soft text-accent'}`}
+      className={`flex size-12 shrink-0 items-center justify-center rounded-xl ${isMuted ? 'bg-surface text-faint ring-1 ring-line' : 'bg-accent-tint text-accent'}`}
     >
       <Icon name={category} size={26} />
     </span>

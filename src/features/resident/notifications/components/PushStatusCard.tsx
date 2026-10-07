@@ -33,12 +33,12 @@ export function PushStatusCard({ permission, isIosTab }: PushStatusCardProps) {
         </Link>
       )}
       {permission === 'denied' && (
-        <p className="mt-2 text-sm text-sub">
+        <p className="mt-2 text-sm text-muted">
           브라우저 설정 &gt; 사이트 설정 &gt; 알림에서 허용해 주세요. 알림 없이도 홈에서 딜을 볼 수
           있어요.
         </p>
       )}
-      <p className="mt-3 text-xs text-muted">
+      <p className="mt-3 text-xs text-faint">
         하루 최대 3건, 같은 가게는 하루 1건만 보내요. 밤 9시 ~ 아침 7시에는 보내지 않아요.
       </p>
     </section>

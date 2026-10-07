@@ -20,11 +20,11 @@ export function ConsentRow({
       <input type="checkbox" checked={isChecked} onChange={onToggle} className="sr-only" />
       <CheckCircle isChecked={isChecked} />
       <span className="flex-1">
-        <span className={isRequired ? 'text-accent' : 'text-sub'}>
+        <span className={isRequired ? 'text-accent' : 'text-muted'}>
           [{isRequired ? '필수' : '선택'}]
         </span>{' '}
         {label}
-        {description && <span className="mt-0.5 block text-sm text-sub">{description}</span>}
+        {description && <span className="mt-0.5 block text-sm text-muted">{description}</span>}
       </span>
     </label>
   );

@@ -18,7 +18,7 @@ export function CategoryPicker({ selected, onToggle }: CategoryPickerProps) {
             type="button"
             aria-pressed={isSelected}
             onClick={() => onToggle(category.value)}
-            className={`relative flex h-16 flex-col items-center justify-center gap-1 rounded-xl text-sm ${isSelected ? 'bg-accent-soft text-accent' : 'bg-cream text-sub'}`}
+            className={`relative flex h-16 flex-col items-center justify-center gap-1 rounded-xl text-sm ${isSelected ? 'bg-accent-tint text-accent' : 'bg-gray text-muted'}`}
           >
             {isSelected && (
               <span className="absolute top-1.5 right-1.5 flex size-4 items-center justify-center rounded-full bg-accent text-white">

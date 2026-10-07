@@ -21,7 +21,7 @@ export function ResidentTabBar() {
             to={tab.to}
             end={tab.to === '/'}
             className={({ isActive }) =>
-              `relative flex h-16 flex-col items-center justify-center gap-1 text-xs ${isActive ? 'text-accent' : 'text-sub'}`
+              `relative flex h-16 flex-col items-center justify-center gap-1 text-xs ${isActive ? 'text-accent' : 'text-muted'}`
             }
           >
             {({ isActive }) => (

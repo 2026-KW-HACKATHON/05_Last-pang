@@ -22,20 +22,20 @@ export function DealInfoRows({ deal, isEnded }: DealInfoRowsProps) {
   return (
     <dl className="mt-6 space-y-5 text-sm">
       <div className="flex items-center justify-between">
-        <dt className="text-sub">진행 시간</dt>
-        <dd className={`font-semibold ${isEnded ? 'text-muted line-through' : 'text-base'}`}>
+        <dt className="text-muted">진행 시간</dt>
+        <dd className={`font-semibold ${isEnded ? 'text-faint line-through' : 'text-base'}`}>
           {toDayLabel(deal.startsAt)} {timeRange}
         </dd>
       </div>
       <div className="flex items-center justify-between">
-        <dt className="text-sub">쿠폰 유효시간</dt>
+        <dt className="text-muted">쿠폰 유효시간</dt>
         <dd className="flex items-center gap-1 font-bold text-accent">
           <Icon name="clock" size={16} />
           받은 뒤 {deal.couponTtlMin}분
         </dd>
       </div>
       <div className="flex items-start justify-between gap-4">
-        <dt className="shrink-0 text-sub">가게 주소</dt>
+        <dt className="shrink-0 text-muted">가게 주소</dt>
         <dd className="text-right">{deal.address}</dd>
       </div>
     </dl>

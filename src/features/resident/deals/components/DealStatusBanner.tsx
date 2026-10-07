@@ -15,13 +15,13 @@ interface DealStatusBannerProps {
 export function DealStatusBanner({ deal, phase, myCoupon }: DealStatusBannerProps) {
   if (myCoupon?.status === 'issued') {
     return (
-      <div className="mb-5 flex gap-3 rounded-card bg-accent-soft p-4">
+      <div className="mb-5 flex gap-3 rounded-card bg-accent-tint p-4">
         <span className="flex size-6 items-center justify-center rounded-full bg-accent text-white">
           <Icon name="check" size={14} strokeWidth={3} />
         </span>
         <div className="text-sm">
           <p className="text-base font-semibold">이미 받은 쿠폰이 있어요</p>
-          <p className="mt-1 text-sub">
+          <p className="mt-1 text-muted">
             남은 시간 <CountdownTimer expiresAt={myCoupon.expiresAt} /> 안에 매장에 방문해 주세요
           </p>
         </div>
@@ -31,8 +31,8 @@ export function DealStatusBanner({ deal, phase, myCoupon }: DealStatusBannerProp
   const grayText = toGrayText(deal, phase, myCoupon);
   if (!grayText) return null;
   return (
-    <p className="mb-5 flex items-center gap-2 rounded-pill bg-cream px-4 py-2 text-sm text-sub">
-      <span className="size-1.5 rounded-full bg-muted" />
+    <p className="mb-5 flex items-center gap-2 rounded-pill bg-gray px-4 py-2 text-sm text-muted">
+      <span className="size-1.5 rounded-full bg-faint" />
       {grayText}
     </p>
   );

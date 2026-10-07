@@ -8,7 +8,7 @@ interface CheckCircleProps {
 export function CheckCircle({ isChecked }: CheckCircleProps) {
   return (
     <span
-      className={`flex size-6 shrink-0 items-center justify-center rounded-full ${isChecked ? 'bg-accent text-white' : 'bg-cream text-line'}`}
+      className={`flex size-6 shrink-0 items-center justify-center rounded-full ${isChecked ? 'bg-accent text-white' : 'bg-gray text-line'}`}
     >
       <Icon name="check" size={14} strokeWidth={3} />
     </span>
