@@ -1,24 +1,33 @@
 import { useCallback, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 
+import { POLICY } from '@/shared/constants/policy';
 import { useGeolocation } from '@/shared/hooks/useGeolocation';
 import { useNow } from '@/shared/hooks/useNow';
 import { toAppError } from '@/shared/lib/errors';
 import { distanceMeters } from '@/shared/lib/geo';
-import { EmptyState } from '@/shared/ui/EmptyState';
 import { ErrorState } from '@/shared/ui/ErrorState';
 import { LoadingState } from '@/shared/ui/LoadingState';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { Toast } from '@/shared/ui/Toast';
 
 import { ClaimBar } from '../components/ClaimBar';
+import { CouponLinkBar } from '../components/CouponLinkBar';
+import { DealHeaderActions } from '../components/DealHeaderActions';
 import { DealInfoRows } from '../components/DealInfoRows';
+import { DealNotFound } from '../components/DealNotFound';
 import { DealNotice } from '../components/DealNotice';
 import { DealStatusBanner } from '../components/DealStatusBanner';
 import { DealSummarySection } from '../components/DealSummarySection';
-import { ShareButton } from '../components/ShareButton';
 import { toDealPhase } from '../dealStatus';
-import { useClaimCoupon, useDeal, useMyCouponForDeal, useRecordDealView } from '../hooks';
+import {
+  useClaimCoupon,
+  useDeal,
+  useMyCouponForDeal,
+  useMyDailyUsage,
+  useRecordDealView,
+} from '../hooks';
+import { useIsOnline } from '../useIsOnline';
 
 export function DealDetailPage() {
   const { dealId = '' } = useParams();
@@ -26,8 +35,10 @@ export function DealDetailPage() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const deal = useDeal(dealId);
   const myCoupon = useMyCouponForDeal(dealId);
+  const dailyUsage = useMyDailyUsage();
   const claim = useClaimCoupon(dealId);
   const geo = useGeolocation();
+  const isOnline = useIsOnline();
   const now = useNow();
   useRecordDealView(dealId, searchParams.get('src') === 'push');
   // useNow가 매초 다시 그리므로 Toast의 타이머가 매초 다시 시작되지 않게 같은 함수를 넘긴다
@@ -42,14 +53,7 @@ export function DealDetailPage() {
     <PageHeader
       title="딜 상세"
       hasBack
-      right={
-        deal.data && (
-          <ShareButton
-            title={deal.data.title}
-            onCopied={() => setToastMessage('링크를 복사했어요')}
-          />
-        )
-      }
+      right={deal.data && <DealHeaderActions deal={deal.data} onToast={setToastMessage} />}
     />
   );
 
@@ -64,7 +68,7 @@ export function DealDetailPage() {
 
   if (deal.isPending || myCoupon.isPending) {
     return (
-      <main className="mx-auto min-h-dvh max-w-[480px]">
+      <main className="mx-auto min-h-dvh max-w-[480px] bg-surface">
         {header}
         <LoadingState />
       </main>
@@ -73,18 +77,10 @@ export function DealDetailPage() {
   if (deal.isError || myCoupon.isError) {
     const isNotFound = deal.isError && toAppError(deal.error).code === 'NOT_FOUND';
     return (
-      <main className="mx-auto min-h-dvh max-w-[480px]">
+      <main className="mx-auto min-h-dvh max-w-[480px] bg-surface">
         {header}
         {isNotFound ? (
-          <EmptyState
-            title="이미 끝났거나 볼 수 없는 딜이에요"
-            description="홈에서 지금 진행 중인 다른 딜을 찾아보세요"
-            action={
-              <Link to="/" className="rounded-xl bg-accent px-6 py-3 font-semibold text-white">
-                홈으로
-              </Link>
-            }
-          />
+          <DealNotFound />
         ) : (
           <ErrorState
             error={deal.error ?? myCoupon.error}
@@ -99,24 +95,34 @@ export function DealDetailPage() {
   const distanceM = geo.isFallback
     ? null
     : distanceMeters(geo.lat, geo.lng, deal.data.storeLat, deal.data.storeLng);
+  const claimError = claim.isError ? toAppError(claim.error) : null;
+  // 오늘 사용 한도: 미리 읽은 횟수 또는 받기 실패(DAILY_LIMIT_REACHED)로 안다
+  const usage = dailyUsage.data;
+  const isLimitReached =
+    claimError?.code === 'DAILY_LIMIT_REACHED' || (!!usage && usage.usedToday >= usage.limit);
 
   return (
     <main className="mx-auto min-h-dvh max-w-[480px] bg-surface">
       {header}
-      <div className="px-5 pt-5">
+      <div className="px-5 pt-5 pb-16">
+        <DealSummarySection deal={deal.data} phase={phase} distanceM={distanceM} />
         <DealStatusBanner deal={deal.data} phase={phase} myCoupon={activeCoupon} />
-        <DealSummarySection deal={deal.data} distanceM={distanceM} isDimmed={phase !== 'active'} />
         <DealInfoRows deal={deal.data} isEnded={phase === 'ended'} />
         <DealNotice couponTtlMin={deal.data.couponTtlMin} />
       </div>
-      <ClaimBar
-        deal={deal.data}
-        phase={phase}
-        myCoupon={activeCoupon}
-        isClaiming={claim.isPending}
-        errorMessage={claim.isError ? toAppError(claim.error).message : null}
-        onClaim={handleClaim}
-      />
+      {activeCoupon ? (
+        <CouponLinkBar coupon={activeCoupon} isJustClaimed={claim.isSuccess} />
+      ) : (
+        <ClaimBar
+          deal={deal.data}
+          phase={phase}
+          dailyLimit={isLimitReached ? (usage?.limit ?? POLICY.residentDailyRedeem) : null}
+          isOnline={isOnline}
+          isClaiming={claim.isPending}
+          errorMessage={claimError?.message ?? null}
+          onClaim={handleClaim}
+        />
+      )}
       {toastMessage && <Toast message={toastMessage} onClose={handleToastClose} />}
     </main>
   );

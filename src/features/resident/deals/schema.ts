@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 import { categorySchema } from '@/shared/lib/domainSchema';
-const dealStatusSchema = z.enum(['active', 'closed']);
+
+const dealStatusSchema = z.enum(['active', 'paused', 'closed']);
 
 export const recommendedDealRowSchema = z.object({
   deal_id: z.string(),
@@ -13,7 +14,9 @@ export const recommendedDealRowSchema = z.object({
   deal_price: z.number(),
   remaining_qty: z.number(),
   total_qty: z.number(),
+  starts_at: z.string(),
   ends_at: z.string(),
+  coupon_ttl_min: z.number(),
   distance_m: z.number(),
 });
 
@@ -53,3 +56,10 @@ export const dealLiveRowSchema = z.object({
   remaining_qty: z.number(),
   status: dealStatusSchema,
 });
+
+export const dailyUsageSchema = z.object({
+  used_today: z.number(),
+  limit: z.number(),
+});
+
+export const reportResultSchema = z.object({ report_count: z.number() });

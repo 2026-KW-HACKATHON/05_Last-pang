@@ -9,10 +9,12 @@ interface DealListProps {
   deals: DealSummary[];
   sortLabel: string;
   isDistanceKnown: boolean;
+  nowMs: number;
   onSortClick: () => void;
 }
 
-export function DealList({ deals, sortLabel, isDistanceKnown, onSortClick }: DealListProps) {
+export function DealList(props: DealListProps) {
+  const { deals, sortLabel, isDistanceKnown, nowMs, onSortClick } = props;
   const activeCount = deals.filter((deal) => deal.remainingQty > 0).length;
 
   return (
@@ -34,7 +36,7 @@ export function DealList({ deals, sortLabel, isDistanceKnown, onSortClick }: Dea
         {deals.map((deal) => (
           <li key={deal.dealId}>
             {deal.remainingQty > 0 ? (
-              <DealCard deal={deal} isDistanceKnown={isDistanceKnown} />
+              <DealCard deal={deal} isDistanceKnown={isDistanceKnown} nowMs={nowMs} />
             ) : (
               <SoldOutDealCard deal={deal} isDistanceKnown={isDistanceKnown} />
             )}

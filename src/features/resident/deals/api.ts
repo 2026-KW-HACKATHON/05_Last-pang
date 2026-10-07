@@ -16,8 +16,16 @@ import {
 import type { ClaimResult, DealDetail, DealLiveFields, DealSummary, MyDealCoupon } from './types';
 
 /** 반경 안 진행 중 딜. 위치는 계산에만 쓰고 저장하지 않는다 (컨벤션 10장) */
-export async function fetchRecommendedDeals(lat: number, lng: number): Promise<DealSummary[]> {
-  const { data, error } = await supabase.rpc('recommend_deals', { p_lat: lat, p_lng: lng });
+export async function fetchRecommendedDeals(
+  lat: number,
+  lng: number,
+  radiusM: number,
+): Promise<DealSummary[]> {
+  const { data, error } = await supabase.rpc('recommend_deals', {
+    p_lat: lat,
+    p_lng: lng,
+    p_radius_m: radiusM,
+  });
   if (error) throw toAppError(error);
   const rows = z.array(recommendedDealRowSchema).safeParse(data);
   if (!rows.success) throw new AppError('UNKNOWN');
@@ -31,7 +39,9 @@ export async function fetchRecommendedDeals(lat: number, lng: number): Promise<D
     dealPrice: row.deal_price,
     remainingQty: row.remaining_qty,
     totalQty: row.total_qty,
+    startsAt: row.starts_at,
     endsAt: row.ends_at,
+    couponTtlMin: row.coupon_ttl_min,
     distanceM: row.distance_m,
   }));
 }
@@ -91,12 +101,6 @@ export async function claimCoupon(dealId: string): Promise<ClaimResult> {
   const { data, error } = await supabase.rpc('claim_coupon', { p_deal_id: dealId });
   const result = unwrapRpc(data, error, claimResultSchema);
   return { couponId: result.coupon_id, expiresAt: result.expires_at };
-}
-
-/** 행동 기록은 실패해도 화면에 영향을 주지 않는다 (호출하는 쪽에서 오류를 무시) */
-export async function createDealEvent(dealId: string, type: 'detail_view' | 'push_click') {
-  const { error } = await supabase.rpc('log_deal_event', { p_deal_id: dealId, p_type: type });
-  if (error) throw toAppError(error);
 }
 
 /** 남은 수량·종료를 실시간으로 받는다. 반환값은 구독 해제 함수 */
