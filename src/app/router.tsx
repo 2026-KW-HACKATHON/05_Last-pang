@@ -34,7 +34,6 @@ import { HomePage } from '@/features/resident/deals/pages/HomePage';
 import { InstallGuidePage } from '@/features/resident/install/pages/InstallGuidePage';
 import { TermsPage } from '@/features/resident/legal/pages/TermsPage';
 import { MyInfoPage } from '@/features/resident/my-info/pages/MyInfoPage';
-import { NicknameEditPage } from '@/features/resident/my-info/pages/NicknameEditPage';
 import { WithdrawPage } from '@/features/resident/my-info/pages/WithdrawPage';
 import { NotificationSettingsPage } from '@/features/resident/notifications/pages/NotificationSettingsPage';
 import { NotificationsOnboardingPage } from '@/features/resident/notifications/pages/NotificationsOnboardingPage';
@@ -49,12 +48,14 @@ import { SchedulesPage } from '@/features/resident/schedules/pages/SchedulesPage
 import { HelpPage } from './HelpPage';
 import { RequireAuth } from './RequireAuth';
 import { RequireRole } from './RequireRole';
+import { RootLayout } from './RootLayout';
 import { RouteErrorPage } from './RouteErrorPage';
 
 // 컨벤션 6장 라우트 표와 1:1. 경로를 추가하면 표도 고치고, 기능 PR이 아닌 작은 공동 PR로 올린다
 // 화면 번호(R·O·A·C)는 피그마 "동네냠냠 UI 최종"(10/7) 기준
 export const router = createBrowserRouter([
   {
+    element: <RootLayout />,
     errorElement: <RouteErrorPage />,
     children: [
       { path: '/login', element: <LoginPage /> },
@@ -76,7 +77,7 @@ export const router = createBrowserRouter([
           { path: '/notifications', element: <NotificationsPage /> },
           { path: '/notifications/settings', element: <NotificationSettingsPage /> },
           { path: '/me', element: <MyInfoPage /> },
-          { path: '/me/nickname', element: <NicknameEditPage /> },
+          { path: '/me/nickname', element: <ProfilePage mode="edit" /> },
           { path: '/me/preferences', element: <PreferencesPage /> },
           { path: '/me/location', element: <BaseLocationPage /> },
           { path: '/me/schedules', element: <SchedulesPage /> },

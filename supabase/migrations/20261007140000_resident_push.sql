@@ -173,3 +173,17 @@ begin
       'select public.enqueue_deal_pushes(); select public.invoke_push_sender();');
   end if;
 end $$;
+
+-- ───── 4) 공유받은 딜 미리보기 (C3 로그인이 필요해요) ─────
+-- 로그인 전에도 친구가 보낸 링크의 딜 이름·가격·가게 이름만 보여준다 (주소·좌표·수량은 주지 않는다)
+create or replace function public.get_shared_deal_preview(p_deal_id uuid)
+returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'store_name', s.name, 'category', s.category, 'title', d.title,
+    'original_price', d.original_price, 'deal_price', d.deal_price, 'ends_at', d.ends_at)
+  from deals d join stores s on s.id = d.store_id and s.status = 'approved'
+  where d.id = p_deal_id;
+$$;
+revoke all on function public.get_shared_deal_preview(uuid) from public;
+grant execute on function public.get_shared_deal_preview(uuid) to anon, authenticated;

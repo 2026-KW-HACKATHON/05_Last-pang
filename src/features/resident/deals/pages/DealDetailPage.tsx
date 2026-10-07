@@ -10,6 +10,7 @@ import { ErrorState } from '@/shared/ui/ErrorState';
 import { LoadingState } from '@/shared/ui/LoadingState';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { Toast } from '@/shared/ui/Toast';
+import { useIsOnline } from '@/shared/hooks/useIsOnline';
 
 import { ClaimBar } from '../components/ClaimBar';
 import { CouponLinkBar } from '../components/CouponLinkBar';
@@ -27,7 +28,6 @@ import {
   useMyDailyUsage,
   useRecordDealView,
 } from '../hooks';
-import { useIsOnline } from '../useIsOnline';
 
 export function DealDetailPage() {
   const { dealId = '' } = useParams();

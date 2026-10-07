@@ -12,4 +12,11 @@ describe('postLoginPath', () => {
     expect(postLoginPath('resident', true)).toBe('/');
     expect(postLoginPath(null, true)).toBe('/');
   });
+  it('공유받은 딜은 동의를 마친 주민만 바로 연다', () => {
+    expect(postLoginPath('resident', true, '/deals/abc')).toBe('/deals/abc');
+    expect(postLoginPath('resident', false, '/deals/abc')).toBe('/onboarding/consent');
+  });
+  it('가게 등록하기는 동의 전이어도 등록 화면으로', () => {
+    expect(postLoginPath('resident', false, '/owner/signup')).toBe('/owner/signup');
+  });
 });

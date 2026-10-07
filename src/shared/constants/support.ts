@@ -57,7 +57,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     question: '알림이 오지 않아요',
     answer:
       '알림 설정이 켜져 있는지, 방해 금지 시간이 아닌지 확인해 주세요. iPhone은 홈 화면에 추가한 앱에서만 알림이 와요.',
-    link: { label: '알림 설정으로 가기', to: '/notifications/settings' },
+    link: { label: '알림 설정으로 가기', to: '/notifications?tab=settings' },
   },
   {
     id: 'push-many',
