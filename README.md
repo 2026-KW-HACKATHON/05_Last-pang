@@ -9,6 +9,10 @@
 
 <br />
 
+### 🔗 [05-last-pang.vercel.app](https://05-last-pang.vercel.app) — 휴대폰으로 열고 "홈 화면에 추가"하면 앱처럼 써요
+
+<br />
+
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-PWA-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vite.dev/)
@@ -52,7 +56,7 @@
 | 핵심 가치              | 설명                                                                                                                |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | **중개 수수료 0%**     | 결제는 앱 밖에서 가게의 기존 방식으로 진행합니다. 플랫폼은 매칭만 담당하므로 사장님에게 수수료가 발생하지 않습니다. |
-| **도보 800m 생활반경** | 주민이 걸어서 갈 수 있는 거리(기본 반경 800m, 200m~2km 조절)의 가게만 추천합니다.                                   |
+| **도보 800m 생활반경** | 주민이 걸어서 갈 수 있는 거리(가까이 300m · 보통 800m · 넓게 1.5km 중 선택, 기본 800m)의 가게만 추천합니다.         |
 | **실시간 한산딜**      | 사장님이 한산한 시간에 30초 만에 딜을 올리면, 조건이 맞는 주민에게 즉시 알림이 갑니다.                              |
 
 <br />
@@ -259,7 +263,7 @@ erDiagram
 | `profiles`             | 사용자와 역할, 동의 시각 (카카오 첫 로그인 때 트리거가 생성) | role은 본인이 수정 불가                                      |
 | `stores`               | 가게 정보, 승인 상태                                         | 사장님 1명 = 가게 1개                                        |
 | `store_secrets`        | 가게 고유코드                                                | **해시로만 저장**, 정책이 없어 클라이언트는 누구도 조회 불가 |
-| `resident_preferences` | 요일·시간대·카테고리·반경                                    | 반경 200~2000m, 기본 800m                                    |
+| `resident_preferences` | 요일·시간대·카테고리·반경                                    | 반경 300·800·1500m, 기본 800m                                |
 | `schedules`            | 주민 반복 일정                                               | 종료 시각 > 시작 시각                                        |
 | `deals`                | 실제 진행되는 딜                                             | `remaining_qty ≥ 0`                                          |
 | `deal_rules`           | 요일반복딜 규칙                                              | 예약 작업이 요일마다 `deals` 행을 생성                       |
@@ -455,7 +459,6 @@ export function walkingMinutes(meters: number): number {
 │  └─ ISSUE_TEMPLATE/
 ├─ docs/
 │  ├─ assets/banner.png           # README 배너
-│  └─ ...                         # ERD, API 목록, 화면 흐름도
 ├─ public/icons/                  # PWA 아이콘
 ├─ src/
 │  ├─ app/                        # 라우터, AuthProvider, 로그인·역할 가드
@@ -468,14 +471,14 @@ export function walkingMinutes(meters: number): number {
 │  │  ├─ auth/                    # 카카오 로그인, 로그인 후 이동
 │  │  ├─ resident/                # 온보딩, 선호 설정, 일정, 딜, 쿠폰, 알림
 │  │  ├─ owner/                   # 가입, 가게, 딜 등록, 처리 내역, 리포트
-│  │  └─ admin/                   # 입점 승인
+│  │  └─ admin/                   # 입점 승인, 가게 직접 추가·정지·삭제, 신고, 운영 설정, 자치회 리포트
 │  ├─ sw.ts                       # Service Worker
 │  ├─ index.css                   # Tailwind @theme 디자인 토큰
 │  └─ main.tsx
 ├─ supabase/
 │  ├─ config.toml                 # 로컬 설정 (카카오 provider, 리다이렉트 URL)
 │  ├─ migrations/                 # 테이블 · RLS · 함수 SQL
-│  ├─ functions/send-push/        # Edge Function
+│  ├─ functions/                  # Edge Function: send-push(웹 푸시), geo-search(카카오 주소), council-summary(리포트 요약)
 │  ├─ tests/                      # 동시성 · RPC 테스트
 │  └─ seed.sql                    # 시연용 월계1동 가게 · 딜 데이터
 ├─ .env.example
@@ -485,22 +488,29 @@ export function walkingMinutes(meters: number): number {
 
 ### 화면 라우트
 
-| 영역   | 경로                                                                | 화면                                                       |
-| ------ | ------------------------------------------------------------------- | ---------------------------------------------------------- |
-| 공통   | `/login`                                                            | 카카오 로그인                                              |
-| 공통   | `/auth/callback`                                                    | 로그인 후 역할·동의 여부에 따라 이동                       |
-| 주민   | `/onboarding/consent` → `profile` → `preferences` → `notifications` | 동의 → 닉네임 · 자주 있는 곳 → 생활 패턴 → 알림 권한       |
-| 주민   | `/`                                                                 | 홈 (거리순 딜 목록)                                        |
-| 주민   | `/deals/:dealId`                                                    | 딜 상세 · 쿠폰 받기 (`?src=push`면 푸시 클릭 기록)         |
-| 주민   | `/coupons`, `/coupons/:couponId`                                    | 내 쿠폰, 카운트다운 · 코드 입력 · 사용 완료                |
-| 주민   | `/me/schedules`                                                     | 반복 일정 관리                                             |
-| 사장님 | `/owner/signup`                                                     | 현재 위치로 가게 등록                                      |
-| 사장님 | `/owner`                                                            | 홈 · 진행 중 딜 (승인 대기 · 거절도 이 화면의 상태로 표시) |
-| 사장님 | `/owner/deals/new`, `/owner/weekly-deals/new`                       | 즉시딜 · 요일반복딜 등록                                   |
-| 사장님 | `/owner/redemptions`                                                | 실시간 처리 내역                                           |
-| 사장님 | `/owner/report`                                                     | 성과 리포트                                                |
-| 사장님 | `/owner/settings`                                                   | 가게 고유코드 발급 · 재발급                                |
-| 운영자 | `/admin/stores`                                                     | 입점 승인 · 거절                                           |
+화면 번호(R·O·A·C)는 피그마 "동네냠냠 UI 최종"(10/7) 기준입니다. 전체 목록은 `src/app/router.tsx`에 있습니다.
+
+| 영역   | 경로                                                                     | 화면                                                                            |
+| ------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| 공통   | `/login`, `/auth/callback`                                               | R1 가입 화면 · C1 시작 · C2 카카오 로그인 처리 · C3 공유받은 딜(로그인 후 복귀) |
+| 공통   | `/help`, `/terms/:kind`, `/install-guide`                                | C8 문의하기·FAQ · R15 약관 · R16 홈 화면에 추가하는 법                          |
+| 공통   | (모든 경로)                                                              | C4 없는 주소 · C5 권한 없음 · C6 오류 · C7 오프라인·새 버전 안내                |
+| 주민   | `/onboarding/consent` → `profile` → `preferences` → `notifications`      | R2 동의 · R3 닉네임 · R4-2 좋아하는 가게·거리 · R5 알림 허용                    |
+| 주민   | `/`                                                                      | R6 홈 (거리·업종별 추천 딜)                                                     |
+| 주민   | `/deals/:dealId`                                                         | R7 딜 상세 · 쿠폰 받기 · 신고 (`?src=push`면 푸시 클릭 기록)                    |
+| 주민   | `/coupons`, `/coupons/:couponId`                                         | R11 내 쿠폰 · R8 가게 코드 입력 · R9 사용 완료 · R10 만료                       |
+| 주민   | `/notifications`, `/notifications/settings`                              | R17 알림함 · 알림 설정(방해 금지 시간)                                          |
+| 주민   | `/me`, `/me/nickname`, `/me/preferences`, `/me/location`, `/me/withdraw` | R12 내 정보 · R3-1 닉네임 · R4-2 · R4-1 기준 위치 · R14 탈퇴                    |
+| 주민   | `/me/schedules`, `/me/schedules/alerts`                                  | R13 내 시간표 · R13-5 딜 알림 시간                                              |
+| 사장님 | `/owner/signup`                                                          | O0 약관 · O1 가게 등록(주소 검색 · 사업자 정보 · 등록증) · 연결 코드            |
+| 사장님 | `/owner`                                                                 | O2 승인 대기·거절 · O3 홈(진행 중 딜 · 오늘 실적)                               |
+| 사장님 | `/owner/deals/new`, `/owner/weekly-deals/new`                            | O4 즉시딜(하루 3개) · O5 요일 반복딜                                            |
+| 사장님 | `/owner/deals`, `/owner/deals/:dealId`                                   | O11 딜 기록 · O12 딜 결과                                                       |
+| 사장님 | `/owner/redemptions`, `/owner/report`                                    | O7 사용 내역(실시간) · O8 리포트                                                |
+| 사장님 | `/owner/settings`, `/owner/me`, `/owner/notifications`                   | O6 가게 코드·안내문 인쇄 · O9 내 정보 · O10 알림                                |
+| 운영자 | `/admin/stores`                                                          | A1 입점 승인 · 신청 상세(등록증 확인)                                           |
+| 운영자 | `/admin/approved-stores`                                                 | A2 가맹점 관리 · **가게 직접 추가·수정·정지·삭제 · 딜 대신 올리기**             |
+| 운영자 | `/admin/reports`, `/admin/settings`, `/admin/report`                     | A3 신고·이슈 · A4 운영 설정 · A5 자치회 리포트(PC)                              |
 
 <br />
 
@@ -623,9 +633,9 @@ db: claim_coupon 함수에 행 잠금 추가 (#15)
 
 ## 🗺 로드맵
 
-- [ ] **v0.1 MVP** — 딜 등록 → 쿠폰 받기 → 매장 사용 → 리포트 한 바퀴 동작
-- [ ] **v0.2** — 웹 푸시 · 딥링크, 반복 일정 알림, 요일반복딜
-- [ ] **v1.0** — 확정 디자인 적용, 알림 피로도 제한, 실기기(Android · iOS) 검증
+- [x] **v0.1 MVP** — 딜 등록 → 쿠폰 받기 → 매장 사용 → 리포트 한 바퀴 동작
+- [x] **v0.2** — 웹 푸시 발송·딥링크, 시간표 기반 알림 시각, 요일반복딜
+- [ ] **v1.0** — ~~확정 디자인 적용~~ ✅ · ~~알림 피로도 제한(하루 3건·같은 가게 1건·방해 금지 시간)~~ ✅ · 실기기(Android · iOS) 푸시 검증
 - [ ] **Post-Hackathon** — 휴대폰 본인인증 전환, 위치정보 관련 법률 검토, 월계1동 실증
 
 <br />
