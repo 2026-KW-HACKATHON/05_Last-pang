@@ -1,6 +1,7 @@
 import { formatPrice } from '@/shared/lib/format';
 
-import { Badge, Field } from '../../components/ui';
+import { Badge } from '../../components/ui/Badge';
+import { Field } from '../../components/ui/Field';
 import { inputClass } from '../../lib/styles';
 import { calcDiscount } from '../schema';
 

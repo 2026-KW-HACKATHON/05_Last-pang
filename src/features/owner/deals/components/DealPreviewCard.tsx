@@ -1,8 +1,8 @@
 import { formatPrice } from '@/shared/lib/format';
 
 import { CategoryIcon } from '../../components/CategoryIcon';
+import { Badge } from '../../components/ui/Badge';
 import { categoryLabel } from '../../lib/category';
-import { Badge } from '../../components/ui';
 
 interface DealPreviewCardProps {
   storeName: string;

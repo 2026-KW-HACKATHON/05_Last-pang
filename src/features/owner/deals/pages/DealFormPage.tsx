@@ -1,205 +1,123 @@
-// O4 즉시딜 올리기 — 30초 안에 지금부터 N시간 딜을 연다
+// O4 즉시딜 올리기 · O4-1 하루 3개 한도 · 같은 시간대 중복 · 등록 완료
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
-import { COUPON_TTL_OPTIONS } from '@/shared/constants/domain';
+import { POLICY } from '@/shared/constants/policy';
+import { useNow } from '@/shared/hooks/useNow';
 import { AppError } from '@/shared/lib/errors';
 
 import { ApprovedStoreGate } from '../../components/ApprovedStoreGate';
-import { Icon } from '../../components/Icon';
-import {
-  Button,
-  Card,
-  Chip,
-  Field,
-  PageHeader,
-  StatusBlock,
-  StickyBar,
-  Stepper,
-} from '../../components/ui';
-import { inputClass } from '../../lib/styles';
-import { formatClock } from '../../lib/format';
+import { Button } from '../../components/ui/Button';
+import { NoticeBox } from '../../components/ui/NoticeBox';
+import { ProfileButton } from '../../components/ui/ProfileButton';
+import { StickyBar } from '../../components/ui/StickyBar';
+import { TopBar } from '../../components/ui/TopBar';
+import { formatClock, formatTimeRange } from '../../lib/format';
+import { DealCreatedView } from '../components/DealCreatedView';
 import { DealPreviewCard } from '../components/DealPreviewCard';
-import { PriceFields } from '../components/PriceFields';
-import { useCreateDeal, usePushTargetEstimate } from '../hooks';
-import { dealFormSchema } from '../schema';
+import { InstantDealFields } from '../components/InstantDealFields';
+import { EMPTY_DEAL_DRAFT, type DealDraft } from '../dealDraft';
+import { PushEstimateCard } from '../components/PushEstimateCard';
+import { useCreateInstantDeal, usePushTargetEstimate, useTodayDealQuota } from '../hooks';
+import { dealBaseSchema, dealFormSchema } from '../schema';
 
 import type { MyStore } from '../../store/api';
-
-const TITLE_MAX = 40;
-const TEMPLATES = ['마감 전 할인', '1+1', '오늘만 타임세일'] as const;
-const DURATIONS = [
-  { minutes: 60, label: '1시간' },
-  { minutes: 120, label: '2시간' },
-  { minutes: 180, label: '3시간' },
-] as const;
 
 export function DealFormPage() {
   return <ApprovedStoreGate>{(store) => <DealForm store={store} />}</ApprovedStoreGate>;
 }
 
+function overlapMessage(error: unknown): string | undefined {
+  if (!(error instanceof AppError) || error.code !== 'TIME_OVERLAP') return undefined;
+  const { starts_at: startsAt, ends_at: endsAt } = error.detail ?? {};
+  if (typeof startsAt !== 'string' || typeof endsAt !== 'string') return error.message;
+  return `${formatTimeRange(startsAt, endsAt).replace(' ~ ', '~')}에 이미 진행 중인 딜이 있어요`;
+}
+
+function repostOf(state: unknown): Partial<DealDraft> {
+  const parsed = dealBaseSchema
+    .pick({ title: true, originalPrice: true, dealPrice: true, totalQty: true })
+    .safeParse(state);
+  return parsed.success ? parsed.data : {};
+}
+
 function DealForm({ store }: { store: MyStore }) {
-  const navigate = useNavigate();
-  const createDeal = useCreateDeal(store.id);
+  const createDeal = useCreateInstantDeal();
   const estimate = usePushTargetEstimate();
+  const quota = useTodayDealQuota();
+  const now = useNow(60_000);
+  const location = useLocation();
+  // O12 "같은 딜 다시 올리기"에서 넘어오면 이름·가격·수량을 채워 둔다
+  const [draft, setDraft] = useState<DealDraft>(() => ({
+    ...EMPTY_DEAL_DRAFT,
+    ...repostOf(location.state),
+  }));
 
-  const [title, setTitle] = useState('');
-  const [originalPrice, setOriginalPrice] = useState(0);
-  const [dealPrice, setDealPrice] = useState(0);
-  const [durationMin, setDurationMin] = useState(120);
-  const [totalQty, setTotalQty] = useState(10);
-  const [couponTtlMin, setCouponTtlMin] = useState<(typeof COUPON_TTL_OPTIONS)[number]>(15);
-
-  const input = { title, originalPrice, dealPrice, totalQty, durationMin, couponTtlMin };
-  const parsed = dealFormSchema.safeParse(input);
-  // 할인가 오류는 두 칸을 다 채운 뒤에만 보여 준다 (입력 중에 빨간 글씨가 먼저 뜨지 않게)
-  const dealPriceError =
-    originalPrice > 0 && dealPrice > 0 && dealPrice >= originalPrice
-      ? '할인가는 정상가보다 낮아야 해요'
+  const parsed = dealFormSchema.safeParse(draft);
+  const isLimitReached =
+    (quota.data && quota.data.used >= quota.data.limit) ||
+    (createDeal.error instanceof AppError && createDeal.error.code === 'DAILY_LIMIT_REACHED');
+  const timeError = overlapMessage(createDeal.error);
+  const otherError =
+    createDeal.error instanceof AppError &&
+    !['DAILY_LIMIT_REACHED', 'TIME_OVERLAP'].includes(createDeal.error.code)
+      ? createDeal.error.message
       : undefined;
 
-  const now = new Date();
-  const endsAt = new Date(now.getTime() + durationMin * 60_000);
+  const handleDraftChange = (next: DealDraft) => {
+    if (timeError) createDeal.reset(); // 시간을 바꾸면 겹침 표시를 지운다
+    setDraft(next);
+  };
 
-  if (createDeal.isSuccess) {
-    return (
-      <div className="mx-auto min-h-dvh max-w-[480px]">
-        <StatusBlock
-          pose="heart"
-          title="딜을 올렸어요!"
-          body={
-            estimate.data
-              ? `근처 주민 ${estimate.data}명에게 알림이 가요`
-              : '근처 주민 화면에 바로 보여요'
-          }
-          action={
-            <Button block onClick={() => navigate('/owner', { replace: true })}>
-              홈에서 현황 보기
-            </Button>
-          }
-        />
-      </div>
-    );
-  }
+  if (createDeal.data) return <DealCreatedView created={createDeal.data} draft={draft} />;
 
   return (
     <div className="mx-auto min-h-dvh max-w-[480px] pb-28">
-      <PageHeader title="즉시딜 올리기" />
-      <div className="space-y-7 px-5 pt-2">
-        <Field label="빠른 시작">
-          <div className="flex flex-wrap gap-2">
-            {TEMPLATES.map((template) => (
-              <Chip
-                key={template}
-                isSelected={title === template}
-                onClick={() => setTitle(template)}
-              >
-                {template}
-              </Chip>
-            ))}
-          </div>
-        </Field>
-
-        <Field label="혜택 이름" counter={`${title.length}/${TITLE_MAX}`}>
-          <input
-            value={title}
-            maxLength={TITLE_MAX}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="예: 소금빵 2+1 타임세일"
-            className={inputClass()}
-          />
-        </Field>
-
-        <PriceFields
-          originalPrice={originalPrice}
-          dealPrice={dealPrice}
-          onOriginalChange={setOriginalPrice}
-          onDealChange={setDealPrice}
-          dealPriceError={dealPriceError}
-        />
-
-        <Field
-          label="진행 시간"
-          hint={`오늘 ${formatClock(now.toISOString())} ~ ${formatClock(endsAt.toISOString())} (지금 바로 시작)`}
-        >
-          <div className="flex gap-2">
-            {DURATIONS.map((duration) => (
-              <Chip
-                key={duration.minutes}
-                isSelected={durationMin === duration.minutes}
-                onClick={() => setDurationMin(duration.minutes)}
-              >
-                {duration.label}
-              </Chip>
-            ))}
-          </div>
-        </Field>
-
-        <Field label="수량" hint="최대 100개">
-          <Stepper value={totalQty} min={1} max={100} unit="개" onChange={setTotalQty} />
-        </Field>
-
-        <Field label="쿠폰 유효시간" hint="손님이 쿠폰을 받고 가게에 오기까지의 시간">
-          <div className="flex gap-2">
-            {COUPON_TTL_OPTIONS.map((minutes) => (
-              <Chip
-                key={minutes}
-                isSelected={couponTtlMin === minutes}
-                onClick={() => setCouponTtlMin(minutes)}
-              >
-                {minutes}분
-              </Chip>
-            ))}
-          </div>
-        </Field>
-
-        <Card tinted>
-          <div className="flex items-center gap-3">
-            <span className="flex size-10 items-center justify-center rounded-pill bg-surface text-accent">
-              <Icon name="bell" size={20} />
-            </span>
-            <p className="text-[15px]">
-              <span className="text-2xl font-semibold text-accent tabular-nums">
-                {estimate.data ?? 0}명
-              </span>
-              <br />
-              근처 주민에게 알림이 가요
-            </p>
-          </div>
-          <p className="mt-3 text-[13px] text-muted">
-            알림은 한 사람에게 하루 3번까지, 밤 9시~아침 7시는 보내지 않아요
-          </p>
-        </Card>
-
-        <div className="space-y-2">
-          <p className="text-[13px] text-muted">주민에게 이렇게 보여요</p>
-          <DealPreviewCard
-            storeName={store.name}
-            category={store.category}
-            title={title}
-            originalPrice={originalPrice}
-            dealPrice={dealPrice}
-            totalQty={totalQty}
-            endsAtLabel={formatClock(endsAt.toISOString())}
-          />
-        </div>
-
-        {createDeal.error instanceof AppError && (
-          <p className="text-[13px] text-danger" role="alert">
-            {createDeal.error.message}
-          </p>
+      <TopBar title="즉시딜 올리기" right={<ProfileButton to="/owner/me" />} />
+      <div className="space-y-7 px-5 pt-5">
+        {isLimitReached && (
+          <NoticeBox tone="danger" title={`오늘은 딜을 ${POLICY.ownerDailyDeals}개 모두 올렸어요`}>
+            딜은 하루 {POLICY.ownerDailyDeals}개까지 올릴 수 있어요. 내일 다시 올려 주세요.
+          </NoticeBox>
         )}
+        <InstantDealFields
+          draft={draft}
+          onChange={handleDraftChange}
+          timeError={timeError}
+          disabled={isLimitReached}
+        />
+        {!isLimitReached && <PushEstimateCard count={estimate.data} />}
+        {!isLimitReached && (
+          <div className="space-y-2">
+            <p className="text-[13px] text-muted">주민에게 이렇게 보여요</p>
+            <DealPreviewCard
+              storeName={store.name}
+              category={store.category}
+              title={draft.title}
+              originalPrice={draft.originalPrice}
+              dealPrice={draft.dealPrice}
+              totalQty={draft.totalQty}
+              endsAtLabel={formatClock(new Date(now + draft.durationMin * 60_000).toISOString())}
+            />
+          </div>
+        )}
+        {otherError && <NoticeBox tone="danger">{otherError}</NoticeBox>}
       </div>
-
       <StickyBar>
-        <Button
-          block
-          disabled={!parsed.success}
-          isLoading={createDeal.isPending}
-          onClick={() => parsed.success && createDeal.mutate(parsed.data)}
-        >
-          딜 올리기
-        </Button>
+        {isLimitReached ? (
+          <Button block disabled className="bg-gray text-faint">
+            오늘 등록 한도를 채웠어요
+          </Button>
+        ) : (
+          <Button
+            block
+            disabled={!parsed.success || Boolean(timeError)}
+            isLoading={createDeal.isPending}
+            onClick={() => parsed.success && createDeal.mutate(parsed.data)}
+          >
+            딜 올리기
+          </Button>
+        )}
       </StickyBar>
     </div>
   );

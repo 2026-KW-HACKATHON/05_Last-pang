@@ -4,13 +4,14 @@ import { ROOT_KEYS } from '@/shared/constants/queryKeys';
 
 import {
   closeDeal,
-  createDeal,
+  createInstantDeal,
   createDealRule,
   deleteDealRule,
   fetchDealCouponCounts,
   fetchDealRule,
   fetchDealRules,
   fetchMyActiveDeals,
+  fetchTodayDealQuota,
   fetchPushTargetEstimate,
   fetchTodayScheduledDeals,
   setDealRuleActive,
@@ -28,11 +29,18 @@ export const ownerDealKeys = {
   rule: (ruleId: string) => [...ROOT_KEYS.deals, 'owner', 'rule', ruleId] as const,
 };
 
+export function useTodayDealQuota() {
+  return useQuery({
+    queryKey: [...ROOT_KEYS.deals, 'owner', 'quota'],
+    queryFn: fetchTodayDealQuota,
+  });
+}
+
 /** 성공 후 이동은 화면이 정한다 (완료 화면을 먼저 보여 주기 위해) */
-export function useCreateDeal(storeId: string) {
+export function useCreateInstantDeal() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: DealFormInput) => createDeal(storeId, input),
+    mutationFn: (input: DealFormInput) => createInstantDeal(input),
     // 주민 쪽 딜 캐시도 무효화. resident의 dealKeys를 import하지 않고 루트 키를 쓴다 (합의 2-12)
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ROOT_KEYS.deals }),
   });
