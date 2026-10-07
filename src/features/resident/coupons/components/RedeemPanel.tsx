@@ -37,7 +37,7 @@ export function RedeemPanel({ couponId, nowMs }: RedeemPanelProps) {
   return (
     <section className="mt-6">
       <h2 className="text-center text-lg font-bold">가게 코드 6자리를 입력해 주세요</h2>
-      <p className="mt-1 mb-4 text-center text-sm text-sub">사장님께 가게 코드를 물어보세요</p>
+      <p className="mt-1 mb-4 text-center text-sm text-muted">사장님께 가게 코드를 물어보세요</p>
       <CodeInput
         disabled={isLocked || redeem.isPending}
         hasError={appError !== null && !isLocked}
@@ -61,7 +61,7 @@ export function RedeemPanel({ couponId, nowMs }: RedeemPanelProps) {
         {!isLocked && appError && appError.code !== 'WRONG_CODE' && (
           <p className="text-danger">{appError.message}</p>
         )}
-        {redeem.isPending && <p className="text-sub">확인하는 중...</p>}
+        {redeem.isPending && <p className="text-muted">확인하는 중...</p>}
       </div>
     </section>
   );

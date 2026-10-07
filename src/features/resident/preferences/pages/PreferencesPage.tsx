@@ -73,11 +73,11 @@ export function PreferencesPage() {
           <br />
           어디까지 알려드릴까요?
         </h1>
-        <p className="mt-2 text-sm text-sub">나중에 내 정보에서 바꿀 수 있어요</p>
+        <p className="mt-2 text-sm text-muted">나중에 내 정보에서 바꿀 수 있어요</p>
 
         <div className="mt-7 mb-3 flex items-center justify-between">
           <h2 className="text-lg font-bold">좋아하는 가게</h2>
-          <span className={`text-sm ${formState.errors.categories ? 'text-danger' : 'text-muted'}`}>
+          <span className={`text-sm ${formState.errors.categories ? 'text-danger' : 'text-faint'}`}>
             {formState.errors.categories?.message ?? '1개 이상'}
           </span>
         </div>
@@ -103,7 +103,7 @@ export function PreferencesPage() {
           <button
             type="submit"
             disabled={!formState.isValid || updatePreferences.isPending}
-            className="h-14 w-full rounded-card bg-accent font-semibold text-white disabled:bg-accent-soft disabled:text-muted"
+            className="h-14 w-full rounded-card bg-accent font-semibold text-white disabled:bg-accent-tint disabled:text-faint"
           >
             {isEditMode ? '저장' : '다음'}
           </button>

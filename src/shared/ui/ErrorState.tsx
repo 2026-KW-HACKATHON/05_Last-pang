@@ -15,11 +15,11 @@ export function ErrorState({ error, description, onRetry }: ErrorStateProps) {
 
   return (
     <div className="flex flex-col items-center px-8 py-12 text-center" role="alert">
-      <div className="flex size-20 items-center justify-center rounded-full bg-surface text-muted ring-1 ring-line">
+      <div className="flex size-20 items-center justify-center rounded-full bg-surface text-faint ring-1 ring-line">
         <Icon name={isNetworkError ? 'wifiOff' : 'info'} size={36} />
       </div>
       <p className="mt-5 text-lg font-bold">{appError.message}</p>
-      {description && <p className="mt-2 text-sm leading-relaxed text-sub">{description}</p>}
+      {description && <p className="mt-2 text-sm leading-relaxed text-muted">{description}</p>}
       {onRetry && (
         <button
           type="button"

@@ -18,7 +18,7 @@ export function SoldOutDealCard({ deal, isDistanceKnown }: SoldOutDealCardProps)
   const categoryLabel = CATEGORIES.find((category) => category.value === deal.category)?.label;
 
   return (
-    <article className="rounded-card bg-cream p-4 text-muted" aria-label={`${deal.title} 소진`}>
+    <article className="rounded-card bg-gray p-4 text-faint" aria-label={`${deal.title} 소진`}>
       <div className="flex gap-3">
         <CategoryIcon category={deal.category} isMuted />
         <div className="min-w-0 flex-1">

@@ -6,11 +6,11 @@ interface LoadingStateProps {
 export function LoadingState({ label }: LoadingStateProps) {
   return (
     <div className="space-y-3 p-5" aria-busy="true" aria-label={label ?? '불러오는 중'}>
-      <div className="h-32 animate-pulse rounded-card bg-cream" />
-      <div className="h-32 animate-pulse rounded-card bg-cream" />
-      <div className="h-32 animate-pulse rounded-card bg-cream" />
+      <div className="h-32 animate-pulse rounded-card bg-gray" />
+      <div className="h-32 animate-pulse rounded-card bg-gray" />
+      <div className="h-32 animate-pulse rounded-card bg-gray" />
       {label && (
-        <p className="flex items-center justify-center gap-2 pt-4 text-sm text-sub">
+        <p className="flex items-center justify-center gap-2 pt-4 text-sm text-muted">
           <span className="size-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
           {label}
         </p>

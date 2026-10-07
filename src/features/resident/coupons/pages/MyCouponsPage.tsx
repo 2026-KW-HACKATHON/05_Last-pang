@@ -69,7 +69,7 @@ export function MyCouponsPage() {
                   </li>
                 ))}
               </ul>
-              <p className="mt-4 text-sm text-muted">
+              <p className="mt-4 text-sm text-faint">
                 쿠폰은 받은 뒤 유효시간 안에 가게에서 사용해야 해요
               </p>
             </>

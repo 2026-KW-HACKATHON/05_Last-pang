@@ -21,7 +21,7 @@ export function PageHeader({ title, hasBack = false, right }: PageHeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center gap-2 bg-cream px-4">
+    <header className="sticky top-0 z-20 flex h-14 items-center gap-2 bg-gray px-4">
       {hasBack && (
         <button
           type="button"

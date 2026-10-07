@@ -71,8 +71,6 @@ export const router = createBrowserRouter([
           { path: '/onboarding/preferences', element: <PreferencesPage /> },
           { path: '/onboarding/notifications', element: <NotificationsOnboardingPage /> },
           { path: '/deals/:dealId', element: <DealDetailPage /> },
-          // 알림함 (피그마 R17). 주민 하단 탭 "알림함"
-          { path: '/notifications', element: <NotificationsPage /> },
           { path: '/coupons', element: <MyCouponsPage /> },
           { path: '/coupons/:couponId', element: <CouponPage /> },
           { path: '/notifications', element: <NotificationsPage /> },

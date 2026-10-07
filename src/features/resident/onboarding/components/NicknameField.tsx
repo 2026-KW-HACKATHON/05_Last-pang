@@ -31,7 +31,7 @@ export function NicknameField({ registration, length, errorMessage, onClear }: N
             type="button"
             onClick={onClear}
             aria-label="지우기"
-            className="flex size-6 items-center justify-center rounded-full bg-cream text-sub"
+            className="flex size-6 items-center justify-center rounded-full bg-gray text-muted"
           >
             <Icon name="close" size={14} />
           </button>
@@ -44,9 +44,9 @@ export function NicknameField({ registration, length, errorMessage, onClear }: N
             {errorMessage}
           </span>
         ) : (
-          <span className="text-muted">1~{NICKNAME_MAX_LENGTH}자, 한글·영문·숫자</span>
+          <span className="text-faint">1~{NICKNAME_MAX_LENGTH}자, 한글·영문·숫자</span>
         )}
-        <span className={`font-semibold ${errorMessage ? 'text-danger' : 'text-sub'}`}>
+        <span className={`font-semibold ${errorMessage ? 'text-danger' : 'text-muted'}`}>
           {length}/{NICKNAME_MAX_LENGTH}
         </span>
       </p>

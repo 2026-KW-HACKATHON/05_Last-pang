@@ -29,13 +29,13 @@ export function DealCard({ deal, isDistanceKnown }: DealCardProps) {
       <div className="flex gap-3">
         <CategoryIcon category={deal.category} />
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-1.5 text-sm text-sub">
+          <div className="flex flex-wrap items-center gap-1.5 text-sm text-muted">
             <span className="truncate">{deal.storeName}</span>
             <span className="rounded-md px-1.5 py-0.5 text-xs ring-1 ring-line">
               {categoryLabel}
             </span>
             {isClosingSoon(deal.remainingQty, deal.totalQty) && (
-              <span className="rounded-md bg-accent-soft px-1.5 py-0.5 text-xs text-accent">
+              <span className="rounded-md bg-accent-tint px-1.5 py-0.5 text-xs text-accent">
                 마감임박
               </span>
             )}
@@ -46,19 +46,19 @@ export function DealCard({ deal, isDistanceKnown }: DealCardProps) {
       <p className="mt-3 flex items-baseline gap-2">
         <span className="text-lg font-bold text-accent">{discountRate}%</span>
         <span className="text-xl font-bold">{formatPrice(deal.dealPrice)}</span>
-        <span className="text-sm text-muted line-through">{formatPrice(deal.originalPrice)}</span>
+        <span className="text-sm text-faint line-through">{formatPrice(deal.originalPrice)}</span>
       </p>
-      <div className="mt-3 flex items-center gap-2 border-t border-line pt-3 text-sm text-sub">
+      <div className="mt-3 flex items-center gap-2 border-t border-line pt-3 text-sm text-muted">
         <Icon name="walk" size={16} />
         <span className="flex-1">
           {isDistanceKnown
             ? `도보 ${walkingMinutes(deal.distanceM)}분 (${deal.distanceM}m)`
             : '거리 미확인'}
         </span>
-        <span className="rounded-pill bg-accent-soft px-2 py-0.5 text-xs font-semibold text-accent">
+        <span className="rounded-pill bg-accent-tint px-2 py-0.5 text-xs font-semibold text-accent">
           남은 쿠폰 {deal.remainingQty}개
         </span>
-        <span className="text-xs text-muted">~{formatKstTime(deal.endsAt)}</span>
+        <span className="text-xs text-faint">~{formatKstTime(deal.endsAt)}</span>
       </div>
     </Link>
   );

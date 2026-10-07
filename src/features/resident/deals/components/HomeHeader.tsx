@@ -11,7 +11,7 @@ interface HomeHeaderProps {
 // 지역 표시 · 걸을 거리 칩(보기 설정 열기) · 내 정보
 export function HomeHeader({ radiusM, onRadiusClick }: HomeHeaderProps) {
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center gap-2 bg-cream px-5">
+    <header className="sticky top-0 z-20 flex h-16 items-center gap-2 bg-gray px-5">
       <span className="flex items-center gap-1 text-lg font-bold">
         <Icon name="pin" size={22} className="text-accent" />
         월계1동

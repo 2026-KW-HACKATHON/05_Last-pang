@@ -73,13 +73,13 @@ export function MyInfoPage() {
             to="/owner/signup"
             label="우리 가게 등록하기"
             badge={
-              <span className="rounded-pill bg-accent-soft px-2 py-0.5 text-xs font-bold text-accent">
+              <span className="rounded-pill bg-accent-tint px-2 py-0.5 text-xs font-bold text-accent">
                 사장님
               </span>
             }
           />
         </nav>
-        <div className="mt-6 text-center text-sm text-muted">
+        <div className="mt-6 text-center text-sm text-faint">
           <button type="button" onClick={() => setIsSignOutOpen(true)}>
             로그아웃
           </button>

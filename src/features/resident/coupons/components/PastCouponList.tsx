@@ -27,7 +27,7 @@ export function PastCouponList({ coupons }: PastCouponListProps) {
     <div className="space-y-5">
       {[...groups.entries()].map(([kstDate, items]) => (
         <section key={kstDate}>
-          <h2 className="mb-2 text-sm font-semibold text-sub">
+          <h2 className="mb-2 text-sm font-semibold text-muted">
             {toDateLabel(kstDate, todayKstDate)}
           </h2>
           <ul className="space-y-3">

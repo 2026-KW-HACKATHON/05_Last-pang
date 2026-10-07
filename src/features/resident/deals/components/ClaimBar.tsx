@@ -35,7 +35,7 @@ export function ClaimBar({
     return (
       <BottomBar>
         {myCoupon.status === 'issued' && (
-          <p className="mb-2 flex items-center justify-center gap-1 text-xs text-sub">
+          <p className="mb-2 flex items-center justify-center gap-1 text-xs text-muted">
             <Icon name="check" size={14} className="text-accent" />내 쿠폰에 안전하게 저장됐어요
           </p>
         )}
@@ -67,7 +67,7 @@ export function ClaimBar({
         <button
           type="button"
           disabled
-          className="h-14 w-full rounded-card bg-cream font-semibold text-muted"
+          className="h-14 w-full rounded-card bg-gray font-semibold text-faint"
         >
           {DISABLED_LABELS[phase](deal)}
         </button>

@@ -44,7 +44,7 @@ export function ProfilePage() {
           <br />
           이름을 정해 주세요
         </h1>
-        <p className="mt-2 text-sm text-sub">
+        <p className="mt-2 text-sm text-muted">
           앱에서 불릴 이름이에요. 다른 사람에게는 보이지 않아요
         </p>
         <NicknameField
@@ -60,7 +60,7 @@ export function ProfilePage() {
           <button
             type="submit"
             disabled={!formState.isValid || updateNickname.isPending}
-            className="h-14 w-full rounded-card bg-accent font-semibold text-white disabled:bg-accent-soft disabled:text-muted"
+            className="h-14 w-full rounded-card bg-accent font-semibold text-white disabled:bg-accent-tint disabled:text-faint"
           >
             {isEditMode ? '저장' : '다음'}
           </button>

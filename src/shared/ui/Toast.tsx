@@ -24,8 +24,8 @@ export function Toast({ message, onClose }: ToastProps) {
       <span className="flex size-6 items-center justify-center rounded-full bg-success text-white">
         <Icon name="check" size={16} strokeWidth={2.5} />
       </span>
-      <p className="flex-1 text-sm text-sub">{message}</p>
-      <button type="button" onClick={onClose} aria-label="닫기" className="text-muted">
+      <p className="flex-1 text-sm text-muted">{message}</p>
+      <button type="button" onClick={onClose} aria-label="닫기" className="text-faint">
         <Icon name="close" size={18} />
       </button>
     </div>

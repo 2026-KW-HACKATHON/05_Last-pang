@@ -71,7 +71,7 @@ export function ConsentPage() {
           <br />
           동의가 필요해요
         </h1>
-        <p className="mt-2 text-sm text-sub">월계1동 이웃들과 따뜻한 마감 타임딜을 나눠보세요.</p>
+        <p className="mt-2 text-sm text-muted">월계1동 이웃들과 따뜻한 마감 타임딜을 나눠보세요.</p>
 
         <label className="mt-6 flex cursor-pointer items-center gap-3 rounded-card p-4 ring-1 ring-line">
           <input
@@ -96,7 +96,7 @@ export function ConsentPage() {
             />
           ))}
         </div>
-        <p className="mt-4 flex items-center gap-2 rounded-card bg-accent-soft p-4 text-sm text-sub">
+        <p className="mt-4 flex items-center gap-2 rounded-card bg-accent-tint p-4 text-sm text-muted">
           <Icon name="shield" size={18} className="text-accent" />
           개인정보는 판매하거나 광고에 쓰지 않아요.
         </p>
@@ -110,7 +110,7 @@ export function ConsentPage() {
           <button
             type="submit"
             disabled={!formState.isValid || updateConsents.isPending}
-            className="h-14 w-full rounded-card bg-accent font-semibold text-white disabled:bg-accent-soft disabled:text-muted"
+            className="h-14 w-full rounded-card bg-accent font-semibold text-white disabled:bg-accent-tint disabled:text-faint"
           >
             동의하고 계속하기
           </button>

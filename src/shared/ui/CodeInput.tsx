@@ -41,7 +41,7 @@ export function CodeInput({
   };
 
   const toSlotClass = (position: number) => {
-    if (disabled) return 'border-transparent bg-cream';
+    if (disabled) return 'border-transparent bg-gray';
     if (hasError && digits.length === length) return 'border-danger';
     if (position === digits.length) return 'border-accent';
     return 'border-line';
@@ -70,7 +70,7 @@ export function CodeInput({
             disabled={disabled}
             onClick={() => handleKeyClick(key)}
             aria-label={key === 'delete' ? '한 자리 지우기' : undefined}
-            className={`flex h-13 items-center justify-center rounded-xl border border-line bg-surface font-semibold disabled:text-muted ${key === 'clear' ? 'text-sm text-sub' : 'text-xl'}`}
+            className={`flex h-13 items-center justify-center rounded-xl border border-line bg-surface font-semibold disabled:text-faint ${key === 'clear' ? 'text-sm text-muted' : 'text-xl'}`}
           >
             {key === 'delete' && <Icon name="backspace" size={24} />}
             {key === 'clear' && '전체 지우기'}

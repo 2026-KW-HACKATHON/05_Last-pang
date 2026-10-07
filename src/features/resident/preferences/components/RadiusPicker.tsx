@@ -20,7 +20,7 @@ export function RadiusPicker({ value, onChange }: RadiusPickerProps) {
             role="radio"
             aria-checked={isSelected}
             onClick={() => onChange(option.value)}
-            className={`relative h-16 rounded-xl ${isSelected ? 'bg-accent-soft text-accent' : 'bg-cream'}`}
+            className={`relative h-16 rounded-xl ${isSelected ? 'bg-accent-tint text-accent' : 'bg-gray'}`}
           >
             {option.value === DEFAULT_RADIUS_M && (
               <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-pill bg-accent px-2 text-xs text-white">
@@ -28,7 +28,7 @@ export function RadiusPicker({ value, onChange }: RadiusPickerProps) {
               </span>
             )}
             <span className="block">{option.label}</span>
-            <span className={`text-xs ${isSelected ? '' : 'text-sub'}`}>
+            <span className={`text-xs ${isSelected ? '' : 'text-muted'}`}>
               {option.distanceLabel} · 도보 {walkingMinutes(option.value)}분
             </span>
           </button>
