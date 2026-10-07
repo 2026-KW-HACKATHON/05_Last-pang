@@ -24,3 +24,8 @@ export async function fetchMyRole(userId: string): Promise<Role | null> {
   if (error) throw toAppError(error);
   return data ? roleSchema.parse(data.role) : null;
 }
+
+export async function signOut(): Promise<void> {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw toAppError(error);
+}
