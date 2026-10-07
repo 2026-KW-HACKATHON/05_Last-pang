@@ -152,6 +152,7 @@ export type Database = {
     "create_instant_deal": { Args: { "p_title": string, "p_original_price": number, "p_deal_price": number, "p_duration_min": number, "p_total_qty": number, "p_coupon_ttl_min": number, "p_starts_at"?: string }; Returns: Json }
     "delete_my_account": { Args: Record<PropertyKey, never>; Returns: Json }
     "distance_m": { Args: { "lat1": number, "lng1": number, "lat2": number, "lng2": number }; Returns: number }
+    "enqueue_deal_pushes": { Args: Record<PropertyKey, never>; Returns: number }
     "estimate_push_targets": { Args: { "p_starts_at": string }; Returns: number }
     "expire_coupons": { Args: Record<PropertyKey, never>; Returns: undefined }
     "generate_redeem_code": { Args: Record<PropertyKey, never>; Returns: string }
@@ -167,6 +168,7 @@ export type Database = {
     "get_store_code_status": { Args: Record<PropertyKey, never>; Returns: Json }
     "get_store_report": { Args: { "p_from": string, "p_to": string }; Returns: Json }
     "get_today_deal_quota": { Args: Record<PropertyKey, never>; Returns: Json }
+    "invoke_push_sender": { Args: Record<PropertyKey, never>; Returns: undefined }
     "is_admin": { Args: Record<PropertyKey, never>; Returns: boolean }
     "is_in_service_area": { Args: { "p_lat": number, "p_lng": number }; Returns: boolean }
     "link_store_by_code": { Args: { "p_code": string }; Returns: Json }
@@ -176,7 +178,7 @@ export type Database = {
     "my_store_id": { Args: Record<PropertyKey, never>; Returns: string }
     "notify_store_owner": { Args: { "p_store_id": string, "p_kind": string, "p_title": string, "p_body"?: string, "p_deal_id"?: string, "p_link"?: string }; Returns: undefined }
     "purge_old_notifications": { Args: Record<PropertyKey, never>; Returns: undefined }
-    "recommend_deals": { Args: { "p_lat": number, "p_lng": number }; Returns: { "deal_id": string, "store_id": string, "store_name": string, "category": string, "title": string, "original_price": number, "deal_price": number, "remaining_qty": number, "total_qty": number, "ends_at": string, "distance_m": number }[] }
+    "recommend_deals": { Args: { "p_lat": number, "p_lng": number, "p_radius_m"?: number }; Returns: { "deal_id": string, "store_id": string, "store_name": string, "category": string, "title": string, "original_price": number, "deal_price": number, "remaining_qty": number, "total_qty": number, "starts_at": string, "ends_at": string, "coupon_ttl_min": number, "distance_m": number }[] }
     "redeem_coupon": { Args: { "p_coupon_id": string, "p_code": string }; Returns: Json }
     "register_store": { Args: { "p_name": string, "p_category": string, "p_address": string, "p_lat": number, "p_lng": number, "p_representative_name": string, "p_business_no": string, "p_phone"?: string, "p_license_path"?: string, "p_description"?: string, "p_marketing_agreed"?: boolean }; Returns: Json }
     "report_deal": { Args: { "p_deal_id": string, "p_reason": string, "p_detail"?: string }; Returns: Json }
