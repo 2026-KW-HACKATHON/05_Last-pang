@@ -7,7 +7,7 @@ export function ComingSoon({ title }: ComingSoonProps) {
   return (
     <main className="p-8 text-center">
       <h1 className="text-lg font-bold">{title}</h1>
-      <p className="mt-2 text-muted">준비 중이에요</p>
+      <p className="mt-2 text-faint">준비 중이에요</p>
     </main>
   );
 }

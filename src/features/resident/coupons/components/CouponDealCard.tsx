@@ -13,8 +13,8 @@ export function CouponDealCard({ coupon }: CouponDealCardProps) {
 
   return (
     <section className="rounded-card p-4 ring-1 ring-line">
-      <p className="flex items-center gap-2 text-sm text-sub">
-        <span className="rounded-md bg-accent-soft px-2 py-0.5 text-xs font-semibold text-accent">
+      <p className="flex items-center gap-2 text-sm text-muted">
+        <span className="rounded-md bg-accent-tint px-2 py-0.5 text-xs font-semibold text-accent">
           {categoryLabel}
         </span>
         {coupon.storeName}
@@ -22,7 +22,7 @@ export function CouponDealCard({ coupon }: CouponDealCardProps) {
       <p className="mt-2 text-lg font-bold">{coupon.title}</p>
       <p className="mt-1 flex items-baseline gap-2">
         <span className="text-xl font-bold text-accent">{formatPrice(coupon.dealPrice)}</span>
-        <span className="text-sm text-muted line-through">{formatPrice(coupon.originalPrice)}</span>
+        <span className="text-sm text-faint line-through">{formatPrice(coupon.originalPrice)}</span>
       </p>
     </section>
   );

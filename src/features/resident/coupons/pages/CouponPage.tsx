@@ -43,7 +43,7 @@ export function CouponPage() {
             action={
               <Link
                 to="/coupons"
-                className="rounded-xl bg-accent px-6 py-3 font-semibold text-white"
+                className="rounded-button bg-accent px-6 py-3 font-semibold text-white"
               >
                 내 쿠폰으로
               </Link>

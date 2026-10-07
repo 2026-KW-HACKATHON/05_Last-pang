@@ -44,13 +44,13 @@ export function ViewSettingsSheet({ radiusM, sort, onApply, onClose }: ViewSetti
               role="radio"
               aria-checked={isSelected}
               onClick={() => setDraftRadiusM(option.value)}
-              className={`flex h-13 w-full items-center gap-3 rounded-xl px-4 ring-1 ${isSelected ? 'bg-accent-soft ring-accent' : 'ring-line'}`}
+              className={`flex h-13 w-full items-center gap-3 rounded-button px-4 ring-1 ${isSelected ? 'bg-accent-tint ring-accent' : 'ring-line'}`}
             >
               <span
                 className={`size-5 rounded-full ${isSelected ? 'border-[6px] border-accent' : 'border border-line'}`}
               />
               <span className="flex-1 text-left">{option.label}</span>
-              <span className="text-sm text-muted">
+              <span className="text-sm text-faint">
                 {option.distanceLabel} · 도보 {walkingMinutes(option.value)}분
               </span>
             </button>
@@ -72,13 +72,13 @@ export function ViewSettingsSheet({ radiusM, sort, onApply, onClose }: ViewSetti
         ))}
       </div>
       <div className="mt-6 grid grid-cols-[1fr_2fr] gap-2">
-        <button type="button" onClick={handleResetClick} className="h-13 rounded-xl bg-cream">
+        <button type="button" onClick={handleResetClick} className="h-13 rounded-button bg-gray">
           초기화
         </button>
         <button
           type="button"
           onClick={() => onApply(draftRadiusM, draftSort)}
-          className="h-13 rounded-xl bg-accent font-semibold text-white"
+          className="h-13 rounded-button bg-accent font-semibold text-white"
         >
           적용하기
         </button>

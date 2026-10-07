@@ -41,9 +41,9 @@ export function RedeemSuccess({ coupon, usedAt }: RedeemSuccessProps) {
     <section className="flex flex-col items-center pt-4">
       <Mascot pose="heart" size={104} />
       <h2 className="mt-3 text-2xl font-bold">쿠폰을 사용했어요</h2>
-      <p className="mt-2 text-sub">사장님께 이 화면을 보여주세요</p>
-      <div className="mt-5 w-full rounded-card bg-accent-soft py-5 text-center">
-        <p className="text-sm text-sub">확인번호</p>
+      <p className="mt-2 text-muted">사장님께 이 화면을 보여주세요</p>
+      <div className="mt-5 w-full rounded-card bg-accent-tint py-5 text-center">
+        <p className="text-sm text-muted">확인번호</p>
         <p className="my-1 text-[40px] font-bold tracking-wide text-accent">
           {toConfirmNumber(coupon.id)}
         </p>
@@ -55,12 +55,12 @@ export function RedeemSuccess({ coupon, usedAt }: RedeemSuccessProps) {
       <dl className="mt-4 w-full space-y-2 rounded-card p-4 text-sm ring-1 ring-line">
         {rows.map((row) => (
           <div key={row.label} className="flex justify-between">
-            <dt className="text-sub">{row.label}</dt>
+            <dt className="text-muted">{row.label}</dt>
             <dd className={row.label === '결제할 금액' ? 'font-bold' : ''}>{row.value}</dd>
           </div>
         ))}
         <div className="flex justify-between border-t border-line pt-2">
-          <dt className="text-sub">아낀 금액</dt>
+          <dt className="text-muted">아낀 금액</dt>
           <dd className="font-bold text-accent">
             {formatPrice(coupon.originalPrice - coupon.dealPrice)}
           </dd>

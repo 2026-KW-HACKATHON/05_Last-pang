@@ -19,7 +19,7 @@ export function CategoryChips({ selected, onSelect }: CategoryChipsProps) {
             type="button"
             onClick={() => onSelect(chip.value)}
             aria-pressed={isSelected}
-            className={`shrink-0 rounded-pill px-4 py-2 text-sm font-semibold ${isSelected ? 'bg-accent text-white' : 'bg-surface text-sub ring-1 ring-line'}`}
+            className={`shrink-0 rounded-pill px-4 py-2 text-sm font-semibold ${isSelected ? 'bg-accent text-white' : 'bg-surface text-muted ring-1 ring-line'}`}
           >
             {chip.label}
           </button>

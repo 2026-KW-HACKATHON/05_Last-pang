@@ -15,7 +15,7 @@ export function OnboardingHeader({ step, isEditMode, editTitle }: OnboardingHead
       hasBack
       right={
         !isEditMode && (
-          <span className="rounded-pill bg-accent-soft px-2.5 py-1 text-sm font-bold text-accent">
+          <span className="rounded-pill bg-accent-tint px-2.5 py-1 text-sm font-bold text-accent">
             {step}/{TOTAL_STEPS}
           </span>
         )

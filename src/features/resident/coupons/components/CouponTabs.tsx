@@ -20,7 +20,7 @@ export function CouponTabs({ isPastTab, availableCount, onChange }: CouponTabsPr
           role="tab"
           aria-selected={tab.isPast === isPastTab}
           onClick={() => onChange(tab.isPast)}
-          className={`h-9 rounded-pill text-sm ${tab.isPast === isPastTab ? 'bg-ink font-bold text-white' : 'text-sub'}`}
+          className={`h-9 rounded-pill text-sm ${tab.isPast === isPastTab ? 'bg-ink font-bold text-white' : 'text-muted'}`}
         >
           {tab.label}
         </button>

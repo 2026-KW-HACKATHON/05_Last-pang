@@ -18,23 +18,23 @@ export function DealSummarySection({ deal, distanceM, isDimmed }: DealSummarySec
       <p className="flex items-center gap-1.5 text-sm">
         <span className="font-semibold">{deal.storeName}</span>
         {distanceM !== null && (
-          <span className="text-sub">
+          <span className="text-muted">
             · 도보 {walkingMinutes(distanceM)}분 ({Math.round(distanceM)}m)
           </span>
         )}
       </p>
       <h2 className="mt-1 text-2xl font-bold">{deal.title}</h2>
       <p className="mt-2 flex items-center gap-2">
-        <span className={`text-2xl font-bold ${isDimmed ? 'text-muted' : 'text-accent'}`}>
+        <span className={`text-2xl font-bold ${isDimmed ? 'text-faint' : 'text-accent'}`}>
           {formatPrice(deal.dealPrice)}
         </span>
-        <span className="text-muted line-through">{formatPrice(deal.originalPrice)}</span>
-        <span className="rounded-md bg-accent-soft px-2 py-0.5 text-xs font-bold text-accent">
+        <span className="text-faint line-through">{formatPrice(deal.originalPrice)}</span>
+        <span className="rounded-md bg-accent-tint px-2 py-0.5 text-xs font-bold text-accent">
           {discountRate}% 할인
         </span>
       </p>
-      <div className="mt-4 flex items-center justify-between rounded-xl bg-cream px-4 py-3 text-sm">
-        <span className="text-sub">남은 수량</span>
+      <div className="mt-4 flex items-center justify-between rounded-field bg-gray px-4 py-3 text-sm">
+        <span className="text-muted">남은 수량</span>
         <span>
           <b className="text-lg text-accent">{deal.remainingQty}</b> / {deal.totalQty}개
         </span>

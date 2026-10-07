@@ -23,7 +23,7 @@ export function NotificationsPage() {
         title="받은 알림은 곧 여기서 볼 수 있어요"
         description="그동안 홈에서 지금 진행 중인 딜을 확인해 보세요"
         action={
-          <Link to="/" className="rounded-xl bg-accent px-6 py-3 font-semibold text-white">
+          <Link to="/" className="rounded-button bg-accent px-6 py-3 font-semibold text-white">
             홈으로
           </Link>
         }

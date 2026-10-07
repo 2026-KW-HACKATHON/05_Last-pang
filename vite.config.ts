@@ -22,8 +22,8 @@ export default defineConfig({
         lang: 'ko',
         start_url: '/',
         display: 'standalone',
-        // manifest는 CSS 토큰을 쓸 수 없어 index.css의 --color-surface·--color-accent 값을 그대로 적는다
-        background_color: '#FFFFFF',
+        // manifest는 CSS 토큰을 쓸 수 없어 index.css의 --color-cream·--color-accent 값을 그대로 적는다
+        background_color: '#FBF7F2',
         theme_color: '#C61747',
         icons: [
           { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },

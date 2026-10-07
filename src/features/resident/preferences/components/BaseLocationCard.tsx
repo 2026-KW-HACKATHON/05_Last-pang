@@ -10,7 +10,7 @@ interface BaseLocationCardProps {
 export function BaseLocationCard({ isSet, canUseCurrent, onUseCurrent }: BaseLocationCardProps) {
   return (
     <div className="flex items-center gap-3 rounded-card p-4 ring-1 ring-line">
-      <span className="flex size-10 items-center justify-center rounded-full bg-accent-soft text-accent">
+      <span className="flex size-10 items-center justify-center rounded-full bg-accent-tint text-accent">
         <Icon name="pin" size={20} />
       </span>
       <div className="flex-1">
@@ -24,7 +24,7 @@ export function BaseLocationCard({ isSet, canUseCurrent, onUseCurrent }: BaseLoc
         type="button"
         onClick={onUseCurrent}
         disabled={!canUseCurrent}
-        className="shrink-0 rounded-lg bg-accent-soft px-3 py-1.5 text-sm text-accent disabled:text-muted"
+        className="shrink-0 rounded-lg bg-accent-tint px-3 py-1.5 text-sm text-accent disabled:text-faint"
       >
         {isSet ? '다시 설정' : '지금 위치로'}
       </button>

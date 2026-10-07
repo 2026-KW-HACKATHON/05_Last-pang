@@ -21,12 +21,12 @@ export function ConfirmDialog({
       <div className="absolute inset-0 bg-ink/40" aria-hidden="true" />
       <div className="relative w-full max-w-[342px] rounded-card bg-surface p-6 text-center">
         <h2 className="text-lg font-bold">{title}</h2>
-        {description && <p className="mt-2 text-sm text-sub">{description}</p>}
+        {description && <p className="mt-2 text-sm text-muted">{description}</p>}
         <div className="mt-6 grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={onCancel}
-            className="h-12 rounded-xl bg-cream font-semibold text-sub"
+            className="h-12 rounded-button bg-gray font-semibold text-muted"
           >
             취소
           </button>
@@ -34,7 +34,7 @@ export function ConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={isPending}
-            className="h-12 rounded-xl bg-accent font-semibold text-white disabled:opacity-50"
+            className="h-12 rounded-button bg-accent font-semibold text-white disabled:opacity-50"
           >
             {confirmLabel}
           </button>

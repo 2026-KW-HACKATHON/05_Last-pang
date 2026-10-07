@@ -19,13 +19,13 @@ export function PastCouponCard({ coupon }: PastCouponCardProps) {
       <div className="flex items-center justify-between">
         <p className="text-lg font-bold">{coupon.storeName}</p>
         <span
-          className={`rounded-pill px-2.5 py-0.5 text-xs font-bold ${isUsed ? 'bg-success text-white' : 'bg-cream text-sub'}`}
+          className={`rounded-pill px-2.5 py-0.5 text-xs font-bold ${isUsed ? 'bg-success text-white' : 'bg-gray text-muted'}`}
         >
           {isUsed ? '사용 완료' : '만료'}
         </span>
       </div>
-      <p className="mt-1 text-sub">{coupon.title}</p>
-      <p className={`mt-2 text-sm ${isUsed ? '' : 'text-muted'}`}>
+      <p className="mt-1 text-muted">{coupon.title}</p>
+      <p className={`mt-2 text-sm ${isUsed ? '' : 'text-faint'}`}>
         {coupon.usedAt
           ? `확인번호 ${toConfirmNumber(coupon.id)} · ${formatKstTime(coupon.usedAt)}`
           : `${formatKstTime(coupon.expiresAt)} 만료`}

@@ -15,7 +15,7 @@ export function MenuRow({ to, label, badge }: MenuRowProps) {
     <Link to={to} className="flex h-14 items-center gap-2 px-4">
       <span>{label}</span>
       {badge}
-      <Icon name="chevronRight" size={16} className="ml-auto text-muted" />
+      <Icon name="chevronRight" size={16} className="ml-auto text-faint" />
     </Link>
   );
 }

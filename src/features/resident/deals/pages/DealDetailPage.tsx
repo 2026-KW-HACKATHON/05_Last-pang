@@ -80,7 +80,7 @@ export function DealDetailPage() {
             title="이미 끝났거나 볼 수 없는 딜이에요"
             description="홈에서 지금 진행 중인 다른 딜을 찾아보세요"
             action={
-              <Link to="/" className="rounded-xl bg-accent px-6 py-3 font-semibold text-white">
+              <Link to="/" className="rounded-button bg-accent px-6 py-3 font-semibold text-white">
                 홈으로
               </Link>
             }

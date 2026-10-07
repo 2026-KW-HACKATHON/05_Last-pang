@@ -49,7 +49,7 @@ export function MyCouponsPage() {
           action={
             <Link
               to="/"
-              className="inline-block rounded-xl bg-accent px-14 py-3 font-semibold text-white"
+              className="inline-block rounded-button bg-accent px-14 py-3 font-semibold text-white"
             >
               근처 딜 보러 가기
             </Link>
@@ -69,7 +69,7 @@ export function MyCouponsPage() {
                   </li>
                 ))}
               </ul>
-              <p className="mt-4 text-sm text-muted">
+              <p className="mt-4 text-sm text-faint">
                 쿠폰은 받은 뒤 유효시간 안에 가게에서 사용해야 해요
               </p>
             </>
