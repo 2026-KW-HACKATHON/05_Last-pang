@@ -5,7 +5,7 @@ interface DealNoticeProps {
 // 쿠폰 사용 방법 안내 (항상 표시)
 export function DealNotice({ couponTtlMin }: DealNoticeProps) {
   return (
-    <section className="mt-8 rounded-xl bg-gray p-4 text-sm">
+    <section className="mt-8 rounded-field bg-gray p-4 text-sm">
       <h3 className="mb-2 font-semibold">이용 안내</h3>
       <ul className="list-outside list-disc space-y-1 pl-4 text-muted">
         <li>쿠폰을 받은 뒤 {couponTtlMin}분 안에 매장에 방문해 주세요.</li>
