@@ -1,32 +1,30 @@
 import { Icon } from '@/shared/ui/Icon';
 
 interface BaseLocationCardProps {
-  isSet: boolean; // false면 월계1동 중심 기준
-  canUseCurrent: boolean;
-  onUseCurrent: () => void;
+  label: string | null; // null이면 월계1동 중심 기준
+  onChange: () => void;
 }
 
-// 자주 있는 곳: 지금 위치를 약 100m 단위로 흐려서 저장한다 (실시간 위치는 저장하지 않음)
-export function BaseLocationCard({ isSet, canUseCurrent, onUseCurrent }: BaseLocationCardProps) {
+// 자주 있는 곳: 기준 위치 화면(R4-1)에서 약 100m 단위로 흐려서 저장한다 (실시간 위치는 저장하지 않음)
+export function BaseLocationCard({ label, onChange }: BaseLocationCardProps) {
   return (
-    <div className="flex items-center gap-3 rounded-card p-4 ring-1 ring-line">
-      <span className="flex size-10 items-center justify-center rounded-full bg-accent-tint text-accent">
-        <Icon name="pin" size={20} />
+    <div className="flex items-center gap-3 rounded-card bg-gray p-4">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface text-accent">
+        <Icon name="crosshair" size={20} />
       </span>
-      <div className="flex-1">
-        <p className="font-semibold">자주 있는 곳</p>
+      <div className="min-w-0 flex-1">
+        <p className="font-semibold">자주 있는 곳을 기준으로</p>
         <p className="mt-0.5 flex items-center gap-1 text-sm text-success">
-          <Icon name="check" size={14} />
-          {isSet ? '지금 위치 근처로 설정됐어요' : '월계1동 기준이에요'}
+          <Icon name="checkCircle" size={14} />
+          <span className="truncate">{label ?? '월계1동'} 기준으로 설정됐어요</span>
         </p>
       </div>
       <button
         type="button"
-        onClick={onUseCurrent}
-        disabled={!canUseCurrent}
-        className="shrink-0 rounded-lg bg-accent-tint px-3 py-1.5 text-sm text-accent disabled:text-faint"
+        onClick={onChange}
+        className="shrink-0 rounded-pill bg-surface px-3.5 py-1.5 text-sm ring-1 ring-line"
       >
-        {isSet ? '다시 설정' : '지금 위치로'}
+        변경
       </button>
     </div>
   );
