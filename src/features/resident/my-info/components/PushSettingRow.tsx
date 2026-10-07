@@ -2,8 +2,8 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Toast } from '@/shared/ui/Toast';
+import { shouldShowIosInstallGuide } from '@/shared/lib/platform';
 
-import { isIosBrowserTab } from '../../notifications/api';
 import { usePushSubscription } from '../../notifications/hooks';
 import { useTurnOffPushConsent } from '../hooks';
 import { PushBlockedSheet } from './PushBlockedSheet';
@@ -36,7 +36,7 @@ export function PushSettingRow({ agreedPushAt }: PushSettingRowProps) {
     }
     if (push.permission === 'unsupported') {
       // iPhone Safari 탭에서는 홈 화면에 추가해야 알림을 받을 수 있다
-      if (isIosBrowserTab()) navigate('/install-guide');
+      if (shouldShowIosInstallGuide()) navigate('/install-guide');
       else setToastMessage('이 브라우저는 알림을 지원하지 않아요');
       return;
     }

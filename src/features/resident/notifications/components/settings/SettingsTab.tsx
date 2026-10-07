@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { ErrorState } from '@/shared/ui/ErrorState';
 import { Icon } from '@/shared/ui/Icon';
 import { LoadingState } from '@/shared/ui/LoadingState';
+import { shouldShowIosInstallGuide } from '@/shared/lib/platform';
 
-import { isIosBrowserTab } from '../../api';
 import { usePushSubscription } from '../../hooks';
 import { useNotificationSettings, useUpdateNotificationSettings } from '../../settingsHooks';
 import { AlertTogglesCard } from './AlertTogglesCard';
@@ -24,7 +24,7 @@ export function SettingsTab() {
   const settings = useNotificationSettings();
   const update = useUpdateNotificationSettings();
   const [openSheet, setOpenSheet] = useState<OpenSheet>(null);
-  const isIosTab = isIosBrowserTab();
+  const isIosTab = shouldShowIosInstallGuide();
 
   if (settings.isPending) return <LoadingState />;
   if (settings.isError) {
