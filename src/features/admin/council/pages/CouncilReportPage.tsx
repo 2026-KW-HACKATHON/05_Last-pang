@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 import { Icon } from '@/features/owner/components/Icon';
 import { Button } from '@/features/owner/components/ui/Button';
-import { Mascot } from '@/features/owner/components/ui/Mascot';
+import { Mascot } from '@/shared/ui/Mascot';
 import { formatMonthDay } from '@/features/owner/lib/format';
 import { toKstDateString } from '@/shared/lib/time';
 
@@ -90,7 +90,7 @@ export function CouncilReportPage() {
         )}
         {data && !data.is_ready && !isForced && (
           <div className="flex flex-col items-center rounded-card bg-surface py-16 text-center">
-            <Mascot pose="eat" size={140} />
+            <Mascot pose="rice" size={140} />
             <p className="mt-4 text-xl font-bold">데이터가 쌓이는 중이에요</p>
             <p className="mt-1 text-sm text-muted">
               믿을 만한 통계를 보여드리려면 2주 이상 운영 기록이 필요해요.

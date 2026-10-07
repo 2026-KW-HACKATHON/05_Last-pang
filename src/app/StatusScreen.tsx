@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 
+import { Mascot } from '@/shared/ui/Mascot';
+
 import type { ReactNode } from 'react';
 
 interface StatusScreenProps {
   title: string;
   body: ReactNode;
-  mascot?: 'map' | 'eat';
+  mascot?: 'map' | 'rice';
   actions: Array<{ label: string; onClick: () => void; isPrimary?: boolean }>;
   footer?: ReactNode;
 }
@@ -26,7 +28,7 @@ export function StatusScreen({ title, body, mascot = 'map', actions, footer }: S
         </button>
       </header>
       <div className="flex flex-1 flex-col items-center justify-center px-6 pb-16 text-center">
-        <img src={`/brand/mascot-${mascot}.webp`} alt="" width={120} height={120} />
+        <Mascot pose={mascot} size={120} />
         <h1 className="mt-5 text-[22px] font-bold">{title}</h1>
         <div className="mt-2 text-[15px] leading-[22px] whitespace-pre-line text-muted">{body}</div>
         <div className="mt-8 w-full space-y-2">

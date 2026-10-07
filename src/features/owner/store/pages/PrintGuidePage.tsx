@@ -1,7 +1,8 @@
 // O6-1 카운터 안내문 인쇄 — 보안을 위해 가게 코드는 안내문에 넣지 않는다
+import { Mascot } from '@/shared/ui/Mascot';
+
 import { Icon } from '../../components/Icon';
 import { Button } from '../../components/ui/Button';
-import { Mascot } from '../../components/ui/Mascot';
 import { NoticeBox } from '../../components/ui/NoticeBox';
 import { StickyBar } from '../../components/ui/StickyBar';
 import { TopBar } from '../../components/ui/TopBar';
@@ -24,7 +25,7 @@ export function PrintGuidePage() {
             <br />
             동네냠냠 타임딜 가게예요
           </h2>
-          <Mascot pose="heart" size={110} className="my-4" />
+          <Mascot pose="heart" size={110} className="mx-auto my-4" />
           <ol className="space-y-2 text-left">
             {STEPS.map((step, index) => (
               <li key={step} className="flex items-center gap-3 rounded-field bg-gray p-3 text-sm">

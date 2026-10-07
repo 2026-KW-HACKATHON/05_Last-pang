@@ -1,4 +1,4 @@
-import { Mascot, type MascotPose } from './Mascot';
+import { Mascot, type MascotPose } from '@/shared/ui/Mascot';
 
 import type { ReactNode } from 'react';
 
@@ -14,7 +14,7 @@ interface StatusBlockProps {
 export function StatusBlock({ pose, title, body, action, badge }: StatusBlockProps) {
   return (
     <div className="flex flex-col items-center px-5 py-8 text-center">
-      <Mascot pose={pose} />
+      <Mascot pose={pose} className="mx-auto" />
       {badge && <div className="mt-4">{badge}</div>}
       <h2 className="mt-3 text-[22px] leading-[30px] font-bold whitespace-pre-line">{title}</h2>
       {body && (

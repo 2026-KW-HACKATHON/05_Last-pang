@@ -20,7 +20,7 @@ export function RouteErrorPage() {
   }
   return (
     <StatusScreen
-      mascot="eat"
+      mascot="rice"
       title="문제가 생겼어요"
       body={'일시적인 오류예요. 다시 시도해도 안 되면\n앱을 닫았다가 다시 열어 주세요.'}
       actions={[
