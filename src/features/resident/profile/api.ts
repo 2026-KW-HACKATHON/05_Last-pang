@@ -52,3 +52,13 @@ export async function updateConsents({ hasLocationConsent, hasPushConsent }: Con
     .eq('id', userId);
   if (error) throw toAppError(error);
 }
+
+/** 알림 수신 동의 시각 (끄면 null). 실제 발송 여부는 push_subscriptions가 정한다 */
+export async function updatePushConsent(isOn: boolean): Promise<void> {
+  const userId = await fetchCurrentUserId();
+  const { error } = await supabase
+    .from('profiles')
+    .update({ agreed_push_at: isOn ? new Date().toISOString() : null })
+    .eq('id', userId);
+  if (error) throw toAppError(error);
+}
