@@ -2,19 +2,22 @@ import { z } from 'zod';
 
 const couponTtlSchema = z.union([z.literal(10), z.literal(15), z.literal(20), z.literal(30)]);
 
-export const dealFormSchema = z
-  .object({
-    title: z.string().trim().min(1, '딜 이름을 입력해 주세요').max(40, '40자까지 쓸 수 있어요'),
-    originalPrice: z.number().int().positive('정가를 입력해 주세요'),
-    dealPrice: z.number().int().positive('할인가를 입력해 주세요'),
-    totalQty: z.number().int().min(1).max(100, '최대 100개까지예요'),
-    durationMin: z.number().int().min(10).max(240), // 지금부터 몇 분 동안
-    couponTtlMin: couponTtlSchema,
-  })
-  .refine((value) => value.dealPrice < value.originalPrice, {
+export const dealBaseSchema = z.object({
+  title: z.string().trim().min(1, '딜 이름을 입력해 주세요').max(40, '40자까지 쓸 수 있어요'),
+  originalPrice: z.number().int().positive('정가를 입력해 주세요'),
+  dealPrice: z.number().int().positive('할인가를 입력해 주세요'),
+  totalQty: z.number().int().min(1).max(100, '최대 100개까지예요'),
+  durationMin: z.union([z.literal(60), z.literal(120), z.literal(180)]), // 1·2·3시간 (서버도 같은 값만 받음)
+  couponTtlMin: couponTtlSchema,
+});
+
+export const dealFormSchema = dealBaseSchema.refine(
+  (value) => value.dealPrice < value.originalPrice,
+  {
     message: '할인가는 정상가보다 낮아야 해요',
     path: ['dealPrice'],
-  });
+  },
+);
 export type DealFormInput = z.infer<typeof dealFormSchema>;
 
 const hhmm = z.string().regex(/^\d{2}:\d{2}$/); // <input type="time"> 값

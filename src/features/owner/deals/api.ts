@@ -1,36 +1,39 @@
 import { z } from 'zod';
 
 import { toAppError } from '@/shared/lib/errors';
+import { unwrapRpc } from '@/shared/lib/rpc';
 import { supabase } from '@/shared/lib/supabase';
 
 import { kstTodayWindow } from '../lib/period';
 
 import type { DealFormInput, WeeklyDealInput } from './schema';
 
-export async function createDeal(
-  storeId: string,
-  input: DealFormInput,
-  now = new Date(),
-): Promise<string> {
-  const endsAt = new Date(now.getTime() + input.durationMin * 60_000);
-  const { data, error } = await supabase
-    .from('deals')
-    .insert({
-      store_id: storeId,
-      type: 'instant',
-      title: input.title,
-      original_price: input.originalPrice,
-      deal_price: input.dealPrice,
-      total_qty: input.totalQty,
-      remaining_qty: input.totalQty, // 타입상 필요. 실제 값은 2-1 트리거가 total_qty로 덮어씀
-      coupon_ttl_min: input.couponTtlMin,
-      starts_at: now.toISOString(),
-      ends_at: endsAt.toISOString(),
-    })
-    .select('id')
-    .single();
-  if (error) throw toAppError(error); // 승인 안 된 가게면 RLS 42501 → FORBIDDEN
-  return data.id;
+const createdDealSchema = z.object({
+  deal_id: z.string(),
+  starts_at: z.string(),
+  ends_at: z.string(),
+  push_targets: z.number(),
+});
+export type CreatedDeal = z.infer<typeof createdDealSchema>;
+
+/** 즉시딜 올리기. 하루 3개·같은 시간대·코드 미발급은 서버가 막는다 (DAILY_LIMIT_REACHED · TIME_OVERLAP · CODE_NOT_ISSUED) */
+export async function createInstantDeal(input: DealFormInput): Promise<CreatedDeal> {
+  const { data, error } = await supabase.rpc('create_instant_deal', {
+    p_title: input.title,
+    p_original_price: input.originalPrice,
+    p_deal_price: input.dealPrice,
+    p_duration_min: input.durationMin,
+    p_total_qty: input.totalQty,
+    p_coupon_ttl_min: input.couponTtlMin,
+  });
+  return unwrapRpc(data, error, createdDealSchema);
+}
+
+/** 오늘 올린 즉시딜 수와 한도 (O4-1 "오늘은 딜을 3개 모두 올렸어요") */
+export async function fetchTodayDealQuota(): Promise<{ used: number; limit: number }> {
+  const { data, error } = await supabase.rpc('get_today_deal_quota');
+  if (error) throw toAppError(error);
+  return z.object({ used: z.number(), limit: z.number() }).parse(data);
 }
 
 export interface OwnerDeal {
@@ -43,10 +46,13 @@ export interface OwnerDeal {
   totalQty: number;
   startsAt: string;
   endsAt: string;
+  status: 'active' | 'paused' | 'closed';
+  pausedAt: string | null;
+  couponTtlMin: number;
 }
 
 const DEAL_COLUMNS =
-  'id, type, title, original_price, deal_price, remaining_qty, total_qty, starts_at, ends_at';
+  'id, type, title, original_price, deal_price, remaining_qty, total_qty, starts_at, ends_at, status, paused_at, coupon_ttl_min';
 
 interface DealRow {
   id: string;
@@ -58,7 +64,13 @@ interface DealRow {
   total_qty: number;
   starts_at: string;
   ends_at: string;
+  status: string;
+  paused_at: string | null;
+  coupon_ttl_min: number;
 }
+
+const toDealStatus = (value: string): OwnerDeal['status'] =>
+  value === 'paused' || value === 'closed' ? value : 'active';
 
 const toOwnerDeal = (row: DealRow): OwnerDeal => ({
   id: row.id,
@@ -70,6 +82,9 @@ const toOwnerDeal = (row: DealRow): OwnerDeal => ({
   totalQty: row.total_qty,
   startsAt: row.starts_at,
   endsAt: row.ends_at,
+  status: toDealStatus(row.status),
+  pausedAt: row.paused_at,
+  couponTtlMin: row.coupon_ttl_min,
 });
 
 /** 지금 진행 중인 딜 (시작했고 아직 안 끝난 것) */
@@ -78,7 +93,7 @@ export async function fetchMyActiveDeals(storeId: string, now = new Date()): Pro
     .from('deals')
     .select(DEAL_COLUMNS)
     .eq('store_id', storeId)
-    .eq('status', 'active')
+    .in('status', ['active', 'paused'])
     .lte('starts_at', now.toISOString())
     .gt('ends_at', now.toISOString())
     .order('ends_at');
@@ -132,10 +147,10 @@ export async function fetchDealCouponCounts(
   return counts;
 }
 
-/** 조기 종료. 이미 발급된 쿠폰은 유효 (컨벤션 9장) */
+/** 조기 종료. 이미 발급된 쿠폰은 유효 (컨벤션 9장). 종료 사유 owner는 서버가 기록 */
 export async function closeDeal(dealId: string): Promise<void> {
-  const { error } = await supabase.from('deals').update({ status: 'closed' }).eq('id', dealId);
-  if (error) throw toAppError(error);
+  const { data, error } = await supabase.rpc('close_deal', { p_deal_id: dealId });
+  unwrapRpc(data, error, z.object({ deal_id: z.string() }));
 }
 
 /** 딜 등록 화면의 "근처 주민 N명에게 알림" — 읽기 RPC는 결과 그대로 (컨벤션 8장) */
