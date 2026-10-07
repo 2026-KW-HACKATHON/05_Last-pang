@@ -1,20 +1,44 @@
+import { Icon } from '@/shared/ui/Icon';
+
 interface PushToggleRowProps {
   isOn: boolean;
+  isBlocked: boolean;
+  isPending: boolean;
   onToggle: () => void;
+  onHelp: () => void;
 }
 
-// 알림 받기 스위치. 켜기는 알림 허용 화면으로, 끄기는 브라우저 설정 안내로 (웹은 권한을 직접 끌 수 없음)
-export function PushToggleRow({ isOn, onToggle }: PushToggleRowProps) {
+// 알림 받기 스위치. 브라우저에서 막혀 있으면 아래에 빨간 안내 줄 (R12-1)
+export function PushToggleRow({
+  isOn,
+  isBlocked,
+  isPending,
+  onToggle,
+  onHelp,
+}: PushToggleRowProps) {
   return (
-    <div className="flex h-14 items-center px-4">
-      <span>알림 받기</span>
+    <div className="flex min-h-14 items-center gap-3 px-4 py-2">
+      <div className="flex-1">
+        <span>알림 받기</span>
+        {isBlocked && (
+          <button
+            type="button"
+            onClick={onHelp}
+            className="mt-0.5 flex items-center gap-1 text-left text-xs text-danger"
+          >
+            <Icon name="bellOff" size={14} />
+            브라우저에서 알림이 막혀 있어요 · <span className="underline">해결 방법</span>
+          </button>
+        )}
+      </div>
       <button
         type="button"
         role="switch"
         aria-checked={isOn}
         aria-label="알림 받기"
         onClick={onToggle}
-        className={`ml-auto flex h-7 w-12 items-center rounded-pill p-0.5 transition-colors ${isOn ? 'bg-accent' : 'bg-line'}`}
+        disabled={isPending}
+        className={`flex h-7 w-12 shrink-0 items-center rounded-pill p-0.5 transition-colors ${isOn ? 'bg-accent' : isBlocked ? 'bg-gray ring-1 ring-line' : 'bg-line'}`}
       >
         <span
           className={`size-6 rounded-full bg-surface shadow transition-transform ${isOn ? 'translate-x-5' : ''}`}
