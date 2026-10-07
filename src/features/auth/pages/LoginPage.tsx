@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { AppSplash } from '@/app/AppSplash';
-import { env } from '@/shared/lib/env';
 import { toAppError } from '@/shared/lib/errors';
 
 import { signInWithKakao } from '../api';
@@ -67,7 +66,7 @@ export function LoginPage() {
         >
           사장님이신가요? 가게 등록하기
         </button>
-        {env.isTestLoginEnabled && <TestLoginForm />}
+        {import.meta.env.DEV && <TestLoginForm />}
         <p className="mt-6 text-xs leading-5 text-faint">
           시작하면 <Link to="/terms/service">이용약관</Link>과{' '}
           <Link to="/terms/privacy">개인정보 처리방침</Link>에 동의하는 것으로 보지 않아요.

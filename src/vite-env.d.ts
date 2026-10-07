@@ -6,7 +6,6 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_PUBLISHABLE_KEY?: string;
   readonly VITE_VAPID_PUBLIC_KEY?: string;
   readonly VITE_USE_MOCKS?: string;
-  readonly VITE_ENABLE_TEST_LOGIN?: string;
 }
 
 interface ImportMeta {

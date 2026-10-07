@@ -1,4 +1,4 @@
-// 테스트 계정(이메일·비밀번호) 로그인. VITE_ENABLE_TEST_LOGIN=true 일 때만 로그인 화면에 붙는다
+// 데모 계정(이메일·비밀번호) 로그인. 컨벤션 10장: 개발 빌드(npm run dev)에서만 로그인 화면에 붙는다
 import { useState, type FormEvent } from 'react';
 
 import { toAppError } from '@/shared/lib/errors';
