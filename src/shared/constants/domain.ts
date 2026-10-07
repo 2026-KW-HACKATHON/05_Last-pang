@@ -5,7 +5,7 @@ export const CATEGORIES = [
   { value: 'meal', label: '식사' },
   { value: 'cafe', label: '카페' },
   { value: 'bakery', label: '베이커리' },
-  { value: 'snack', label: '분식·간식' },
+  { value: 'snack', label: '분식' },
   { value: 'etc', label: '기타' },
 ] as const;
 export type Category = (typeof CATEGORIES)[number]['value'];

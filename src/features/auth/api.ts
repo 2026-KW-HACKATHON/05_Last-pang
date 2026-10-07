@@ -24,3 +24,9 @@ export async function fetchMyRole(userId: string): Promise<Role | null> {
   if (error) throw toAppError(error);
   return data ? roleSchema.parse(data.role) : null;
 }
+
+/** 로그아웃. 성공하면 subscribeAuthChange가 null 세션을 받아 로그인 화면으로 간다 */
+export async function signOut(): Promise<void> {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw toAppError(error);
+}

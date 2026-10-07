@@ -9,4 +9,5 @@ export const ROOT_KEYS = {
   schedules: ['schedules'],
   profile: ['profile'],
   admin: ['admin'],
+  notifications: ['notifications'],
 } as const;
