@@ -25,6 +25,32 @@ export async function fetchMyRole(userId: string): Promise<Role | null> {
   return data ? roleSchema.parse(data.role) : null;
 }
 
+/** 카카오 로그인. 카카오 → Supabase → /auth/callback 으로 돌아오면 PKCE 코드가 자동으로 세션이 된다 */
+export async function signInWithKakao(): Promise<void> {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'kakao',
+    options: { redirectTo: `${window.location.origin}/auth/callback` },
+  });
+  if (error) throw toAppError(error);
+}
+
+/** 테스트 계정 로그인 (env.isTestLoginEnabled일 때만 화면에 보인다). 계정은 Supabase 대시보드에서 만든다 */
+export async function signInWithTestAccount(email: string, password: string): Promise<void> {
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw toAppError(error);
+}
+
+/** 로그인 직후 어디로 보낼지 정하는 데 필요한 값. 본인 행만 읽는다 */
+export async function fetchHasAgreedTerms(userId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('agreed_terms_at')
+    .eq('id', userId)
+    .maybeSingle();
+  if (error) throw toAppError(error);
+  return Boolean(data?.agreed_terms_at);
+}
+
 /** 로그아웃. 성공하면 subscribeAuthChange가 null 세션을 받아 로그인 화면으로 간다 */
 export async function signOut(): Promise<void> {
   const { error } = await supabase.auth.signOut();
