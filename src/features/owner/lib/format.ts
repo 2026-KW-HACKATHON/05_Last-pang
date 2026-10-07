@@ -60,3 +60,22 @@ export function formatRepeatDays(days: number[]): string {
     .map((day) => DAYS[day])
     .join('·');
 }
+
+/** "14:00 ~ 16:00" */
+export function formatTimeRange(startsAtIso: string, endsAtIso: string): string {
+  return `${formatClock(startsAtIso)} ~ ${formatClock(endsAtIso)}`;
+}
+
+/** 한국 날짜 기준 "오늘" · "어제" · "10월 3일" */
+export function formatRelativeDay(iso: string, now = new Date()): string {
+  const day = (date: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: KST }).format(date);
+  const target = day(new Date(iso));
+  if (target === day(now)) return '오늘';
+  if (target === day(new Date(now.getTime() - 86_400_000))) return '어제';
+  return formatMonthDay(target);
+}
+
+/** 28000 → "2.8" (만 원 단위, 홈 요약 타일) */
+export function toManWon(won: number): string {
+  return (Math.round(won / 1000) / 10).toString();
+}
