@@ -50,17 +50,28 @@ where role = 'resident';
 
 -- ───── 월계1동 예시 가게 (좌표는 대략값. 시연 전 실제 주변 좌표로 교체) ─────
 -- 3번 사장님 가게는 승인 대기 화면 확인용으로 pending
-insert into stores (id, owner_id, name, category, address, lat, lng, status) values
+-- 사업자 정보는 가짜 값(0으로 시작하는 번호)이다
+insert into stores (id, owner_id, name, category, description, address, lat, lng, status,
+                    representative_name, business_no, approved_at, reviewed_at) values
   ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002',
-   '데모 베이커리', 'bakery', '노원구 월계1동 (예시)', 37.6215, 127.0585, 'approved'),
+   '데모 베이커리', 'bakery', '베이커리 · 디저트', '노원구 월계1동 (예시)', 37.6215, 127.0585, 'approved',
+   '데모사장일', '0000000001', now(), now()),
   ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003',
-   '데모 카페', 'cafe', '노원구 월계1동 (예시)', 37.6230, 127.0570, 'approved'),
+   '데모 카페', 'cafe', '커피 · 디저트', '노원구 월계1동 (예시)', 37.6230, 127.0570, 'approved',
+   '데모사장이', '0000000002', now(), now()),
   ('10000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000004',
-   '데모 분식', 'snack', '노원구 월계1동 (예시)', 37.6200, 127.0600, 'pending');
+   '데모 분식', 'snack', '떡볶이 · 김밥', '노원구 월계1동 (예시)', 37.6200, 127.0600, 'pending',
+   '데모사장삼', '0000000003', null, null);
+
+-- 운영자가 직접 넣은 가게 (사장님 계정 없음) — 운영자 화면 "가게 추가" 확인용
+insert into stores (id, owner_id, name, category, description, address, lat, lng, status,
+                    created_by_admin, approved_at, reviewed_at) values
+  ('10000000-0000-0000-0000-000000000004', null,
+   '데모 국수집', 'meal', '칼국수 · 수제비', '노원구 월계1동 (예시)', 37.6210, 127.0592, 'approved', true, now(), now());
 
 -- 시연용 가게 코드: 승인된 가게 모두 123456 (로컬 전용. 원격에는 절대 넣지 않음)
-insert into store_secrets (store_id, redeem_code_hash)
-select id, crypt('123456', gen_salt('bf')) from stores where status = 'approved';
+insert into store_secrets (store_id, redeem_code_hash, code_issued_at)
+select id, crypt('123456', gen_salt('bf')), now() from stores where status = 'approved';
 
 -- ───── 주민 20명: 월계1동 중심 근처(약 100m 단위), 생활 패턴은 기본값 ─────
 insert into resident_preferences (user_id, base_lat, base_lng)
