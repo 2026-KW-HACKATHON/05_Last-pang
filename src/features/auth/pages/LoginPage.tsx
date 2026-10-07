@@ -19,7 +19,8 @@ export function LoginPage() {
   const redirect = searchParams.get('redirect');
   const sharedDealId = isSafePath(redirect) ? /^\/deals\/([^/?]+)/.exec(redirect)?.[1] : undefined;
   const [error, setError] = useState<string | null>(null);
-  const [isPending, setIsPending] = useState(false);
+  // 어느 버튼으로 시작했는지: 누른 버튼에만 "이동 중"을 보여 준다
+  const [pendingTarget, setPendingTarget] = useState<'resident' | 'owner' | null>(null);
   const { isRedirecting } = usePostLoginRedirect();
 
   // 로그인 전에 돌아갈 곳을 적어 둔다 (테스트 계정 로그인도 같은 규칙)
@@ -28,13 +29,13 @@ export function LoginPage() {
 
   const start = async (afterLogin: string | null) => {
     if (afterLogin) saveAfterLogin(afterLogin);
-    setIsPending(true);
+    setPendingTarget(afterLogin ? 'owner' : 'resident');
     setError(null);
     try {
       await signInWithKakao(); // 성공하면 카카오 화면으로 넘어간다
     } catch (caught) {
       setError(toAppError(caught).message);
-      setIsPending(false);
+      setPendingTarget(null);
     }
   };
 
@@ -55,16 +56,19 @@ export function LoginPage() {
       <div className="mt-auto pt-10 text-center">
         <KakaoButton
           label={sharedDealId ? '카카오로 시작하고 딜 보기' : '카카오로 시작하기'}
-          isPending={isPending}
+          isPending={pendingTarget === 'resident'}
           onClick={() => void start(null)}
         />
         {error && <p className="mt-3 text-sm text-danger">{error}</p>}
         <button
           type="button"
           onClick={() => void start('/owner/signup')}
-          className="mt-4 text-sm text-ink underline underline-offset-2"
+          disabled={pendingTarget !== null}
+          className="mt-4 inline-flex min-h-11 items-center px-3 text-sm text-ink underline underline-offset-2 disabled:opacity-60"
         >
-          사장님이신가요? 가게 등록하기
+          {pendingTarget === 'owner'
+            ? '카카오 로그인 후 가게 등록으로 이동해요…'
+            : '사장님이신가요? 가게 등록하기'}
         </button>
         {import.meta.env.DEV && <TestLoginForm />}
         <p className="mt-6 text-xs leading-5 text-faint">
