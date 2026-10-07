@@ -1,11 +1,13 @@
 import { calculateDiscountRate } from '@/shared/lib/format';
 
-import type { DealSort, DealSummary } from './types';
+import type { DealSort, DealStatus, DealSummary } from './types';
 
-const CLOSING_SOON_RATIO = 0.2; // 남은 수량이 20% 이하면 "마감임박" (화면 명세 S03 [제안])
+const ENDING_SOON_MS = 30 * 60_000; // 끝나기 30분 전부터 "마감임박" (피그마 R6 기본)
 
-export const isClosingSoon = (remainingQty: number, totalQty: number) =>
-  remainingQty > 0 && remainingQty <= Math.max(1, Math.floor(totalQty * CLOSING_SOON_RATIO));
+export const isEndingSoon = (endsAt: string, nowMs: number) => {
+  const leftMs = new Date(endsAt).getTime() - nowMs;
+  return leftMs > 0 && leftMs <= ENDING_SOON_MS;
+};
 
 const SORT_COMPARERS: Record<DealSort, (a: DealSummary, b: DealSummary) => number> = {
   distance: (a, b) => a.distanceM - b.distanceM,
@@ -23,10 +25,19 @@ export function sortDeals(deals: DealSummary[], sort: DealSort): DealSummary[] {
   });
 }
 
-export type DealPhase = 'upcoming' | 'active' | 'soldOut' | 'ended';
+/** 위치를 모를 때의 "인기" 순: 준비 수량 대비 많이 나간 딜부터 (소진 딜 제외) */
+export function pickPopularDeals(deals: DealSummary[], count: number): DealSummary[] {
+  const claimedRatio = (deal: DealSummary) => (deal.totalQty - deal.remainingQty) / deal.totalQty;
+  return deals
+    .filter((deal) => deal.remainingQty > 0)
+    .sort((a, b) => claimedRatio(b) - claimedRatio(a))
+    .slice(0, count);
+}
+
+export type DealPhase = 'upcoming' | 'active' | 'soldOut' | 'paused' | 'ended';
 
 interface PhaseInput {
-  status: 'active' | 'closed';
+  status: DealStatus;
   startsAt: string;
   endsAt: string;
   remainingQty: number;
@@ -35,6 +46,7 @@ interface PhaseInput {
 /** 딜 상세의 버튼·배너를 정하는 상태. 실제로 받을 수 있는지는 claim_coupon이 다시 확인한다 */
 export function toDealPhase(deal: PhaseInput, nowMs: number): DealPhase {
   if (deal.status === 'closed' || nowMs >= new Date(deal.endsAt).getTime()) return 'ended';
+  if (deal.status === 'paused') return 'paused'; // 신고 3건으로 잠시 멈춤
   if (nowMs < new Date(deal.startsAt).getTime()) return 'upcoming';
   if (deal.remainingQty <= 0) return 'soldOut';
   return 'active';

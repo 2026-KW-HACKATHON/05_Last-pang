@@ -2,15 +2,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 import { ROOT_KEYS } from '@/shared/constants/queryKeys';
+import type { ReportReason } from '@/shared/constants/policy';
 
 import {
   claimCoupon,
-  createDealEvent,
   fetchDeal,
   fetchMyCouponForDeal,
   fetchRecommendedDeals,
   subscribeDealChanges,
 } from './api';
+import { createDealEvent, fetchMyDailyUsage, reportDeal } from './detailApi';
 
 import type { DealDetail } from './types';
 
@@ -19,16 +20,17 @@ const LIST_REFETCH_MS = 30_000; // 남은 수량이 바뀌므로 목록은 30초
 export const dealKeys = {
   all: ROOT_KEYS.deals,
   // 좌표는 약 100m 단위로 묶어 키를 만든다. 몇 m 움직였다고 다시 읽지 않게
-  list: (lat: number, lng: number) =>
-    [...ROOT_KEYS.deals, 'list', lat.toFixed(3), lng.toFixed(3)] as const,
+  list: (lat: number, lng: number, radiusM: number) =>
+    [...ROOT_KEYS.deals, 'list', lat.toFixed(3), lng.toFixed(3), radiusM] as const,
   detail: (dealId: string) => [...ROOT_KEYS.deals, 'detail', dealId] as const,
   myCoupon: (dealId: string) => [...ROOT_KEYS.coupons, 'byDeal', dealId] as const,
+  dailyUsage: () => [...ROOT_KEYS.coupons, 'dailyUsage'] as const,
 };
 
-export function useRecommendedDeals(lat: number, lng: number, isEnabled: boolean) {
+export function useRecommendedDeals(lat: number, lng: number, radiusM: number, isEnabled: boolean) {
   return useQuery({
-    queryKey: dealKeys.list(lat, lng),
-    queryFn: () => fetchRecommendedDeals(lat, lng),
+    queryKey: dealKeys.list(lat, lng, radiusM),
+    queryFn: () => fetchRecommendedDeals(lat, lng, radiusM),
     enabled: isEnabled,
     refetchInterval: LIST_REFETCH_MS,
   });
@@ -55,6 +57,21 @@ export function useMyCouponForDeal(dealId: string) {
   return useQuery({
     queryKey: dealKeys.myCoupon(dealId),
     queryFn: () => fetchMyCouponForDeal(dealId),
+  });
+}
+
+/** 오늘 쿠폰 사용 횟수. 쿠폰을 쓰면 coupons 키가 무효화되어 함께 갱신된다 */
+export function useMyDailyUsage() {
+  return useQuery({ queryKey: dealKeys.dailyUsage(), queryFn: fetchMyDailyUsage });
+}
+
+export function useReportDeal(dealId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ reason, detail }: { reason: ReportReason; detail: string }) =>
+      reportDeal(dealId, reason, detail),
+    // 신고가 3건 모이면 딜이 멈출 수 있다
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: dealKeys.detail(dealId) }),
   });
 }
 

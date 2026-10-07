@@ -1,7 +1,6 @@
 import { CATEGORIES } from '@/shared/constants/domain';
 import { walkingMinutes } from '@/shared/lib/geo';
 import { formatPrice } from '@/shared/lib/format';
-import { formatKstTime } from '@/shared/lib/time';
 import { Icon } from '@/shared/ui/Icon';
 
 import { CategoryIcon } from './CategoryIcon';
@@ -41,7 +40,7 @@ export function SoldOutDealCard({ deal, isDistanceKnown }: SoldOutDealCardProps)
             ? `도보 ${walkingMinutes(deal.distanceM)}분 (${deal.distanceM}m)`
             : '거리 미확인'}
         </span>
-        <span>{formatKstTime(deal.endsAt)}까지</span>
+        <span>내일 다시 열려요!</span>
       </div>
     </article>
   );

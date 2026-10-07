@@ -6,7 +6,7 @@ import { calculateDiscountRate, formatPrice } from '@/shared/lib/format';
 import { formatKstTime } from '@/shared/lib/time';
 import { Icon } from '@/shared/ui/Icon';
 
-import { isClosingSoon } from '../dealStatus';
+import { isEndingSoon } from '../dealStatus';
 import { CategoryIcon } from './CategoryIcon';
 
 import type { DealSummary } from '../types';
@@ -14,10 +14,11 @@ import type { DealSummary } from '../types';
 interface DealCardProps {
   deal: DealSummary;
   isDistanceKnown: boolean;
+  nowMs: number;
 }
 
 // 홈 목록의 진행 중 딜 카드 (피그마 R6 기본)
-export function DealCard({ deal, isDistanceKnown }: DealCardProps) {
+export function DealCard({ deal, isDistanceKnown, nowMs }: DealCardProps) {
   const categoryLabel = CATEGORIES.find((category) => category.value === deal.category)?.label;
   const discountRate = calculateDiscountRate(deal.originalPrice, deal.dealPrice);
 
@@ -34,7 +35,7 @@ export function DealCard({ deal, isDistanceKnown }: DealCardProps) {
             <span className="rounded-md px-1.5 py-0.5 text-xs ring-1 ring-line">
               {categoryLabel}
             </span>
-            {isClosingSoon(deal.remainingQty, deal.totalQty) && (
+            {isEndingSoon(deal.endsAt, nowMs) && (
               <span className="rounded-md bg-accent-tint px-1.5 py-0.5 text-xs text-accent">
                 마감임박
               </span>
