@@ -1,3 +1,5 @@
+import { createPortal } from 'react-dom';
+
 import { Icon } from './Icon';
 
 import type { ReactNode } from 'react';
@@ -10,8 +12,9 @@ interface BottomSheetProps {
 
 // 화면 아래에서 올라오는 시트. 바깥 어두운 곳을 누르면 닫힌다
 export function BottomSheet({ title, onClose, children }: BottomSheetProps) {
-  return (
-    <div className="fixed inset-0 z-30" role="dialog" aria-modal="true" aria-label={title}>
+  // 상단 바(sticky z-20) 안에서 열려도 화면 맨 위에 뜨도록 body로 옮겨 그린다
+  return createPortal(
+    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label={title}>
       <button
         type="button"
         aria-label="닫기"
@@ -28,6 +31,7 @@ export function BottomSheet({ title, onClose, children }: BottomSheetProps) {
         </div>
         {children}
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }

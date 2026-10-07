@@ -1,3 +1,5 @@
+import { createPortal } from 'react-dom';
+
 interface ConfirmDialogProps {
   title: string;
   description?: string;
@@ -16,7 +18,8 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
-  return (
+  // 상단 바(sticky z-20) 안에서 열려도 화면 맨 위에 뜨도록 body로 옮겨 그린다
+  return createPortal(
     <div className="fixed inset-0 z-40 flex items-center justify-center px-6" role="alertdialog">
       <div className="absolute inset-0 bg-ink/40" aria-hidden="true" />
       <div className="relative w-full max-w-[342px] rounded-card bg-surface p-6 text-center">
@@ -26,7 +29,7 @@ export function ConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="h-12 rounded-xl bg-gray font-semibold text-muted"
+            className="h-12 rounded-button bg-gray font-semibold text-muted"
           >
             취소
           </button>
@@ -34,12 +37,13 @@ export function ConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={isPending}
-            className="h-12 rounded-xl bg-accent font-semibold text-white disabled:opacity-50"
+            className="h-12 rounded-button bg-accent font-semibold text-white disabled:opacity-50"
           >
             {confirmLabel}
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

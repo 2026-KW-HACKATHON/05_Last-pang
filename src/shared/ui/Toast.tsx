@@ -19,7 +19,7 @@ export function Toast({ message, onClose }: ToastProps) {
   return (
     <div
       role="status"
-      className="fixed inset-x-0 bottom-36 z-40 mx-auto flex w-[calc(100%-40px)] max-w-[440px] items-center gap-3 rounded-pill bg-surface px-5 py-3 shadow-lg ring-1 ring-line"
+      className="fixed inset-x-0 bottom-36 z-[60] mx-auto flex w-[calc(100%-40px)] max-w-[440px] items-center gap-3 rounded-pill bg-surface px-5 py-3 shadow-lg ring-1 ring-line"
     >
       <span className="flex size-6 items-center justify-center rounded-full bg-success text-white">
         <Icon name="check" size={16} strokeWidth={2.5} />

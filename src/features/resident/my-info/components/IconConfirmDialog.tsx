@@ -33,7 +33,7 @@ export function IconConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="h-12 rounded-xl bg-gray font-semibold text-ink"
+            className="h-12 rounded-button bg-gray font-semibold text-ink"
           >
             취소
           </button>
@@ -41,7 +41,7 @@ export function IconConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={isPending}
-            className="h-12 rounded-xl bg-accent font-semibold text-white disabled:opacity-50"
+            className="h-12 rounded-button bg-accent font-semibold text-white disabled:opacity-50"
           >
             {confirmLabel}
           </button>

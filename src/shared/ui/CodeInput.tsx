@@ -56,7 +56,7 @@ export function CodeInput({
         {slots.map((position) => (
           <span
             key={position}
-            className={`flex size-12 items-center justify-center rounded-xl border-[1.5px] bg-surface text-xl ${toSlotClass(position)}`}
+            className={`flex size-12 items-center justify-center rounded-field border-[1.5px] bg-surface text-xl ${toSlotClass(position)}`}
           >
             {position < digits.length ? '●' : ''}
           </span>
@@ -70,7 +70,7 @@ export function CodeInput({
             disabled={disabled}
             onClick={() => handleKeyClick(key)}
             aria-label={key === 'delete' ? '한 자리 지우기' : undefined}
-            className={`flex h-13 items-center justify-center rounded-xl border border-line bg-surface font-semibold disabled:text-faint ${key === 'clear' ? 'text-sm text-muted' : 'text-xl'}`}
+            className={`flex h-13 items-center justify-center rounded-field border border-line bg-surface font-semibold disabled:text-faint ${key === 'clear' ? 'text-sm text-muted' : 'text-xl'}`}
           >
             {key === 'delete' && <Icon name="backspace" size={24} />}
             {key === 'clear' && '전체 지우기'}

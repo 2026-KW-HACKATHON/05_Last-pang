@@ -24,7 +24,7 @@ export function HomeSkeleton() {
         {[0, 1, 2].map((key) => (
           <li key={key} className="rounded-card p-4 ring-1 ring-line">
             <div className="flex gap-3">
-              <div className="size-12 animate-pulse rounded-xl bg-gray" />
+              <div className="size-12 animate-pulse rounded-field bg-gray" />
               <div className="flex-1 space-y-2 pt-1">
                 <div className={`h-3.5 w-3/5 ${BAR}`} />
                 <div className={`h-3 w-2/5 ${BAR}`} />
