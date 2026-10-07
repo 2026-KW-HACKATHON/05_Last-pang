@@ -15,10 +15,7 @@ export function ProfileCard({ nickname, loginLabel }: ProfileCardProps) {
         <p className="text-lg font-bold">{nickname}</p>
         <p className="text-sm text-muted">{loginLabel}</p>
       </div>
-      <Link
-        to="/onboarding/profile?mode=edit"
-        className="rounded-pill px-3 py-1.5 text-sm ring-1 ring-line"
-      >
+      <Link to="/me/nickname" className="rounded-pill px-3 py-1.5 text-sm ring-1 ring-line">
         수정
       </Link>
     </section>
