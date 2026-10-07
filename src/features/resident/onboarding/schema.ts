@@ -19,6 +19,6 @@ export const nicknameSchema = z.object({
     .trim()
     .min(1, '이름을 입력해 주세요')
     .max(NICKNAME_MAX_LENGTH, `${NICKNAME_MAX_LENGTH}자까지 쓸 수 있어요`)
-    .regex(/^[가-힣a-zA-Z0-9]+$/, '한글·영문·숫자만 쓸 수 있어요'),
+    .regex(/^[가-힣a-zA-Z0-9]+$/, '특수문자는 쓸 수 없어요'),
 });
 export type NicknameForm = z.infer<typeof nicknameSchema>;
