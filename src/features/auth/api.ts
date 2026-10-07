@@ -34,7 +34,7 @@ export async function signInWithKakao(): Promise<void> {
   if (error) throw toAppError(error);
 }
 
-/** 테스트 계정 로그인 (env.isTestLoginEnabled일 때만 화면에 보인다). 계정은 Supabase 대시보드에서 만든다 */
+/** 데모 계정 로그인. 개발 빌드에서만 화면에 보인다 (컨벤션 10장). 계정은 seed.sql이 만든다 */
 export async function signInWithTestAccount(email: string, password: string): Promise<void> {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw toAppError(error);

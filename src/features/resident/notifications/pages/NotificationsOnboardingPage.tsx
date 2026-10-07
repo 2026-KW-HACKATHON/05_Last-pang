@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
+import { shouldShowIosInstallGuide } from '@/shared/lib/platform';
+
 import { OnboardingHeader } from '../../onboarding/components/OnboardingHeader';
-import { isIosBrowserTab } from '../api';
 import { IosGuideView } from '../components/onboarding/IosGuideView';
 import { PushDeniedView } from '../components/onboarding/PushDeniedView';
 import { PushIntroView } from '../components/onboarding/PushIntroView';
@@ -35,7 +36,7 @@ export function NotificationsOnboardingPage() {
   const renderBody = () => {
     if (result === 'denied') return <PushDeniedView onFinish={finish} />;
     if (result === 'unsupported') return <PushUnsupportedView onFinish={finish} />;
-    if (isIosBrowserTab()) return <IosGuideView onConfirm={finish} onSkip={finish} />;
+    if (shouldShowIosInstallGuide()) return <IosGuideView onConfirm={finish} onSkip={finish} />;
     return (
       <PushIntroView
         isSubscribing={push.isSubscribing}

@@ -10,11 +10,6 @@ export const readPushPermission = (): PushPermission =>
     ? Notification.permission
     : 'unsupported';
 
-/** iPhone Safari는 홈 화면에 추가한 앱에서만 웹 푸시를 받을 수 있다 */
-export const isIosBrowserTab = () =>
-  /iPhone|iPad|iPod/.test(navigator.userAgent) &&
-  !window.matchMedia('(display-mode: standalone)').matches;
-
 // VAPID 공개키(base64url)를 pushManager가 받는 바이트 배열로
 const toApplicationServerKey = (base64Url: string) => {
   const base64 = (base64Url + '='.repeat((4 - (base64Url.length % 4)) % 4))
