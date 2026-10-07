@@ -1,10 +1,10 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
+import { shouldShowIosInstallGuide } from '@/shared/lib/platform';
 import { Icon, type IconName } from '@/shared/ui/Icon';
 import { Mascot } from '@/shared/ui/Mascot';
 
 import { OnboardingHeader } from '../../onboarding/components/OnboardingHeader';
-import { isIosBrowserTab } from '../api';
 import { usePushSubscription } from '../hooks';
 
 // 알림 규칙 (팀 합의 3장 임시값: 하루 3회, 21시~7시 금지)
@@ -22,7 +22,7 @@ export function NotificationsOnboardingPage() {
 
   const isEditMode = searchParams.get('mode') === 'edit';
   const nextPath = isEditMode ? '/me' : '/';
-  const isIosTab = isIosBrowserTab();
+  const isIosTab = shouldShowIosInstallGuide();
 
   const handleSubscribeClick = () => {
     push.subscribe(undefined, {

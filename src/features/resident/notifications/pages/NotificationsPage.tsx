@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 
+import { shouldShowIosInstallGuide } from '@/shared/lib/platform';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { PageHeader } from '@/shared/ui/PageHeader';
 
 import { ResidentTabBar } from '../../navigation/components/ResidentTabBar';
-import { isIosBrowserTab } from '../api';
 import { PushStatusCard } from '../components/PushStatusCard';
 import { usePushSubscription } from '../hooks';
 
@@ -16,7 +16,7 @@ export function NotificationsPage() {
     <main className="mx-auto min-h-dvh max-w-[480px] bg-surface">
       <PageHeader title="알림함" />
       <div className="px-5 pt-3">
-        <PushStatusCard permission={push.permission} isIosTab={isIosBrowserTab()} />
+        <PushStatusCard permission={push.permission} isIosTab={shouldShowIosInstallGuide()} />
       </div>
       <EmptyState
         pose="phone"
