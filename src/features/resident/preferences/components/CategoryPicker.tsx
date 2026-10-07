@@ -18,11 +18,11 @@ export function CategoryPicker({ selected, onToggle }: CategoryPickerProps) {
             type="button"
             aria-pressed={isSelected}
             onClick={() => onToggle(category.value)}
-            className={`relative flex h-16 flex-col items-center justify-center gap-1 rounded-xl text-sm ${isSelected ? 'bg-accent-tint text-accent' : 'bg-gray text-muted'}`}
+            className={`relative flex h-[60px] flex-col items-center justify-center gap-1 rounded-[12px] text-sm ${isSelected ? 'bg-accent-tint text-accent ring-1 ring-accent' : 'bg-gray text-muted'}`}
           >
             {isSelected && (
-              <span className="absolute top-1.5 right-1.5 flex size-4 items-center justify-center rounded-full bg-accent text-white">
-                <Icon name="check" size={10} strokeWidth={3} />
+              <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-accent text-white ring-2 ring-surface">
+                <Icon name="check" size={12} strokeWidth={3} />
               </span>
             )}
             <Icon name={category.value} size={22} />

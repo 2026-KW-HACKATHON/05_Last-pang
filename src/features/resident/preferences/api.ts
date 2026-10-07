@@ -4,6 +4,7 @@ import { DEFAULT_RADIUS_M } from '@/shared/constants/domain';
 import { categorySchema, timeSlotSchema } from '@/shared/lib/domainSchema';
 import { fetchCurrentUserId } from '@/shared/lib/currentUser';
 import { AppError, toAppError } from '@/shared/lib/errors';
+import { searchAddress, type GeoItem } from '@/shared/lib/geoSearch';
 import { supabase } from '@/shared/lib/supabase';
 
 import type { Preferences } from './types';
@@ -62,4 +63,11 @@ export async function updatePreferences(changes: Partial<Preferences>): Promise<
     updated_at: new Date().toISOString(),
   });
   if (error) throw toAppError(error);
+}
+
+/** 장소 이름으로 먼저 찾고, 없으면 주소로 다시 찾는다 (Edge Function geo-search) */
+export async function searchPlaces(query: string): Promise<GeoItem[]> {
+  const byKeyword = await searchAddress(query, 'keyword');
+  if (byKeyword.length > 0) return byKeyword;
+  return searchAddress(query, 'address');
 }
