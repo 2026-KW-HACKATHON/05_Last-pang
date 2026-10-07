@@ -165,6 +165,7 @@ export type Database = {
     "get_owner_deal_history": { Args: { "p_tab"?: string, "p_limit"?: number }; Returns: Json }
     "get_owner_deal_result": { Args: { "p_deal_id": string }; Returns: Json }
     "get_redeem_lock": { Args: Record<PropertyKey, never>; Returns: Json }
+    "get_shared_deal_preview": { Args: { "p_deal_id": string }; Returns: Json }
     "get_store_code_status": { Args: Record<PropertyKey, never>; Returns: Json }
     "get_store_report": { Args: { "p_from": string, "p_to": string }; Returns: Json }
     "get_today_deal_quota": { Args: Record<PropertyKey, never>; Returns: Json }
