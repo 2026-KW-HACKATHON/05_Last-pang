@@ -12,6 +12,13 @@ export type ErrorCode =
   | 'ALREADY_REGISTERED'
   | 'INVALID_INPUT'
   | 'NOT_FOUND'
+  | 'OUT_OF_SERVICE_AREA'
+  | 'DUPLICATE_BUSINESS_NO'
+  | 'DAILY_LIMIT_REACHED'
+  | 'TIME_OVERLAP'
+  | 'STORE_UNDER_REVIEW'
+  | 'CODE_NOT_ISSUED'
+  | 'ALREADY_REPORTED'
   | 'NETWORK_ERROR'
   | 'UNKNOWN';
 
@@ -28,6 +35,13 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   ALREADY_REGISTERED: '이미 등록한 가게가 있어요',
   INVALID_INPUT: '입력값을 확인해 주세요',
   NOT_FOUND: '페이지를 찾을 수 없어요',
+  OUT_OF_SERVICE_AREA: '지금은 월계1동 가게만 등록할 수 있어요',
+  DUPLICATE_BUSINESS_NO: '이미 같은 사업자등록번호로 신청한 가게가 있어요',
+  DAILY_LIMIT_REACHED: '오늘 한도를 모두 채웠어요. 내일 다시 해 주세요',
+  TIME_OVERLAP: '같은 시간대에 이미 진행 중인 딜이 있어요',
+  STORE_UNDER_REVIEW: '주소 심사가 끝나면 새 딜을 올릴 수 있어요',
+  CODE_NOT_ISSUED: '가게 코드를 먼저 발급해 주세요',
+  ALREADY_REPORTED: '이미 신고한 딜이에요',
   NETWORK_ERROR: '인터넷 연결을 확인해 주세요',
   UNKNOWN: '문제가 생겼어요. 잠시 후 다시 시도해 주세요',
 };
@@ -39,11 +53,14 @@ export function isErrorCode(value: unknown): value is ErrorCode {
 export class AppError extends Error {
   readonly code: ErrorCode;
   readonly remainingAttempts?: number;
+  /** 서버가 오류와 함께 보낸 값 (TOO_MANY_ATTEMPTS의 locked_until, TIME_OVERLAP의 겹친 딜 시간 등) */
+  readonly detail?: Record<string, unknown>;
 
-  constructor(code: ErrorCode, remainingAttempts?: number) {
+  constructor(code: ErrorCode, remainingAttempts?: number, detail?: Record<string, unknown>) {
     super(ERROR_MESSAGES[code]);
     this.code = code;
     this.remainingAttempts = remainingAttempts;
+    this.detail = detail;
   }
 }
 

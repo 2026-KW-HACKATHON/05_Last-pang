@@ -16,7 +16,12 @@ export function unwrapRpc<T>(data: unknown, error: unknown, dataSchema: z.ZodTyp
   if (!envelope.success) throw new AppError('UNKNOWN');
   if (!envelope.data.ok) {
     const code = isErrorCode(envelope.data.error) ? envelope.data.error : 'UNKNOWN';
-    throw new AppError(code, envelope.data.remaining_attempts);
+    const detail = z.record(z.string(), z.unknown()).safeParse(envelope.data.data);
+    throw new AppError(
+      code,
+      envelope.data.remaining_attempts,
+      detail.success ? detail.data : undefined,
+    );
   }
   const body = dataSchema.safeParse(envelope.data.data);
   if (!body.success) throw new AppError('UNKNOWN');

@@ -23,6 +23,17 @@ describe('unwrapRpc', () => {
       expect(error instanceof AppError && error.remainingAttempts).toBe(3);
     }
   });
+  it('오류와 함께 온 data를 detail로 담는다', () => {
+    try {
+      unwrapRpc(
+        { ok: false, error: 'TOO_MANY_ATTEMPTS', data: { locked_until: 'x' } },
+        null,
+        schema,
+      );
+    } catch (error) {
+      expect(error instanceof AppError && error.detail).toEqual({ locked_until: 'x' });
+    }
+  });
   it('모르는 코드는 UNKNOWN', () => {
     expect(() => unwrapRpc({ ok: false, error: 'HELLO' }, null, schema)).toThrow('문제가 생겼어요');
   });
