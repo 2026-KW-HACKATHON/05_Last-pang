@@ -22,8 +22,8 @@ vi.mock('@/shared/lib/supabase', () => ({
 }));
 
 const { registerStore, rotateStoreCode } = await import('./store/api');
-const { approveStore } = await import('../admin/stores/api');
-const { createDeal, fetchPushTargetEstimate } = await import('./deals/api');
+const { approveStore, createAdminStore } = await import('../admin/stores/api');
+const { createInstantDeal, fetchPushTargetEstimate } = await import('./deals/api');
 const { fetchStoreReport } = await import('./report/api');
 
 beforeEach(() => {
@@ -39,6 +39,10 @@ describe('registerStore', () => {
     address: '광운로 12',
     lat: 37.62,
     lng: 127.06,
+    representativeName: '김우주',
+    businessNo: '1234567890',
+    licensePath: 'u1/license.jpg',
+    marketingAgreed: false,
   };
 
   it('RPC 인자 이름을 p_ 접두사로 보내고 store_id를 돌려준다', async () => {
@@ -51,7 +55,16 @@ describe('registerStore', () => {
       p_address: '광운로 12',
       p_lat: 37.62,
       p_lng: 127.06,
+      p_representative_name: '김우주',
+      p_business_no: '1234567890',
+      p_license_path: 'u1/license.jpg',
+      p_marketing_agreed: false,
     });
+  });
+
+  it('같은 사업자번호면 DUPLICATE_BUSINESS_NO', async () => {
+    rpc.mockResolvedValue({ data: { ok: false, error: 'DUPLICATE_BUSINESS_NO' }, error: null });
+    await expect(registerStore(input)).rejects.toMatchObject({ code: 'DUPLICATE_BUSINESS_NO' });
   });
 
   it('이미 등록했으면 ALREADY_REGISTERED AppError', async () => {
@@ -93,12 +106,14 @@ describe('approveStore', () => {
       approveStore({
         storeId: 's1',
         isApproved: false,
+        rejectCode: 'out_of_area',
         rejectReason: ' 주소가 월계1동이 아니에요 ',
       }),
     ).resolves.toEqual({ status: 'rejected' });
     expect(rpc).toHaveBeenCalledWith('approve_store', {
       p_store_id: 's1',
       p_approve: false,
+      p_reject_code: 'out_of_area',
       p_reject_reason: '주소가 월계1동이 아니에요',
     });
   });
@@ -111,35 +126,75 @@ describe('approveStore', () => {
   });
 });
 
-describe('createDeal', () => {
+describe('createInstantDeal', () => {
   const deal = {
     title: '소금빵 2+1',
     originalPrice: 10500,
     dealPrice: 7000,
     totalQty: 10,
-    durationMin: 120,
+    durationMin: 120 as const,
     couponTtlMin: 15 as const,
   };
 
-  it('지금부터 durationMin 뒤를 ends_at으로 넣는다', async () => {
-    single.mockResolvedValue({ data: { id: 'd1' }, error: null });
-    const now = new Date('2026-10-05T05:00:00.000Z');
-    await expect(createDeal('s1', deal, now)).resolves.toBe('d1');
-    expect(insert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        store_id: 's1',
-        type: 'instant',
-        total_qty: 10,
-        coupon_ttl_min: 15,
-        starts_at: '2026-10-05T05:00:00.000Z',
-        ends_at: '2026-10-05T07:00:00.000Z',
-      }),
-    );
+  it('create_instant_deal RPC로 보내고 알림 대상 수를 받는다', async () => {
+    rpc.mockResolvedValue({
+      data: { ok: true, data: { deal_id: 'd1', starts_at: 'a', ends_at: 'b', push_targets: 84 } },
+      error: null,
+    });
+    await expect(createInstantDeal(deal)).resolves.toMatchObject({
+      deal_id: 'd1',
+      push_targets: 84,
+    });
+    expect(rpc).toHaveBeenCalledWith('create_instant_deal', {
+      p_title: '소금빵 2+1',
+      p_original_price: 10500,
+      p_deal_price: 7000,
+      p_duration_min: 120,
+      p_total_qty: 10,
+      p_coupon_ttl_min: 15,
+    });
   });
 
-  it('승인 안 된 가게(RLS 거부)는 FORBIDDEN', async () => {
-    single.mockResolvedValue({ data: null, error: { code: '42501' } });
-    await expect(createDeal('s1', deal)).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  it('하루 3개를 넘으면 DAILY_LIMIT_REACHED', async () => {
+    rpc.mockResolvedValue({ data: { ok: false, error: 'DAILY_LIMIT_REACHED' }, error: null });
+    await expect(createInstantDeal(deal)).rejects.toMatchObject({ code: 'DAILY_LIMIT_REACHED' });
+  });
+
+  it('시간이 겹치면 겹친 딜 시간을 detail로 준다', async () => {
+    rpc.mockResolvedValue({
+      data: { ok: false, error: 'TIME_OVERLAP', data: { starts_at: 's', ends_at: 'e' } },
+      error: null,
+    });
+    await expect(createInstantDeal(deal)).rejects.toMatchObject({
+      code: 'TIME_OVERLAP',
+      detail: { starts_at: 's', ends_at: 'e' },
+    });
+  });
+});
+
+describe('createAdminStore', () => {
+  it('사업자번호의 하이픈을 빼고, 빈 선택 항목은 보내지 않는다', async () => {
+    rpc.mockResolvedValue({
+      data: { ok: true, data: { store_id: 's9', out_of_area: false } },
+      error: null,
+    });
+    await createAdminStore({
+      name: ' 데모 국수집 ',
+      category: 'meal',
+      address: '광운로 1',
+      lat: 37.62,
+      lng: 127.058,
+      businessNo: '123-45-67890',
+      phone: '',
+    });
+    expect(rpc).toHaveBeenCalledWith('admin_create_store', {
+      p_name: '데모 국수집',
+      p_category: 'meal',
+      p_address: '광운로 1',
+      p_lat: 37.62,
+      p_lng: 127.058,
+      p_business_no: '1234567890',
+    });
   });
 });
 
