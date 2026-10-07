@@ -688,6 +688,22 @@ db: claim_coupon 함수에 행 잠금 추가 (#15)
 | 마스코트 일러스트        | `assets/mascot/`            | 자체 제작 (팀 라스트팡)              | 화면 일러스트 · 앱 아이콘 |
 | 마스코트 (화면용 축소본) | `src/shared/assets/mascot/` | `assets/mascot/`을 320px webp로 줄임 | 앱 화면 일러스트          |
 | README 배너              | `docs/assets/banner.png`    | 자체 제작 (팀 라스트팡)              | README                    |
+| 로고                     | `public/brand/logo.webp`    | 자체 제작 (팀 라스트팡)              | 가입 화면 · 상단 바       |
+| 공유 미리보기 이미지     | `public/og.png`             | 자체 제작 (팀 라스트팡, 피그마 C12)  | 링크 공유 미리보기        |
+
+### 글꼴
+
+| 이름       | 링크                                      | 라이선스                        | 용도                                         |
+| ---------- | ----------------------------------------- | ------------------------------- | -------------------------------------------- |
+| Pretendard | https://github.com/orioncactus/pretendard | SIL Open Font License 1.1 (OFL) | 앱 전체 글꼴 (`index.html`에서 jsDelivr CDN) |
+
+### 외부 API
+
+| 이름                 | 링크                                                          | 용도                                                     |
+| -------------------- | ------------------------------------------------------------- | -------------------------------------------------------- |
+| 카카오 로그인        | https://developers.kakao.com/docs/latest/ko/kakaologin/common | Supabase Auth 카카오 로그인                              |
+| 카카오 로컬 API      | https://developers.kakao.com/docs/latest/ko/local/dev-guide   | 주소·키워드 검색, 좌표→행정동 (`geo-search`)             |
+| Anthropic Claude API | https://docs.claude.com                                       | 자치회 리포트 요약 (`council-summary`, 집계 숫자만 전송) |
 
 <br />
 
