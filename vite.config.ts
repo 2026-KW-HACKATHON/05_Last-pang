@@ -14,7 +14,7 @@ export default defineConfig({
       strategies: 'injectManifest',
       srcDir: 'src',
       filename: 'sw.ts',
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       manifest: {
         name: '동네냠냠',
         short_name: '동네냠냠',
