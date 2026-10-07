@@ -5,12 +5,12 @@ import { AppError, toAppError } from '@/shared/lib/errors';
 import { unwrapRpc } from '@/shared/lib/rpc';
 import { supabase } from '@/shared/lib/supabase';
 
-import { couponRowSchema, redeemResultSchema } from './schema';
+import { couponRowSchema, redeemLockSchema, redeemResultSchema } from './schema';
 
-import type { MyCoupon, RedeemResult } from './types';
+import type { MyCoupon, RedeemLock, RedeemResult } from './types';
 
 const COUPON_COLUMNS =
-  'id, deal_id, status, issued_at, expires_at, used_at, deals(title, original_price, deal_price, stores(name, category))';
+  'id, deal_id, status, issued_at, expires_at, used_at, deals(title, original_price, deal_price, remaining_qty, status, close_reason, sold_out_at, stores(name, category))';
 
 const toMyCoupon = (row: z.infer<typeof couponRowSchema>): MyCoupon => ({
   id: row.id,
@@ -24,6 +24,10 @@ const toMyCoupon = (row: z.infer<typeof couponRowSchema>): MyCoupon => ({
   title: row.deals.title,
   originalPrice: row.deals.original_price,
   dealPrice: row.deals.deal_price,
+  dealRemainingQty: row.deals.remaining_qty,
+  dealStatus: row.deals.status,
+  dealCloseReason: row.deals.close_reason,
+  dealSoldOutAt: row.deals.sold_out_at,
 });
 
 /** 사장님·운영자는 RLS상 다른 사람 쿠폰도 보이므로 본인 id로 거른다 (합의 1-3) */
@@ -63,4 +67,13 @@ export async function redeemCoupon(couponId: string, code: string): Promise<Rede
   });
   const result = unwrapRpc(data, error, redeemResultSchema);
   return { usedAt: result.used_at, confirmNumber: result.confirm_number };
+}
+
+/** 5번 틀려 잠긴 상태인지 (화면을 다시 열어도 잠금을 이어서 보여주려고) */
+export async function fetchRedeemLock(): Promise<RedeemLock> {
+  const { data, error } = await supabase.rpc('get_redeem_lock');
+  if (error) throw toAppError(error);
+  const lock = redeemLockSchema.safeParse(data);
+  if (!lock.success) throw new AppError('UNKNOWN');
+  return { lockedUntil: lock.data.locked_until, remainingAttempts: lock.data.remaining_attempts };
 }

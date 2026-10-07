@@ -13,6 +13,10 @@ export const couponRowSchema = z.object({
     title: z.string(),
     original_price: z.number(),
     deal_price: z.number(),
+    remaining_qty: z.number(),
+    status: z.string(),
+    close_reason: z.string().nullable(),
+    sold_out_at: z.string().nullable(),
     stores: z.object({ name: z.string(), category: categorySchema }),
   }),
 });
@@ -20,4 +24,10 @@ export const couponRowSchema = z.object({
 export const redeemResultSchema = z.object({
   used_at: z.string(),
   confirm_number: z.string(),
+});
+
+/** get_redeem_lock(): 잠금이 없으면 locked_until이 null */
+export const redeemLockSchema = z.object({
+  locked_until: z.string().nullable(),
+  remaining_attempts: z.number(),
 });
