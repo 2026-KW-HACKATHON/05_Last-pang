@@ -11,6 +11,7 @@ const rawEnvSchema = z.object({
   VITE_SUPABASE_PUBLISHABLE_KEY: optional(z.string()),
   VITE_VAPID_PUBLIC_KEY: optional(z.string()),
   VITE_USE_MOCKS: optional(z.enum(['true', 'false'])),
+  VITE_ENABLE_TEST_LOGIN: optional(z.enum(['true', 'false'])),
 });
 
 const parsed = rawEnvSchema.safeParse(import.meta.env);
@@ -34,4 +35,6 @@ export const env = {
   supabasePublishableKey: raw.VITE_SUPABASE_PUBLISHABLE_KEY ?? 'mock-publishable-key',
   // 웹 푸시(6-1)에서만 필요하다. 그 전까지는 없어도 된다
   vapidPublicKey: raw.VITE_VAPID_PUBLIC_KEY,
+  // 대시보드에서 만든 이메일·비밀번호 테스트 계정 로그인 칸을 보일지 (발표 전 점검용, 공개 배포에서는 끈다)
+  isTestLoginEnabled: raw.VITE_ENABLE_TEST_LOGIN === 'true',
 } as const;
