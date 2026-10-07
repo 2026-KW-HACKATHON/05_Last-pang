@@ -1,70 +1,80 @@
 import { useState } from 'react';
 
-// 키패드 배열은 순서가 곧 정체성인 고정 상수라 값 자체를 key로 쓴다 (컨벤션 7장 예외)
-const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'blank', '0', 'delete'] as const;
-type Key = (typeof KEYS)[number];
+import { Icon } from './Icon';
 
-// 버튼 글자 (중첩 삼항 대신 표로)
-const KEY_LABELS: Record<Key, string> = {
-  '1': '1',
-  '2': '2',
-  '3': '3',
-  '4': '4',
-  '5': '5',
-  '6': '6',
-  '7': '7',
-  '8': '8',
-  '9': '9',
-  '0': '0',
-  blank: '',
-  delete: '지우기',
-};
+// 키패드 배열은 순서가 곧 정체성인 고정 상수라 값 자체를 key로 쓴다 (컨벤션 7장 예외)
+const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'clear', '0', 'delete'] as const;
+type Key = (typeof KEYS)[number];
 
 interface CodeInputProps {
   length?: number;
   disabled?: boolean;
+  hasError?: boolean;
   onComplete: (code: string) => void;
 }
 
-// 사장님이 손님 폰의 쿠폰 화면에 가게 코드를 누르는 숫자 키패드.
+// 주민이 매장에서 사장님께 들은 가게 코드를 자기 폰에 누르는 숫자 키패드.
 // 시스템 키보드를 띄우지 않고, 입력한 숫자는 화면에 ●로만 보여준다
-export function CodeInput({ length = 6, disabled = false, onComplete }: CodeInputProps) {
+export function CodeInput({
+  length = 6,
+  disabled = false,
+  hasError = false,
+  onComplete,
+}: CodeInputProps) {
   const [digits, setDigits] = useState('');
+  const slots = Array.from({ length }, (_, position) => position);
 
   const handleKeyClick = (key: Key) => {
-    if (disabled || key === 'blank') return;
+    if (disabled) return;
+    if (key === 'clear') {
+      setDigits('');
+      return;
+    }
     if (key === 'delete') {
       setDigits((prev) => prev.slice(0, -1));
       return;
     }
-    const next = (digits + key).slice(0, length);
-    if (next.length < length) {
-      setDigits(next);
-      return;
-    }
-    onComplete(next);
-    setDigits(''); // 틀렸을 때 바로 다시 입력할 수 있게 비운다
+    // 다 채운 뒤(틀린 코드를 보여주는 중)에 누르면 처음부터 다시 입력한다
+    const next = digits.length >= length ? key : digits + key;
+    setDigits(next);
+    if (next.length === length) onComplete(next);
+  };
+
+  const toSlotClass = (position: number) => {
+    if (disabled) return 'border-transparent bg-cream';
+    if (hasError && digits.length === length) return 'border-danger';
+    if (position === digits.length) return 'border-accent';
+    return 'border-line';
   };
 
   return (
     <div>
-      <p
-        className="mb-4 text-center text-2xl tracking-[0.5em]"
+      <div
+        className="mb-4 flex justify-center gap-2"
         aria-label={`${length}자리 중 ${digits.length}자리 입력`}
       >
-        {'●'.repeat(digits.length).padEnd(length, '○')}
-      </p>
+        {slots.map((position) => (
+          <span
+            key={position}
+            className={`flex size-12 items-center justify-center rounded-xl border-[1.5px] bg-surface text-xl ${toSlotClass(position)}`}
+          >
+            {position < digits.length ? '●' : ''}
+          </span>
+        ))}
+      </div>
       <div className="grid grid-cols-3 gap-2">
         {KEYS.map((key) => (
           <button
             key={key}
             type="button"
-            disabled={disabled || key === 'blank'}
+            disabled={disabled}
             onClick={() => handleKeyClick(key)}
-            aria-hidden={key === 'blank'}
-            className="h-14 rounded-card bg-surface text-xl font-semibold disabled:opacity-40"
+            aria-label={key === 'delete' ? '한 자리 지우기' : undefined}
+            className={`flex h-13 items-center justify-center rounded-xl border border-line bg-surface font-semibold disabled:text-muted ${key === 'clear' ? 'text-sm text-sub' : 'text-xl'}`}
           >
-            {KEY_LABELS[key]}
+            {key === 'delete' && <Icon name="backspace" size={24} />}
+            {key === 'clear' && '전체 지우기'}
+            {key !== 'delete' && key !== 'clear' && key}
           </button>
         ))}
       </div>
