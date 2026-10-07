@@ -1,13 +1,16 @@
 interface CouponTabsProps {
   isPastTab: boolean;
-  availableCount: number;
+  availableCount?: number; // 불러오는 중에는 숫자 없이
   onChange: (isPastTab: boolean) => void;
 }
 
 // 사용 가능 / 지난 쿠폰 전환 (피그마 R11)
 export function CouponTabs({ isPastTab, availableCount, onChange }: CouponTabsProps) {
   const tabs = [
-    { isPast: false, label: `사용 가능 ${availableCount}` },
+    {
+      isPast: false,
+      label: availableCount === undefined ? '사용 가능' : `사용 가능 ${availableCount}`,
+    },
     { isPast: true, label: '지난 쿠폰' },
   ];
 

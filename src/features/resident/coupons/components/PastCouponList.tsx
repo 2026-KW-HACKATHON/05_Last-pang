@@ -6,6 +6,7 @@ import type { MyCoupon } from '../types';
 
 interface PastCouponListProps {
   coupons: MyCoupon[];
+  nowMs: number;
 }
 
 const toDateLabel = (kstDate: string, todayKstDate: string) => {
@@ -14,9 +15,9 @@ const toDateLabel = (kstDate: string, todayKstDate: string) => {
   return `${Number(month)}월 ${Number(day)}일`;
 };
 
-// 받은 날짜(한국 시각)별로 묶어 최신순으로 보여준다
-export function PastCouponList({ coupons }: PastCouponListProps) {
-  const todayKstDate = toKstDateString(new Date());
+// 사용·만료 날짜(한국 시각)별로 묶어 최신순으로 보여준다
+export function PastCouponList({ coupons, nowMs }: PastCouponListProps) {
+  const todayKstDate = toKstDateString(new Date(nowMs));
   const groups = new Map<string, MyCoupon[]>();
   for (const coupon of coupons) {
     const kstDate = toKstDateString(new Date(coupon.usedAt ?? coupon.expiresAt));
@@ -33,7 +34,7 @@ export function PastCouponList({ coupons }: PastCouponListProps) {
           <ul className="space-y-3">
             {items.map((coupon) => (
               <li key={coupon.id}>
-                <PastCouponCard coupon={coupon} />
+                <PastCouponCard coupon={coupon} nowMs={nowMs} />
               </li>
             ))}
           </ul>
