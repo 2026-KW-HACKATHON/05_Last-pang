@@ -1,6 +1,6 @@
-import { ComingSoon } from '@/shared/ui/ComingSoon';
+import { Navigate } from 'react-router-dom';
 
-// 3-4 app-shell 규칙: 빈 페이지는 공동 PR로 만들고, 내용은 정윤 님이 채운다 (화면 명세 R17)
+// 알림 설정은 알림함의 탭으로 합쳤다 (R17). 예전 주소로 들어와도 같은 화면으로
 export function NotificationSettingsPage() {
-  return <ComingSoon title="알림 설정" />;
+  return <Navigate to="/notifications?tab=settings" replace />;
 }

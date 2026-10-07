@@ -1,33 +1,43 @@
-import { Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
-import { EmptyState } from '@/shared/ui/EmptyState';
 import { PageHeader } from '@/shared/ui/PageHeader';
 
 import { ResidentTabBar } from '../../navigation/components/ResidentTabBar';
-import { isIosBrowserTab } from '../api';
-import { PushStatusCard } from '../components/PushStatusCard';
-import { usePushSubscription } from '../hooks';
+import { InboxTab } from '../components/inbox/InboxTab';
+import { SegmentTabs, type NotificationsTab } from '../components/SegmentTabs';
+import { SettingsTab } from '../components/settings/SettingsTab';
+import { useMarkResidentNotificationsRead } from '../inboxHooks';
 
-// 알림함 (피그마 R17). 받은 알림 목록은 push_queue를 본인이 읽는 정책이 생기면 붙인다
+// 알림함 (피그마 R17). 탭은 ?tab=settings로 주소에 남겨 뒤로 가기·공유에도 유지한다
 export function NotificationsPage() {
-  const push = usePushSubscription();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const markRead = useMarkResidentNotificationsRead();
+  const tab: NotificationsTab = searchParams.get('tab') === 'settings' ? 'settings' : 'inbox';
+
+  const handleTabChange = (next: NotificationsTab) =>
+    setSearchParams(next === 'settings' ? { tab: 'settings' } : {}, { replace: true });
 
   return (
     <main className="mx-auto min-h-dvh max-w-[480px] bg-surface">
-      <PageHeader title="알림함" />
-      <div className="px-5 pt-3">
-        <PushStatusCard permission={push.permission} isIosTab={isIosBrowserTab()} />
-      </div>
-      <EmptyState
-        pose="phone"
-        title="받은 알림은 곧 여기서 볼 수 있어요"
-        description="그동안 홈에서 지금 진행 중인 딜을 확인해 보세요"
-        action={
-          <Link to="/" className="rounded-xl bg-accent px-6 py-3 font-semibold text-white">
-            홈으로
-          </Link>
+      <PageHeader
+        title="알림함"
+        right={
+          tab === 'inbox' && (
+            <button
+              type="button"
+              onClick={() => markRead.mutate(undefined)}
+              disabled={markRead.isPending}
+              className="text-sm text-muted"
+            >
+              모두 읽음
+            </button>
+          )
         }
       />
+      <div className="sticky top-14 z-10 bg-surface px-5 pt-2">
+        <SegmentTabs value={tab} onChange={handleTabChange} />
+      </div>
+      {tab === 'inbox' ? <InboxTab /> : <SettingsTab />}
       <ResidentTabBar />
     </main>
   );
