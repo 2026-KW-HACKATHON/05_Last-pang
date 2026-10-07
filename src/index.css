@@ -2,19 +2,22 @@
 @import 'tailwindcss';
 
 @theme {
-  /* 메인 색은 팀 확정 전 임시값 (#E8492A 계열 vs 팀원 앱의 코랄 그라데이션) */
-  --color-accent: #e8492a;
-  --color-accent-soft: #f5941f;
+  /* 피그마 「동네냠냠 UI 최종」 페이지 기준 (10/7) */
+  --color-accent: #c61747;
+  --color-accent-soft: #fdecef;
   --color-surface: #ffffff;
-  --color-cream: #fff8f2;
-  --color-ink: #1f1a17;
-  --color-muted: #8a817c;
+  --color-cream: #f6f6f6; /* 상단 바·회색 칸 배경 */
+  --color-line: #ececec;
+  --color-ink: #1c1c1c;
+  --color-sub: #5f5f5d;
+  --color-muted: #9a9893;
   --color-success: #1f9d55;
   --color-danger: #d93025;
+  --color-kakao: #fee500;
   --radius-card: 16px;
   --radius-pill: 999px;
 }
 
 body {
-  @apply bg-cream text-ink;
+  @apply bg-surface text-ink;
 }
