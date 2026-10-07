@@ -16,6 +16,7 @@ import { DealDetailPage } from '@/features/resident/deals/pages/DealDetailPage';
 import { HomePage } from '@/features/resident/deals/pages/HomePage';
 import { MyInfoPage } from '@/features/resident/my-info/pages/MyInfoPage';
 import { NotificationsOnboardingPage } from '@/features/resident/notifications/pages/NotificationsOnboardingPage';
+import { NotificationsPage } from '@/features/resident/notifications/pages/NotificationsPage';
 import { ConsentPage } from '@/features/resident/onboarding/pages/ConsentPage';
 import { ProfilePage } from '@/features/resident/onboarding/pages/ProfilePage';
 import { PreferencesPage } from '@/features/resident/preferences/pages/PreferencesPage';
@@ -41,6 +42,8 @@ export const router = createBrowserRouter([
           { path: '/onboarding/preferences', element: <PreferencesPage /> },
           { path: '/onboarding/notifications', element: <NotificationsOnboardingPage /> },
           { path: '/deals/:dealId', element: <DealDetailPage /> },
+          // 알림함 (피그마 R17). 주민 하단 탭 "알림함"
+          { path: '/notifications', element: <NotificationsPage /> },
           { path: '/coupons', element: <MyCouponsPage /> },
           { path: '/coupons/:couponId', element: <CouponPage /> },
           // 내 정보(화면 명세 S11): 닉네임·생활 패턴·알림·로그아웃. 하단 탭 "내 정보"
