@@ -41,6 +41,29 @@ const PATHS = {
   bulb: 'M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z',
   edit: 'M4 20h4L19 9l-4-4L4 16zM14 6l4 4',
   timerOff: 'M10 2h4M12 14V9M4.5 7.5A9 9 0 0 0 17 20M19.6 16A9 9 0 0 0 8 4.4M3 3l18 18',
+  sliders: 'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0M14 4v4M8 10v4M16 16v4',
+  flag: 'M5 21V4h12l-2 4 2 4H5',
+  pause: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 9v6M14 9v6',
+  ban: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM5.6 5.6l12.8 12.8',
+  logout: 'M15 4h4v16h-4M10 17l5-5-5-5M15 12H3',
+  image: 'M4 5h16v14H4zM4 16l5-5 4 4 3-3 4 4M15 9h.01',
+  camera: 'M4 8h4l2-3h4l2 3h4v11H4zM12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z',
+  search: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4',
+  refresh: 'M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7',
+  phone:
+    'M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z',
+  download: 'M12 4v11M7 10l5 5 5-5M5 20h14',
+  mail: 'M3 6h18v12H3zM3 7l9 6 9-6',
+  wifiOff:
+    'M2 8.5a15 15 0 0 1 4-2.4M10.5 5.1A15 15 0 0 1 22 8.5M5 12a10 10 0 0 1 3.5-2M15.5 10A10 10 0 0 1 19 12M8.5 15.5a5 5 0 0 1 7 0M12 19h.01M3 3l18 18',
+  lock: 'M6 11h12v10H6zM8 11V7a4 4 0 0 1 8 0v4',
+  arrowRight: 'M5 12h14M13 6l6 6-6 6',
+  shieldCheck: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4',
+  inbox: 'M4 13l2-8h12l2 8v6H4zM4 13h5l1 2h4l1-2h5',
+  rotate: 'M4 12a8 8 0 1 1 2.3 5.7M4 20v-6h6',
+  link: 'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',
+  more: 'M5 12h.01M12 12h.01M19 12h.01',
+  smartphone: 'M7 3h10v18H7zM11 18h2',
 } as const;
 
 export type IconName = keyof typeof PATHS;

@@ -4,13 +4,20 @@ import { ErrorState } from '@/shared/ui/ErrorState';
 import { LoadingState } from '@/shared/ui/LoadingState';
 
 import { useMyStore } from '../store/hooks';
-import { Button, StatusBlock } from './ui';
+import { Button } from './ui/Button';
+import { StatusBlock } from './ui/StatusBlock';
 
 import type { MyStore } from '../store/api';
 import type { ReactNode } from 'react';
 
+interface ApprovedStoreGateProps {
+  children: (store: MyStore) => ReactNode;
+  /** 정지된 가게도 볼 수 있는 화면 (사용 내역·리포트·딜 기록) */
+  allowSuspended?: boolean;
+}
+
 /** 승인된 가게가 있을 때만 children을 그린다. 딜·코드·내역 화면이 storeId를 안전하게 쓰기 위한 틀 */
-export function ApprovedStoreGate({ children }: { children: (store: MyStore) => ReactNode }) {
+export function ApprovedStoreGate({ children, allowSuspended = false }: ApprovedStoreGateProps) {
   const myStore = useMyStore();
   const navigate = useNavigate();
 
@@ -30,7 +37,9 @@ export function ApprovedStoreGate({ children }: { children: (store: MyStore) => 
       />
     );
   }
-  if (myStore.data.status !== 'approved') {
+  const isAllowed =
+    myStore.data.status === 'approved' || (allowSuspended && myStore.data.status === 'suspended');
+  if (!isAllowed) {
     return (
       <StatusBlock
         pose="map"
