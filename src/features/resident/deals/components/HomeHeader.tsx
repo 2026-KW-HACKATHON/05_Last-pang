@@ -4,6 +4,8 @@ import { POLICY } from '@/shared/constants/policy';
 import { walkingMinutes } from '@/shared/lib/geo';
 import { Icon } from '@/shared/ui/Icon';
 
+import { RADIUS_OPTIONS } from '../../preferences/constants';
+
 interface HomeHeaderProps {
   radiusM: number;
   onNeighborhoodClick: () => void;
@@ -29,7 +31,10 @@ export function HomeHeader({ radiusM, onNeighborhoodClick, onRadiusClick }: Home
         className="ml-auto flex items-center gap-1 rounded-pill bg-surface px-3 py-1.5 text-sm font-semibold"
       >
         <Icon name="walk" size={16} className="text-accent" />
-        도보 {walkingMinutes(radiusM)}분
+        도보{' '}
+        {RADIUS_OPTIONS.find((option) => option.value === radiusM)?.walkMin ??
+          walkingMinutes(radiusM)}
+        분
         <Icon name="chevronDown" size={14} />
       </button>
       <Link

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 import { DEFAULT_RADIUS_M } from '@/shared/constants/domain';
-import { walkingMinutes } from '@/shared/lib/geo';
 import { BottomSheet } from '@/shared/ui/BottomSheet';
 import { Icon } from '@/shared/ui/Icon';
 
@@ -65,7 +64,7 @@ export function ViewSettingsSheet(props: ViewSettingsSheetProps) {
               />
               <span className="flex-1 text-left">{option.label}</span>
               <span className="text-sm text-faint">
-                {option.distanceLabel} · 도보 {walkingMinutes(option.value)}분
+                {option.distanceLabel} · 도보 {option.walkMin}분
               </span>
             </button>
           );
