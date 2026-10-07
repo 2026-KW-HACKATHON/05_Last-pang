@@ -1,0 +1,55 @@
+/* 색·모서리 토큰은 여기 한 곳에만. 코드에서는 bg-accent 처럼 이름으로만 쓴다 */
+/* 값은 피그마 "동네냠냠 UI 최종"(10/7) 변수 기준: accent #C61747 · tint #FFF0F4 · muted #6B7078 · subtle #92969E · standard #F6F6F6 */
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Pretendard Variable', Pretendard, 'Noto Sans KR', system-ui, sans-serif;
+
+  --color-accent: #c61747; /* 로고 "동네" — 주요 버튼, 선택, 가격 */
+  --color-accent-pressed: #9c0633;
+  --color-accent-soft: #f2426c; /* 로고 "냠냠" — 작은 강조(LIVE, 마감 임박)만 */
+  --color-accent-tint: #fff0f4; /* 배지·강조 카드·선택 칩 배경 (피그마 tint) */
+  --color-accent-disabled: #f3c6d1;
+  --color-surface: #ffffff;
+  --color-cream: #fbf7f2; /* 스플래시·자치회 리포트 배경 (manifest background_color) */
+  --color-gray: #f6f6f6; /* 상단 바·정보 박스·보조 버튼·세그먼트 트랙 (피그마 standard) */
+  --color-ink: #1c1c1c;
+  --color-muted: #6b7078; /* 보조 글자 (피그마 muted) */
+  --color-faint: #92969e; /* 3차 글자 (피그마 subtle) */
+  --color-line: #ececec; /* 카드·입력 테두리 */
+  --color-line-strong: rgb(28 28 28 / 0.4);
+  --color-busy: #efeae4;
+  --color-success: #1f9d55;
+  --color-success-tint: #e6f4ec;
+  --color-warning: #e07b00;
+  --color-danger: #d93025;
+  --color-kakao: #fee500; /* 카카오 로그인 버튼 (카카오 디자인 가이드 색, 바꾸지 않음) */
+  --radius-card: 16px;
+  --radius-field: 12px;
+  --radius-button: 12px;
+  --radius-dialog: 24px;
+  --radius-pill: 999px;
+}
+
+body {
+  @apply bg-surface font-sans text-ink antialiased;
+  word-break: keep-all;
+}
+
+/* 카운터 안내문(O6-1) 인쇄: 미리보기 카드만 A4에 찍는다 */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+  }
+}

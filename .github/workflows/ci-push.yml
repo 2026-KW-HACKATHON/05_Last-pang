@@ -1,0 +1,26 @@
+# 모든 브랜치 push마다 lint·build. 머지와 무관하지만 빨간불이면 바로 고친다
+name: Build · Lint
+
+on:
+  push:
+    branches: ['**']
+
+permissions:
+  contents: read
+
+jobs:
+  build-lint:
+    runs-on: ubuntu-latest
+    env: # 빌드용 가짜 값. 실제 키는 CI에 두지 않는다
+      VITE_SUPABASE_URL: http://127.0.0.1:54321
+      VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder
+      VITE_VAPID_PUBLIC_KEY: ci-placeholder
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
