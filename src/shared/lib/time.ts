@@ -6,11 +6,12 @@ export function formatRemaining(ms: number): string {
   return `${minutes}:${seconds}`;
 }
 
-/** 서버의 timestamptz(ISO)를 한국 시각으로 — 기기 시간대와 상관없이 KST로 보여준다 */
+/** 서버의 timestamptz(ISO)를 한국 시각 "14:05"로 — 기기 시간대와 상관없이 KST, 24시간제 (화면 명세 0.7) */
 export const formatKstTime = (iso: string) =>
   new Date(iso).toLocaleTimeString('ko-KR', {
     hour: '2-digit',
     minute: '2-digit',
+    hourCycle: 'h23',
     timeZone: 'Asia/Seoul',
   });
 
