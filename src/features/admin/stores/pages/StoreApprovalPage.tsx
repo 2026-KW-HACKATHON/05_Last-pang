@@ -1,202 +1,135 @@
-// A1 입점 승인 — 운영자가 가게 신청을 승인·거절한다. 승인해도 가게 코드는 만들지 않는다 (사장님이 O6에서 발급)
+// A1 입점 승인 — 대기 · 승인 · 거절 (주소 변경 요청도 대기에 함께)
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { distanceMeters, WOLGYE1_CENTER } from '@/shared/lib/geo';
+import { Button } from '@/features/owner/components/ui/Button';
+import { EmptyCard } from '@/features/owner/components/ui/EmptyCard';
+import { NoticeBox } from '@/features/owner/components/ui/NoticeBox';
+import { Segmented } from '@/features/owner/components/ui/Segmented';
+import { Toast } from '@/features/owner/components/ui/Toast';
+import { useToast } from '@/features/owner/lib/useToast';
+import { REJECT_REASONS } from '@/features/owner/store/rejectReasons';
 import { ErrorState } from '@/shared/ui/ErrorState';
 import { LoadingState } from '@/shared/ui/LoadingState';
-import { CategoryIcon } from '@/features/owner/components/CategoryIcon';
-import { categoryLabel } from '@/features/owner/lib/category';
-import {
-  Badge,
-  BottomSheet,
-  Button,
-  Card,
-  Chip,
-  InfoRow,
-  PageTitle,
-  Segmented,
-  StatusBlock,
-  Toast,
-} from '@/features/owner/components/ui';
-import { formatMonthDayTime } from '@/features/owner/lib/format';
 
-import { useApproveStore, useStoresByStatus } from '../hooks';
+import { AdminShell } from '../../components/AdminShell';
+import { ApplicationCard } from '../components/ApplicationCard';
+import { ReasonSheet } from '../components/ReasonSheet';
+import { useApplications, useApproveStore, useApproveStoreAddress } from '../hooks';
 
-import type { StoreApplication, StoreStatus } from '../api';
-
-const REJECT_PRESETS = ['월계1동이 아니에요', '가게 정보가 부족해요', '중복 신청이에요'] as const;
-const EMPTY_TEXT: Record<StoreStatus, string> = {
-  pending: '기다리는 신청이 없어요',
-  approved: '승인한 가게가 없어요',
-  rejected: '거절한 신청이 없어요',
-};
+import type { Application, ApplicationTab } from '../api';
 
 export function StoreApprovalPage() {
-  const [status, setStatus] = useState<StoreStatus>('pending');
-  const pending = useStoresByStatus('pending');
-  const list = useStoresByStatus(status);
-  const approveStore = useApproveStore();
-  const [rejectTarget, setRejectTarget] = useState<StoreApplication | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [tab, setTab] = useState<ApplicationTab>('pending');
+  const applications = useApplications(tab);
+  const approve = useApproveStore();
+  const approveAddress = useApproveStoreAddress();
+  const { toastMessage, showToast } = useToast();
+  const [rejecting, setRejecting] = useState<Application | null>(null);
+  const counts = applications.data?.counts;
 
-  const showToast = (message: string) => {
-    setToast(message);
-    window.setTimeout(() => setToast(null), 2500);
-  };
-
-  const handleApprove = (store: StoreApplication) =>
-    approveStore.mutate(
-      { storeId: store.id, isApproved: true },
+  const handleApprove = (item: Application) => {
+    if (item.is_address_change) {
+      approveAddress.mutate(
+        { storeId: item.id, isApproved: true },
+        { onSuccess: () => showToast('새 주소를 승인했어요') },
+      );
+      return;
+    }
+    approve.mutate(
+      { storeId: item.id, isApproved: true },
       { onSuccess: () => showToast('승인했어요. 사장님이 바로 딜을 올릴 수 있어요') },
     );
-
-  const handleReject = (reason: string) => {
-    if (!rejectTarget) return;
-    approveStore.mutate(
-      { storeId: rejectTarget.id, isApproved: false, rejectReason: reason },
-      {
-        onSuccess: () => {
-          setRejectTarget(null);
-          showToast('거절했어요');
-        },
-      },
-    );
+  };
+  const handleReject = ({ code, note }: { code: string; note: string }) => {
+    if (!rejecting) return;
+    const onSuccess = () => {
+      setRejecting(null);
+      showToast('거절했어요');
+    };
+    if (rejecting.is_address_change)
+      approveAddress.mutate({ storeId: rejecting.id, isApproved: false }, { onSuccess });
+    else
+      approve.mutate(
+        { storeId: rejecting.id, isApproved: false, rejectCode: code, rejectReason: note },
+        { onSuccess },
+      );
   };
 
-  const options = [
-    { value: 'pending' as const, label: `대기 ${pending.data?.length ?? 0}` },
-    { value: 'approved' as const, label: '승인' },
-    { value: 'rejected' as const, label: '거절' },
-  ];
-
   return (
-    <div className="mx-auto min-h-dvh max-w-[480px] pb-10">
-      <PageTitle right={<Badge>운영자</Badge>}>입점 승인</PageTitle>
-      <div className="space-y-4 px-5">
-        <Segmented options={options} value={status} onChange={setStatus} />
-
-        {list.isPending && <LoadingState />}
-        {list.isError && <ErrorState error={list.error} onRetry={() => void list.refetch()} />}
-        {list.isSuccess && list.data.length === 0 && (
-          <StatusBlock pose="wave" title={EMPTY_TEXT[status]} />
+    <AdminShell title="입점 승인">
+      <div className="space-y-4 px-5 pt-2">
+        <Segmented
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'pending', label: '대기', count: counts?.pending, isAlert: true },
+            { value: 'approved', label: '승인', count: counts?.approved },
+            { value: 'rejected', label: '거절', count: counts?.rejected },
+          ]}
+        />
+        <div className="flex items-center justify-between rounded-field border border-line px-4 py-2.5 text-[13px]">
+          <span className="flex items-center gap-2 font-semibold">
+            <span className="size-2 rounded-pill bg-accent" /> 실시간 입점 심사 대기
+          </span>
+          <span className="text-muted">
+            {counts?.avg_review_min != null
+              ? `평균 처리 시간 ${counts.avg_review_min}분`
+              : `오늘 처리 ${counts?.reviewed_today ?? 0}건`}
+          </span>
+        </div>
+        {applications.isPending && <LoadingState />}
+        {applications.isError && (
+          <ErrorState error={applications.error} onRetry={() => void applications.refetch()} />
         )}
-
-        {(list.data ?? []).map((store) => (
+        {applications.data?.items.length === 0 && (
+          <EmptyCard
+            icon="inbox"
+            title={tab === 'pending' ? '기다리는 신청이 없어요' : '아직 처리한 신청이 없어요'}
+            body={
+              tab === 'pending'
+                ? '새로운 사장님이 입점을 신청하면 이곳에 실시간으로 표시돼요.'
+                : undefined
+            }
+            action={
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => navigate('/admin/approved-stores')}
+              >
+                승인된 매장 목록 보기 →
+              </Button>
+            }
+          />
+        )}
+        {applications.data?.items.map((item) => (
           <ApplicationCard
-            key={store.id}
-            store={store}
-            status={status}
-            isBusy={approveStore.isPending && approveStore.variables?.storeId === store.id}
-            onApprove={() => handleApprove(store)}
-            onReject={() => setRejectTarget(store)}
+            key={item.id}
+            item={item}
+            isBusy={approve.isPending || approveAddress.isPending}
+            onApprove={tab === 'pending' ? () => handleApprove(item) : undefined}
+            onReject={tab === 'pending' ? () => setRejecting(item) : undefined}
           />
         ))}
+        <NoticeBox icon="bulb">
+          승인되면 사장님 알림함에 바로 알려 드려요. 가게 코드는 사장님이 직접 발급합니다.
+        </NoticeBox>
       </div>
-
-      {rejectTarget && (
-        <RejectSheet
-          storeName={rejectTarget.name}
-          isPending={approveStore.isPending}
-          onClose={() => setRejectTarget(null)}
+      {rejecting && (
+        <ReasonSheet
+          title="거절 사유"
+          subtitle="신청 사장님께 전달될 사유를 선택해 주세요."
+          reasons={REJECT_REASONS}
+          notePlaceholder="직접 입력 (선택한 사유에 추가 안내할 내용을 적어주세요)"
+          notice="거절하면 사장님 화면에 사유와 다시 신청하기 버튼이 바로 보여요."
+          confirmLabel="거절하기"
+          isPending={approve.isPending || approveAddress.isPending}
           onSubmit={handleReject}
+          onClose={() => setRejecting(null)}
         />
       )}
-      {toast && <Toast>{toast}</Toast>}
-    </div>
-  );
-}
-
-interface ApplicationCardProps {
-  store: StoreApplication;
-  status: StoreStatus;
-  isBusy: boolean;
-  onApprove: () => void;
-  onReject: () => void;
-}
-
-function ApplicationCard({ store, status, isBusy, onApprove, onReject }: ApplicationCardProps) {
-  const distance = Math.round(
-    distanceMeters(WOLGYE1_CENTER.lat, WOLGYE1_CENTER.lng, store.lat, store.lng),
-  );
-  const isFar = distance > 2000; // 월계1동 밖일 가능성
-
-  return (
-    <Card>
-      <div className="flex items-center gap-3">
-        <CategoryIcon category={store.category} />
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[17px] font-semibold">{store.name}</p>
-          <Badge tone="accent">{categoryLabel(store.category)}</Badge>
-        </div>
-      </div>
-      <div className="mt-3 border-t border-line pt-2">
-        <InfoRow label="주소" value={store.address} />
-        <InfoRow label="신청자" value={store.ownerNickname ?? '닉네임 없음'} />
-        <InfoRow label="신청 시각" value={formatMonthDayTime(store.createdAt)} />
-        <InfoRow
-          label="위치"
-          value={
-            <span className={isFar ? 'font-semibold text-danger' : undefined}>
-              월계1동 중심에서 {distance.toLocaleString('ko-KR')}m
-            </span>
-          }
-        />
-        {status === 'rejected' && store.rejectReason && (
-          <InfoRow label="거절 사유" value={store.rejectReason} />
-        )}
-      </div>
-      {status === 'pending' && (
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <Button variant="secondary" size="sm" disabled={isBusy} onClick={onReject}>
-            거절
-          </Button>
-          <Button size="sm" isLoading={isBusy} onClick={onApprove}>
-            승인
-          </Button>
-        </div>
-      )}
-    </Card>
-  );
-}
-
-function RejectSheet({
-  storeName,
-  isPending,
-  onClose,
-  onSubmit,
-}: {
-  storeName: string;
-  isPending: boolean;
-  onClose: () => void;
-  onSubmit: (reason: string) => void;
-}) {
-  const [reason, setReason] = useState('');
-  return (
-    <BottomSheet title={`거절 사유 · ${storeName}`} onClose={onClose}>
-      <div className="flex flex-wrap gap-2">
-        {REJECT_PRESETS.map((preset) => (
-          <Chip key={preset} isSelected={reason === preset} onClick={() => setReason(preset)}>
-            {preset}
-          </Chip>
-        ))}
-      </div>
-      <textarea
-        value={reason}
-        onChange={(event) => setReason(event.target.value)}
-        maxLength={100}
-        rows={3}
-        placeholder="직접 입력"
-        className="mt-3 w-full resize-none rounded-field border border-line bg-surface p-4 text-base outline-none placeholder:text-faint focus:border-accent"
-      />
-      <Button
-        block
-        className="mt-4"
-        disabled={!reason.trim()}
-        isLoading={isPending}
-        onClick={() => onSubmit(reason)}
-      >
-        거절하기
-      </Button>
-    </BottomSheet>
+      {toastMessage && <Toast>{toastMessage}</Toast>}
+    </AdminShell>
   );
 }
