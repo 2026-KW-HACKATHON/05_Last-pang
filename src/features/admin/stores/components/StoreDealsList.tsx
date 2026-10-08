@@ -7,10 +7,11 @@ import { useNow } from '@/shared/hooks/useNow';
 import { formatPrice } from '@/shared/lib/format';
 
 import { useCloseDealForStore, useStoreDeals } from '../hooks';
+import { DealPushRow } from './DealPushRow';
 
 import type { AdminDeal } from '../dealApi';
 
-/** 운영자 관리 가게의 최근 딜 (지금 종료 가능) */
+/** 운영자 관리 가게의 최근 딜 (지금 종료 · 알림 결과 · 지금 보내기 · 내 기기로 시험) */
 export function StoreDealsList({ storeId }: { storeId: string }) {
   const deals = useStoreDeals(storeId);
   const now = useNow(30_000);
@@ -24,35 +25,35 @@ export function StoreDealsList({ storeId }: { storeId: string }) {
     <div className="space-y-2">
       <p className="text-[13px] text-muted">최근 딜</p>
       {items.map((deal) => (
-        <div
-          key={deal.id}
-          className="flex items-center justify-between rounded-field border border-line p-3"
-        >
-          <div className="min-w-0">
-            <p className="flex items-center gap-2 truncate font-semibold">
-              {deal.title}
-              {isOpen(deal) ? (
-                <Badge tone="accent" withDot>
-                  LIVE
-                </Badge>
-              ) : (
-                <Badge>종료</Badge>
-              )}
-            </p>
-            <p className="text-xs text-muted">
-              {formatTimeRange(deal.startsAt, deal.endsAt)} · {formatPrice(deal.dealPrice)} · 남은{' '}
-              {deal.remainingQty}/{deal.totalQty}
-            </p>
+        <div key={deal.id} className="rounded-field border border-line p-3">
+          <div className="flex items-center justify-between">
+            <div className="min-w-0">
+              <p className="flex items-center gap-2 truncate font-semibold">
+                {deal.title}
+                {isOpen(deal) ? (
+                  <Badge tone="accent" withDot>
+                    LIVE
+                  </Badge>
+                ) : (
+                  <Badge>종료</Badge>
+                )}
+              </p>
+              <p className="text-xs text-muted">
+                {formatTimeRange(deal.startsAt, deal.endsAt)} · {formatPrice(deal.dealPrice)} · 남은{' '}
+                {deal.remainingQty}/{deal.totalQty}
+              </p>
+            </div>
+            {isOpen(deal) && (
+              <button
+                type="button"
+                className="shrink-0 text-[13px] text-danger"
+                onClick={() => setClosing(deal)}
+              >
+                종료
+              </button>
+            )}
           </div>
-          {isOpen(deal) && (
-            <button
-              type="button"
-              className="shrink-0 text-[13px] text-danger"
-              onClick={() => setClosing(deal)}
-            >
-              종료
-            </button>
-          )}
+          <DealPushRow dealId={deal.id} isLive={isOpen(deal)} />
         </div>
       ))}
       {closing && (

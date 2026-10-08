@@ -19,6 +19,7 @@ export type ErrorCode =
   | 'STORE_UNDER_REVIEW'
   | 'CODE_NOT_ISSUED'
   | 'ALREADY_REPORTED'
+  | 'NO_PUSH_DEVICE'
   | 'NETWORK_ERROR'
   | 'UNKNOWN';
 
@@ -42,6 +43,7 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   STORE_UNDER_REVIEW: '주소 심사가 끝나면 새 딜을 올릴 수 있어요',
   CODE_NOT_ISSUED: '가게 코드를 먼저 발급해 주세요',
   ALREADY_REPORTED: '이미 신고한 딜이에요',
+  NO_PUSH_DEVICE: '이 계정에 알림 받을 기기가 없어요. 먼저 이 기기에서 알림을 켜 주세요',
   NETWORK_ERROR: '인터넷 연결을 확인해 주세요',
   UNKNOWN: '문제가 생겼어요. 잠시 후 다시 시도해 주세요',
 };

@@ -7,6 +7,7 @@ import { AppError } from '@/shared/lib/errors';
 
 import { useIssueLinkCode, useRotateStoreCodeForStore } from '../hooks';
 import { OneTimeCodeDialog } from './OneTimeCodeDialog';
+import { PushTestPanel } from './PushTestPanel';
 import { StoreDealsList } from './StoreDealsList';
 
 import type { AdminStoreDetail } from '../api';
@@ -73,6 +74,7 @@ export function ManagedStorePanel({ store }: { store: AdminStoreDetail }) {
         />
       </div>
       {error instanceof AppError && <p className="text-[13px] text-danger">{error.message}</p>}
+      {isActive && <PushTestPanel storeId={store.id} />}
       <StoreDealsList storeId={store.id} />
       {shown && <OneTimeCodeDialog {...shown} onClose={() => setShown(null)} />}
     </section>
