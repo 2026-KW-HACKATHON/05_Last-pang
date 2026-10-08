@@ -1,35 +1,33 @@
-import { Icon, type IconName } from '@/shared/ui/Icon';
+import { Icon } from '@/shared/ui/Icon';
+
+import { GUIDE_STEPS } from '../guideContent';
 
 import type { Platform } from '../platform';
-
-const STEPS: Record<Platform, { icon: IconName; text: string }[]> = {
-  ios: [
-    { icon: 'share', text: '아래 공유 버튼을 눌러요' },
-    { icon: 'plusSquare', text: "'홈 화면에 추가'를 골라요" },
-    { icon: 'home', text: '홈 화면의 동네냠냠을 열어요' },
-  ],
-  android: [
-    { icon: 'more', text: '브라우저 오른쪽 위 메뉴를 눌러요' },
-    { icon: 'download', text: "'앱 설치' 또는 '홈 화면에 추가'를 골라요" },
-    { icon: 'home', text: '홈 화면의 동네냠냠을 열어요' },
-  ],
-};
 
 interface InstallStepsProps {
   platform: Platform;
 }
 
-// 기기별 홈 화면 추가 순서 (R16)
+// 기기별 홈 화면 추가 순서 (R16). 번호 · 아이콘 · 큰 글씨 · 작은 설명
 export function InstallSteps({ platform }: InstallStepsProps) {
+  const steps = GUIDE_STEPS[platform];
   return (
-    <ol className="space-y-4 rounded-card p-4 ring-1 ring-line">
-      {STEPS[platform].map((step, index) => (
-        <li key={step.text} className="flex items-center gap-3 text-sm">
-          <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-tint text-xs font-bold text-accent">
+    <ol className="rounded-card px-4 py-2 ring-1 ring-line">
+      {steps.map((step, index) => (
+        <li key={step.title} className="relative flex gap-3 py-3">
+          {index < steps.length - 1 && (
+            <span aria-hidden className="absolute top-10 bottom-[-12px] left-3 w-px bg-line" />
+          )}
+          <span className="relative flex size-6 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-white">
             {index + 1}
           </span>
-          <Icon name={step.icon} size={20} className="text-muted" />
-          {step.text}
+          <div className="min-w-0 flex-1">
+            <p className="text-[15px] leading-6 font-semibold">{step.title}</p>
+            <p className="mt-0.5 text-[13px] leading-5 text-muted">{step.hint}</p>
+          </div>
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-gray text-muted">
+            <Icon name={step.icon} size={18} />
+          </span>
         </li>
       ))}
     </ol>
