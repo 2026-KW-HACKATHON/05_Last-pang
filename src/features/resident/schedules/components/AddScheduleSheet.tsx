@@ -39,7 +39,7 @@ export function AddScheduleSheet({ initial, schedules, onClose, onSaved }: AddSc
   return (
     <BottomSheet title="어떤 일정인가요?" onClose={onClose}>
       <div className="max-h-[70dvh] space-y-5 overflow-y-auto pb-1">
-        <p className="-mt-3 text-sm font-semibold text-accent">{caption}</p>
+        <p className="text-sm font-semibold text-accent">{caption}</p>
 
         <div>
           <label htmlFor="schedule-name" className="mb-2 block text-sm font-bold">
