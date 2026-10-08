@@ -1,16 +1,15 @@
 import { WEEK_DAYS } from '../constants';
-import { shortSlotLabel } from '../text';
-import { dowOf } from '../time';
+import { dowOf, formatFreeTime } from '../time';
 
-import type { AlertPreviewItem } from '../types';
+import type { FreeTimeItem } from '../types';
 
-interface AlertPreviewListProps {
-  items: AlertPreviewItem[];
+interface FreeTimeWeekListProps {
+  items: FreeTimeItem[];
   todayDow: number;
 }
 
-// 이번 주 알림 미리 보기: 월~일 한 줄씩, 오늘은 강조 (R13-5)
-export function AlertPreviewList({ items, todayDow }: AlertPreviewListProps) {
+// 이번 주 비는 시간: 월~일 한 줄씩, 오늘은 강조
+export function FreeTimeWeekList({ items, todayDow }: FreeTimeWeekListProps) {
   return (
     <ul className="-mx-4">
       {WEEK_DAYS.map((day) => {
@@ -25,20 +24,17 @@ export function AlertPreviewList({ items, todayDow }: AlertPreviewListProps) {
               {day.label}
             </span>
             {dayItems.length === 0 ? (
-              <span className="text-xs text-faint">보낼 알림이 없어요</span>
+              <span className="text-xs text-faint">30분 넘게 비는 시간이 없어요</span>
             ) : (
               <div className="flex flex-wrap gap-1.5">
                 {dayItems.map((item) => (
                   <span
-                    key={item.slot}
-                    className={`rounded-[8px] px-2 py-1 text-sm ${
-                      isToday ? 'bg-surface text-accent' : 'bg-gray'
+                    key={item.from}
+                    className={`rounded-[8px] px-2 py-1 text-sm font-semibold tabular-nums ${
+                      isToday ? 'bg-surface text-success' : 'bg-gray'
                     }`}
                   >
-                    <b className="font-bold">{item.at}</b>{' '}
-                    <span className={`text-xs ${isToday ? '' : 'text-muted'}`}>
-                      {shortSlotLabel(item.slot)}
-                    </span>
+                    {formatFreeTime(item)}
                   </span>
                 ))}
               </div>

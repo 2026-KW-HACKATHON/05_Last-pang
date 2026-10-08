@@ -13,6 +13,7 @@ type QueueRow = {
   id: number;
   user_id: string;
   deal_id: string;
+  body: string | null; // 사람마다 다른 둘째 줄 (겹치는 비는 시간). 없으면 기본 문구
   deals: {
     title: string;
     deal_price: number;
@@ -38,7 +39,10 @@ function toPayload(row: QueueRow) {
   if (!deal) return null;
   return JSON.stringify({
     title: '동네냠냠',
-    body: `[할인] ${deal.stores?.name ?? ''} ${deal.title}\n${won(deal.deal_price)} · 선착순 사용 ${deal.remaining_qty}/${deal.total_qty}명 · ${hhmm(deal.ends_at)}까지`,
+    body: `[할인] ${deal.stores?.name ?? ''} ${deal.title}\n${
+      row.body ??
+      `${won(deal.deal_price)} · 선착순 사용 ${deal.remaining_qty}/${deal.total_qty}명 · ${hhmm(deal.ends_at)}까지`
+    }`,
     url: `/deals/${row.deal_id}?src=push`,
     tag: `deal-${row.deal_id}`,
   });
@@ -64,7 +68,7 @@ Deno.serve(async (req) => {
   const { data: rows, error } = await admin
     .from('push_queue')
     .select(
-      'id, user_id, deal_id, deals(title, deal_price, remaining_qty, total_qty, ends_at, stores(name))',
+      'id, user_id, deal_id, body, deals(title, deal_price, remaining_qty, total_qty, ends_at, stores(name))',
     )
     .eq('status', 'pending')
     .order('created_at')

@@ -31,22 +31,10 @@ export const scheduleRowSchema = z.object({
   color: scheduleColorSchema,
 });
 
-// get_my_alert_preview: [{ day, slot, at, label }]
-export const alertPreviewSchema = z.array(
-  z.object({
-    day: z.string(),
-    slot: z.enum(['morning', 'lunch', 'dinner']),
-    at: z.string(),
-    label: z.string(),
-  }),
+// get_my_free_times: [{ day, from, to }]
+export const freeTimesSchema = z.array(
+  z.object({ day: z.string(), from: z.string(), to: z.string() }),
 );
-
-export const alertSettingsRowSchema = z.object({
-  alert_morning: z.boolean(),
-  alert_lunch: z.boolean(),
-  alert_dinner: z.boolean(),
-  first_outing_lead_min: z.union([z.literal(15), z.literal(30), z.literal(60)]),
-});
 
 // 시트 저장 전 검사 (DB check와 같은 규칙)
 export const scheduleDraftSchema = z

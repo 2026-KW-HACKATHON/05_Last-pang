@@ -78,9 +78,9 @@ export type Database = {
       Relationships: [{ foreignKeyName: "profiles_id_fkey", columns: ["id"], isOneToOne: true, referencedRelation: "users", referencedColumns: ["id"] }]
     }
     "push_queue": {
-      Row: { "created_at": string, "deal_id": string, "id": number, "reason": string, "sent_at": string | null, "status": string, "user_id": string }
-      Insert: { "created_at"?: string, "deal_id": string, "id"?: never, "reason": string, "sent_at"?: string | null, "status"?: string, "user_id": string }
-      Update: { "created_at"?: string, "deal_id"?: string, "id"?: never, "reason"?: string, "sent_at"?: string | null, "status"?: string, "user_id"?: string }
+      Row: { "body": string | null, "created_at": string, "deal_id": string, "id": number, "reason": string, "sent_at": string | null, "status": string, "user_id": string }
+      Insert: { "body"?: string | null, "created_at"?: string, "deal_id": string, "id"?: never, "reason": string, "sent_at"?: string | null, "status"?: string, "user_id": string }
+      Update: { "body"?: string | null, "created_at"?: string, "deal_id"?: string, "id"?: never, "reason"?: string, "sent_at"?: string | null, "status"?: string, "user_id"?: string }
       Relationships: [{ foreignKeyName: "push_queue_deal_id_fkey", columns: ["deal_id"], isOneToOne: false, referencedRelation: "deals", referencedColumns: ["id"] }, { foreignKeyName: "push_queue_user_id_fkey", columns: ["user_id"], isOneToOne: false, referencedRelation: "profiles", referencedColumns: ["id"] }]
     }
     "push_subscriptions": {
@@ -131,6 +131,7 @@ export type Database = {
     "admin_close_deal": { Args: { "p_deal_id": string }; Returns: Json }
     "admin_create_deal": { Args: { "p_store_id": string, "p_title": string, "p_original_price": number, "p_deal_price": number, "p_duration_min": number, "p_total_qty": number, "p_coupon_ttl_min": number, "p_starts_at"?: string }; Returns: Json }
     "admin_create_store": { Args: { "p_name": string, "p_category": string, "p_address": string, "p_lat": number, "p_lng": number, "p_description"?: string, "p_representative_name"?: string, "p_business_no"?: string, "p_phone"?: string }; Returns: Json }
+    "admin_deal_push_status": { Args: { "p_deal_id": string }; Returns: Json }
     "admin_delete_store": { Args: { "p_store_id": string }; Returns: Json }
     "admin_get_report_detail": { Args: { "p_deal_id": string }; Returns: Json }
     "admin_get_store": { Args: { "p_store_id": string }; Returns: Json }
@@ -138,8 +139,12 @@ export type Database = {
     "admin_list_applications": { Args: { "p_status"?: string }; Returns: Json }
     "admin_list_report_groups": { Args: { "p_status"?: string }; Returns: Json }
     "admin_list_stores": { Args: { "p_filter"?: string, "p_query"?: string }; Returns: Json }
+    "admin_push_funnel": { Args: { "p_store_id": string }; Returns: Json }
+    "admin_push_readiness": { Args: Record<PropertyKey, never>; Returns: Json }
     "admin_resolve_reports": { Args: { "p_deal_id": string, "p_confirm": boolean }; Returns: Json }
     "admin_rotate_store_code": { Args: { "p_store_id": string }; Returns: Json }
+    "admin_send_deal_push_now": { Args: { "p_deal_id": string }; Returns: Json }
+    "admin_send_test_push": { Args: { "p_deal_id": string }; Returns: Json }
     "admin_suspend_store": { Args: { "p_store_id": string, "p_code": string, "p_note"?: string }; Returns: Json }
     "admin_unsuspend_store": { Args: { "p_store_id": string }; Returns: Json }
     "admin_update_store": { Args: { "p_store_id": string, "p_name": string, "p_category": string, "p_address": string, "p_lat": number, "p_lng": number, "p_description"?: string, "p_representative_name"?: string, "p_business_no"?: string, "p_phone"?: string }; Returns: Json }
@@ -153,7 +158,7 @@ export type Database = {
     "delete_my_account": { Args: Record<PropertyKey, never>; Returns: Json }
     "distance_m": { Args: { "lat1": number, "lng1": number, "lat2": number, "lng2": number }; Returns: number }
     "enqueue_deal_pushes": { Args: Record<PropertyKey, never>; Returns: number }
-    "estimate_push_targets": { Args: { "p_starts_at": string }; Returns: number }
+    "estimate_push_targets": { Args: { "p_starts_at": string, "p_duration_min"?: number }; Returns: number }
     "expire_coupons": { Args: Record<PropertyKey, never>; Returns: undefined }
     "generate_redeem_code": { Args: Record<PropertyKey, never>; Returns: string }
     "generate_weekly_deals": { Args: Record<PropertyKey, never>; Returns: undefined }
@@ -161,6 +166,7 @@ export type Database = {
     "get_council_report": { Args: { "p_month": string }; Returns: Json }
     "get_my_alert_preview": { Args: { "p_from"?: string }; Returns: Json }
     "get_my_daily_usage": { Args: Record<PropertyKey, never>; Returns: Json }
+    "get_my_free_times": { Args: { "p_from"?: string }; Returns: Json }
     "get_my_store": { Args: Record<PropertyKey, never>; Returns: Json }
     "get_owner_deal_history": { Args: { "p_tab"?: string, "p_limit"?: number }; Returns: Json }
     "get_owner_deal_result": { Args: { "p_deal_id": string }; Returns: Json }

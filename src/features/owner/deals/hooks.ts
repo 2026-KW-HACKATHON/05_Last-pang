@@ -23,7 +23,8 @@ import type { DealFormInput, WeeklyDealInput } from './schema';
 export const ownerDealKeys = {
   active: (storeId: string) => [...ROOT_KEYS.deals, 'owner', 'active', storeId] as const,
   counts: (dealIds: string[]) => [...ROOT_KEYS.deals, 'owner', 'counts', ...dealIds] as const,
-  estimate: (hourKey: number) => [...ROOT_KEYS.deals, 'owner', 'estimate', hourKey] as const,
+  estimate: (durationMin: number) =>
+    [...ROOT_KEYS.deals, 'owner', 'estimate', durationMin] as const,
   scheduled: (storeId: string) => [...ROOT_KEYS.deals, 'owner', 'scheduled', storeId] as const,
   rules: (storeId: string) => [...ROOT_KEYS.deals, 'owner', 'rules', storeId] as const,
   rule: (ruleId: string) => [...ROOT_KEYS.deals, 'owner', 'rule', ruleId] as const,
@@ -81,11 +82,13 @@ export function useCloseDeal() {
   });
 }
 
-export function usePushTargetEstimate() {
-  const hourKey = new Date().getHours(); // 한 시간 단위로 캐시
+// 비는 시간과 겹치는지는 지금 시각·딜 길이에 따라 달라지므로 1분 지나면 다시 세고, 화면을 켜 두면 5분마다 다시 센다
+export function usePushTargetEstimate(durationMin: number) {
   return useQuery({
-    queryKey: ownerDealKeys.estimate(hourKey),
-    queryFn: () => fetchPushTargetEstimate(new Date()),
+    queryKey: ownerDealKeys.estimate(durationMin),
+    queryFn: () => fetchPushTargetEstimate(new Date(), durationMin),
+    staleTime: 60_000,
+    refetchInterval: 300_000,
   });
 }
 

@@ -1,21 +1,19 @@
 import { Mascot } from '@/shared/ui/Mascot';
 
 interface FirstScheduleOverlayProps {
-  leadLabel: string;
   onAdd: () => void;
   onLater: () => void;
 }
 
 // R13-4 처음 들어온 빈 시간표 위 안내 카드
-export function FirstScheduleOverlay({ leadLabel, onAdd, onLater }: FirstScheduleOverlayProps) {
+export function FirstScheduleOverlay({ onAdd, onLater }: FirstScheduleOverlayProps) {
   return (
     <div className="absolute inset-x-8 top-36 z-20 rounded-card bg-surface px-5 pt-5 pb-4 text-center shadow-xl ring-1 ring-line">
       <Mascot pose="rice" size={88} className="mx-auto" />
       <h2 className="mt-3 text-lg font-bold">매주 반복되는 일정을 넣어 주세요</h2>
       <p className="mt-2 text-sm leading-relaxed text-muted">
-        수업·출근처럼 나가는 시간을 알면
-        <br />
-        나가기 {leadLabel} 전에 근처 딜을 먼저 알려드려요
+        수업·출근 사이 비는 시간을 알면
+        <br />그 시간에 쓸 수 있는 딜만 골라 알려드려요
       </p>
       <button
         type="button"

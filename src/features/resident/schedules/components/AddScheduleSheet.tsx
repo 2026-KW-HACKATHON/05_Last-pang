@@ -1,33 +1,26 @@
 import { BottomSheet } from '@/shared/ui/BottomSheet';
 
-import { GRID_END_MIN, GRID_START_MIN, KIND_CHIPS, MAX_NAME_LENGTH } from '../constants';
+import { KIND_CHIPS, MAX_NAME_LENGTH } from '../constants';
 import { useCreateSchedule } from '../hooks';
-import { firstOutingMessage, OVERLAP_HINT, saveErrorMessage } from '../text';
-import { firstOutingDays, formatDays, formatRange } from '../time';
+import { OVERLAP_HINT, saveErrorMessage } from '../text';
+import { formatDays, formatRange } from '../time';
 import { useScheduleForm } from '../useScheduleForm';
 import { DayToggles } from './DayToggles';
 import { KindChips } from './KindChips';
 import { OverlapNotice } from './OverlapNotice';
 import { TimeRangeFields } from './TimeRangeFields';
 
-import type { AlertSettings, Schedule, ScheduleColor, ScheduleDraft, ScheduleKind } from '../types';
+import type { Schedule, ScheduleColor, ScheduleDraft, ScheduleKind } from '../types';
 
 interface AddScheduleSheetProps {
   initial: ScheduleDraft;
   schedules: Schedule[];
-  alertSettings: AlertSettings | undefined;
   onClose: () => void;
   onSaved: (name: string) => void;
 }
 
 // R13-2 일정 추가 시트
-export function AddScheduleSheet({
-  initial,
-  schedules,
-  alertSettings,
-  onClose,
-  onSaved,
-}: AddScheduleSheetProps) {
+export function AddScheduleSheet({ initial, schedules, onClose, onSaved }: AddScheduleSheetProps) {
   const { draft, patch, overlapText, isValid } = useScheduleForm(initial, schedules);
   const createSchedule = useCreateSchedule();
 
@@ -36,16 +29,6 @@ export function AddScheduleSheet({
     const isChipName = KIND_CHIPS.some((chip) => chip.label === draft.name.trim());
     patch({ kind, color, name: !draft.name.trim() || isChipName ? label : draft.name });
   };
-
-  // 아침 알림이 켜져 있고, 이 일정이 그날 첫 일정이며, 알림 시각이 방해 금지 밖일 때만 안내
-  const leadMin = alertSettings?.leadMin ?? 30;
-  const alertAt = draft.startMin - leadMin;
-  const outingDays = firstOutingDays(schedules, draft);
-  const showsOutingInfo =
-    (alertSettings?.morning ?? true) &&
-    outingDays.length > 0 &&
-    alertAt >= GRID_START_MIN &&
-    alertAt < GRID_END_MIN;
 
   const handleSubmit = () => {
     createSchedule.mutate(draft, { onSuccess: () => onSaved(draft.name.trim()) });
@@ -91,11 +74,9 @@ export function AddScheduleSheet({
         ) : createSchedule.isError ? (
           <OverlapNotice message={saveErrorMessage(createSchedule.error)} />
         ) : (
-          showsOutingInfo && (
-            <p className="rounded-[12px] bg-accent-tint px-4 py-3 text-sm leading-relaxed text-accent">
-              {firstOutingMessage(outingDays, draft.startMin, leadMin)}
-            </p>
-          )
+          <p className="rounded-[12px] bg-accent-tint px-4 py-3 text-sm leading-relaxed text-accent">
+            이 일정 사이사이 30분 이상 비는 시간에 쓸 수 있는 딜이 열리면 바로 알려드려요
+          </p>
         )}
 
         <button

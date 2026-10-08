@@ -3,12 +3,12 @@ import { dayLabel, formatRange } from '../time';
 import { useDragSelect } from '../useDragSelect';
 import { DayColumn } from './DayColumn';
 
-import type { DragRange, Schedule } from '../types';
+import type { DragRange, FreeRange, Schedule } from '../types';
 
 interface TimetableGridProps {
   schedules: Schedule[];
   todayDow: number;
-  alertMinutes: number[];
+  freeRanges: FreeRange[]; // 30분 이상 비는 시간 (딜 알림을 받는 시간)
   onBlockClick: (schedule: Schedule) => void;
   onRangeSelect: (range: DragRange) => void;
 }
@@ -23,7 +23,7 @@ const BODY_HEIGHT = HOURS.length * HOUR_PX;
 export function TimetableGrid({
   schedules,
   todayDow,
-  alertMinutes,
+  freeRanges,
   onBlockClick,
   onRangeSelect,
 }: TimetableGridProps) {
@@ -70,7 +70,7 @@ export function TimetableGrid({
                 dow={day.dow}
                 isToday={day.dow === todayDow}
                 schedules={schedules}
-                alertMinutes={day.dow === todayDow ? alertMinutes : []}
+                freeRanges={freeRanges.filter((free) => free.dow === day.dow)}
                 onBlockClick={onBlockClick}
               />
             ))}

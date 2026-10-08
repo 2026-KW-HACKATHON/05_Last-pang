@@ -10,10 +10,10 @@ import { AddScheduleSheet } from '../components/AddScheduleSheet';
 import { EditScheduleSheet } from '../components/EditScheduleSheet';
 import { FirstScheduleOverlay } from '../components/FirstScheduleOverlay';
 import { TimetableGrid } from '../components/TimetableGrid';
-import { TodayAlertCard } from '../components/TodayAlertCard';
+import { TodayFreeTimeCard } from '../components/TodayFreeTimeCard';
 import { DEFAULT_COLOR } from '../constants';
-import { useAlertPreview, useAlertSettings, useMySchedules } from '../hooks';
-import { dowOf, leadLabel, todaySeoul, toMinutes } from '../time';
+import { useFreeTimes, useMySchedules } from '../hooks';
+import { dowOf, todaySeoul, toFreeRanges } from '../time';
 
 import type { DragRange, Schedule, ScheduleDraft } from '../types';
 
@@ -31,11 +31,10 @@ function draftFrom(range: DragRange): ScheduleDraft {
   };
 }
 
-// R13 내 시간표: 반복 일정 블록 + 오늘 딜 알림 요약
+// R13 내 시간표: 반복 일정 블록 + 오늘 비는 시간 (딜 알림을 받는 시간)
 export function SchedulesPage() {
   const schedules = useMySchedules();
-  const preview = useAlertPreview();
-  const alertSettings = useAlertSettings();
+  const freeTimes = useFreeTimes();
   const [sheet, setSheet] = useState<SheetState>(null);
   const [isOverlayDismissed, setIsOverlayDismissed] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -50,9 +49,7 @@ export function SchedulesPage() {
   }
 
   const list = schedules.data;
-  const todayItems = preview.data?.filter((item) => item.day === today);
-  const todaySchedules = list.filter((schedule) => schedule.days.includes(todayDow));
-  const leadMin = alertSettings.data?.leadMin ?? 30;
+  const todayItems = freeTimes.data?.filter((item) => item.day === today);
   const showsOverlay = list.length === 0 && !isOverlayDismissed && !sheet;
 
   const openAdd = (range: DragRange) => setSheet({ mode: 'add', initial: draftFrom(range) });
@@ -66,27 +63,24 @@ export function SchedulesPage() {
     <main className="mx-auto min-h-dvh max-w-[480px] bg-surface pb-28">
       <PageHeader title="내 시간표" hasBack />
 
-      <TodayAlertCard
+      <TodayFreeTimeCard
         todayDow={todayDow}
         items={todayItems}
-        isError={preview.isError}
-        onRetry={() => void preview.refetch()}
-        todaySchedules={todaySchedules}
+        isError={freeTimes.isError}
+        onRetry={() => void freeTimes.refetch()}
         hasSchedules={list.length > 0}
-        leadMin={leadMin}
       />
 
       <div className="relative">
         <TimetableGrid
           schedules={list}
           todayDow={todayDow}
-          alertMinutes={(todayItems ?? []).map((item) => toMinutes(item.at))}
+          freeRanges={list.length > 0 ? toFreeRanges(freeTimes.data ?? []) : []}
           onBlockClick={(schedule) => setSheet({ mode: 'edit', schedule })}
           onRangeSelect={openAdd}
         />
         {showsOverlay && (
           <FirstScheduleOverlay
-            leadLabel={leadLabel(leadMin)}
             onAdd={openAddDefault}
             onLater={() => setIsOverlayDismissed(true)}
           />
@@ -108,7 +102,6 @@ export function SchedulesPage() {
         <AddScheduleSheet
           initial={sheet.initial}
           schedules={list}
-          alertSettings={alertSettings.data}
           onClose={() => setSheet(null)}
           onSaved={() => closeWith('시간표에 추가했어요')}
         />

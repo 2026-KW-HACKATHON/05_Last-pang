@@ -1,4 +1,4 @@
-import type { LeadMin, ScheduleColor, ScheduleKind } from './types';
+import type { ScheduleColor, ScheduleKind } from './types';
 
 // 시간표 그리드 범위: 8시~22시, 30분 칸
 export const GRID_START_MIN = 8 * 60;
@@ -50,12 +50,6 @@ export const COLOR_ORDER: ScheduleColor[] = [
   'blue',
   'purple',
   'gray',
-];
-
-export const LEAD_OPTIONS: { value: LeadMin; label: string }[] = [
-  { value: 15, label: '15분' },
-  { value: 30, label: '30분' },
-  { value: 60, label: '1시간' },
 ];
 
 export const MAX_NAME_LENGTH = 20; // DB check (1~20자)

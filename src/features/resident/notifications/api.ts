@@ -42,7 +42,15 @@ export async function savePushSubscription(subscription: PushSubscription): Prom
 export async function subscribePush(): Promise<PushPermission> {
   if (readPushPermission() === 'unsupported') return 'unsupported';
   const permission = await Notification.requestPermission();
-  if (permission !== 'granted' || !env.vapidPublicKey) return permission;
+  if (permission !== 'granted') return permission;
+  await registerThisDevice();
+  return permission;
+}
+
+// 권한이 이미 허용된 기기를 지금 로그인한 계정에 (다시) 묶는다. 권한 창은 띄우지 않는다
+// 예: 키가 없을 때 권한만 받은 기기, 같은 폰에서 다른 계정으로 바꿔 로그인한 경우
+async function registerThisDevice(): Promise<void> {
+  if (!env.vapidPublicKey) return;
   const registration = await navigator.serviceWorker.ready;
   const subscription =
     (await registration.pushManager.getSubscription()) ??
@@ -51,5 +59,12 @@ export async function subscribePush(): Promise<PushPermission> {
       applicationServerKey: toApplicationServerKey(env.vapidPublicKey),
     }));
   await savePushSubscription(subscription);
-  return permission;
+}
+
+let hasSynced = false;
+/** 앱을 열 때 한 번: 권한이 허용돼 있으면 이 기기 구독을 서버에 다시 저장한다 (실패해도 조용히) */
+export async function syncPushSubscription(): Promise<void> {
+  if (hasSynced || readPushPermission() !== 'granted') return;
+  hasSynced = true;
+  await registerThisDevice();
 }
