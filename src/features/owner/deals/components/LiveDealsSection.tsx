@@ -8,6 +8,7 @@ import { SectionTitle } from '../../components/ui/SectionTitle';
 import { Toast } from '../../components/ui/Toast';
 import { useToast } from '../../lib/useToast';
 import { useCloseDeal, useDealCouponCounts, useMyActiveDeals } from '../hooks';
+import { CloseDealCouponNote } from './CloseDealCouponNote';
 import { LiveDealCard } from './LiveDealCard';
 
 import type { OwnerDeal } from '../api';
@@ -63,9 +64,7 @@ export function LiveDealsSection({ storeId }: { storeId: string }) {
           title="딜을 지금 종료할까요?"
           body={
             <>
-              이미 받은 쿠폰은 유효시간까지 쓸 수 있어요.
-              <br />
-              진행 중인 타임딜 노출이 즉시 중단됩니다.
+              <CloseDealCouponNote dealId={closingDeal.id} />
               <span className="mt-3 inline-flex items-center gap-1 rounded-pill bg-gray px-3 py-1 text-[13px] text-ink">
                 <Icon name="bolt" size={12} /> {closingDeal.title}
               </span>

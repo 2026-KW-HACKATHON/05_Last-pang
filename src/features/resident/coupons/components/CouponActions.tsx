@@ -13,7 +13,7 @@ const BUTTON = 'flex h-[52px] items-center justify-center rounded-[12px] font-se
 const PRIMARY = `${BUTTON} bg-accent text-white`;
 const SECONDARY = `${BUTTON} mt-2 ring-1 ring-line`;
 
-// 사용 완료(R9) · 만료(R10) · 소진(R8-2) 화면 하단 버튼
+// 사용 완료(R9) · 만료(R10) · 소진(R8-2) · 취소(딜 종료) 화면 하단 버튼
 export function CouponActions({ status, dealId }: CouponActionsProps) {
   if (status === 'used') {
     return (
@@ -36,7 +36,7 @@ export function CouponActions({ status, dealId }: CouponActionsProps) {
       </BottomBar>
     );
   }
-  if (status === 'soldOut') {
+  if (status === 'soldOut' || status === 'canceled') {
     return (
       <BottomBar>
         <Link to="/" className={PRIMARY}>

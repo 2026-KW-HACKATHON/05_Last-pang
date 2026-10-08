@@ -25,6 +25,7 @@ export function isClosedBySoldOut(coupon: DealState): boolean {
 
 export function toDisplayStatus(coupon: MyCoupon, nowMs: number): CouponDisplayStatus {
   const status = toEffectiveStatus(coupon, nowMs);
+  if (status === 'canceled') return 'canceled';
   if (status !== 'used' && isClosedBySoldOut(coupon)) return 'soldOut';
   return status;
 }

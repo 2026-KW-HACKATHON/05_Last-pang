@@ -19,6 +19,8 @@ export function PastCouponCard({ coupon, nowMs }: PastCouponCardProps) {
   const toPill = () => {
     if (isUsed) return { label: '사용 완료', className: 'bg-success text-white' };
     if (status === 'soldOut') return { label: '사용 불가 · 소진', className: 'bg-gray text-muted' };
+    if (status === 'canceled')
+      return { label: '취소됨 · 딜 종료', className: 'bg-gray text-muted' };
     return { label: '만료', className: 'bg-gray text-muted' };
   };
   const toMeta = () => {
@@ -28,6 +30,7 @@ export function PastCouponCard({ coupon, nowMs }: PastCouponCardProps) {
     if (status === 'soldOut') {
       return `${formatKstTime(coupon.dealSoldOutAt ?? coupon.expiresAt)} 소진`;
     }
+    if (status === 'canceled') return '가게가 딜을 일찍 종료해 취소됐어요';
     return `${formatKstTime(coupon.expiresAt)} 만료`;
   };
   const pill = toPill();

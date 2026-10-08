@@ -147,7 +147,7 @@ export async function fetchDealCouponCounts(
   return counts;
 }
 
-/** 조기 종료. 이미 발급된 쿠폰은 유효 (컨벤션 9장). 종료 사유 owner는 서버가 기록 */
+/** 조기 종료. 아직 안 쓴 쿠폰은 서버(트리거)가 취소하고 받은 주민에게 알린다. 종료 사유 owner는 서버가 기록 */
 export async function closeDeal(dealId: string): Promise<void> {
   const { data, error } = await supabase.rpc('close_deal', { p_deal_id: dealId });
   unwrapRpc(data, error, z.object({ deal_id: z.string() }));
@@ -279,4 +279,11 @@ export async function updateDealRule(
 export async function deleteDealRule(ruleId: string): Promise<void> {
   const { error } = await supabase.from('deal_rules').delete().eq('id', ruleId);
   if (error) throw toAppError(error);
+}
+
+/** 종료 팝업의 "받은 쿠폰 N장도 취소돼요" — 아직 안 쓰고 유효한 쿠폰 수 (사장님 본인 가게·운영자만) */
+export async function fetchOpenCouponCount(dealId: string): Promise<number> {
+  const { data, error } = await supabase.rpc('get_deal_open_coupon_count', { p_deal_id: dealId });
+  if (error) throw toAppError(error);
+  return z.number().int().nonnegative().parse(data);
 }

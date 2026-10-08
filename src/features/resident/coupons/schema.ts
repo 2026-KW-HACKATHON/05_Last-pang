@@ -5,7 +5,7 @@ import { categorySchema } from '@/shared/lib/domainSchema';
 export const couponRowSchema = z.object({
   id: z.string(),
   deal_id: z.string(),
-  status: z.enum(['issued', 'used', 'expired']),
+  status: z.enum(['issued', 'used', 'expired', 'canceled']),
   issued_at: z.string(),
   expires_at: z.string(),
   used_at: z.string().nullable(),

@@ -5,6 +5,7 @@ import { ConfirmDialog } from '@/features/owner/components/ui/ConfirmDialog';
 import { formatTimeRange } from '@/features/owner/lib/format';
 import { useNow } from '@/shared/hooks/useNow';
 import { formatPrice } from '@/shared/lib/format';
+import { CloseDealCouponNote } from '@/features/owner/deals/components/CloseDealCouponNote';
 
 import { useCloseDealForStore, useStoreDeals } from '../hooks';
 import { DealPushRow } from './DealPushRow';
@@ -60,7 +61,7 @@ export function StoreDealsList({ storeId }: { storeId: string }) {
         <ConfirmDialog
           icon="timerOff"
           title="딜을 지금 종료할까요?"
-          body="이미 받은 쿠폰은 유효시간까지 쓸 수 있어요."
+          body={<CloseDealCouponNote dealId={closing.id} />}
           confirmLabel="종료하기"
           isPending={closeDeal.isPending}
           onConfirm={() => closeDeal.mutate(closing.id, { onSettled: () => setClosing(null) })}
