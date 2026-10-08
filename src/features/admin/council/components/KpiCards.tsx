@@ -39,18 +39,18 @@ export function KpiCards({ kpis }: { kpis: CouncilReport['kpis'] }) {
         const { value, prev } = kpis[def.key];
         const change = changeText(def, value, prev);
         return (
-          <div key={def.key} className="rounded-card bg-surface p-5">
-            <p className="text-sm text-muted">{def.label}</p>
-            <p className="mt-2 text-[32px] leading-none font-bold tabular-nums">
+          <div key={def.key} className="h-[132px] rounded-card bg-surface p-6 ring-1 ring-line">
+            <p className="text-[13px] text-muted">{def.label}</p>
+            <p className="mt-2 text-[30px] leading-9 font-bold tabular-nums">
               {value === null ? '–' : value.toLocaleString('ko-KR')}
-              <span className="ml-1 text-sm font-semibold">{def.unit}</span>
+              <span className="ml-0.5 text-[15px] font-normal">{def.unit}</span>
             </p>
-            <p className="mt-2 text-[13px] text-muted">
-              지난달보다{' '}
+            <p className="mt-2 flex gap-2.5 text-xs text-muted">
+              지난달보다
               {change ? (
                 <span className={change.isUp ? 'text-success' : 'text-danger'}>{change.text}</span>
               ) : (
-                '–'
+                <span>–</span>
               )}
             </p>
           </div>

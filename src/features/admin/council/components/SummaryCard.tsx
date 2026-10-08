@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Icon } from '@/features/owner/components/Icon';
 import { Badge } from '@/features/owner/components/ui/Badge';
@@ -11,7 +11,8 @@ import {
   useSetSummaryStatus,
   useUpdateSummary,
 } from '../hooks';
-import { templateSummary, toCsv } from '../reportText';
+import { templateSummary } from '../reportText';
+import { SummaryExportButtons } from './SummaryExportButtons';
 
 import type { CouncilReport } from '../api';
 
@@ -34,56 +35,48 @@ export function SummaryCard({ report }: { report: CouncilReport }) {
     generate.mutate(report.month, {
       onError: () => saveDraft.mutate({ month: report.month, text: templateSummary(report) }),
     });
-  const handleDownloadCsv = () => {
-    const url = URL.createObjectURL(new Blob([toCsv(report)], { type: 'text/csv' }));
-    const link = Object.assign(document.createElement('a'), {
-      href: url,
-      download: `월계1동-상권리포트-${report.month.slice(0, 7)}.csv`,
-    });
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-  const handleSend = () => {
-    window.location.href = `mailto:?subject=${encodeURIComponent(`월계1동 상권 리포트 ${report.month.slice(0, 7)}`)}&body=${encodeURIComponent(text)}`;
-    setStatus.mutate({ month: report.month, status: 'sent' });
-  };
+  // 그 달 요약이 없으면 처음 열 때 한 번 초안을 만든다 (AI 실패 시 기본 문장). 검수는 사람이 한다
+  const requested = useRef<string | null>(null);
+  useEffect(() => {
+    if (summary || requested.current === report.month) return;
+    requested.current = report.month;
+    handleGenerate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 달이 바뀔 때만 다시 부른다
+  }, [report.month, summary]);
+  const isDrafting = !summary && (generate.isPending || saveDraft.isPending);
 
   return (
-    <section className="rounded-card bg-surface p-6">
+    <section className="rounded-card bg-surface px-6 pt-[23px] pb-5 ring-1 ring-line">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-pill bg-accent-tint text-accent">
-            <Icon name="bolt" size={20} />
+          <span className="flex size-8 items-center justify-center rounded-[8px] bg-accent-tint text-accent">
+            <Icon name="bolt" size={15} />
           </span>
-          <h2 className="text-lg font-bold">이번 달 요약</h2>
+          <h2 className="text-[17px] font-bold">이번 달 요약</h2>
           {summary && (
             <Badge tone={isReviewed ? 'success' : 'accent'} withDot>
               {summary.status === 'sent' ? '발송 완료' : isReviewed ? '검수 완료' : '검수 전'}
             </Badge>
           )}
-          <span className="text-[13px] text-muted">
+          <span className="text-xs text-faint">
             {summary?.source === 'ai'
               ? 'AI가 집계 통계만 보고 쓴 문장이에요'
               : '집계 숫자로 만든 기본 문장이에요'}
           </span>
         </div>
         <div className="flex gap-2">
-          {!summary && (
-            <Button
-              size="sm"
-              isLoading={generate.isPending || saveDraft.isPending}
-              onClick={handleGenerate}
-            >
-              요약 만들기
+          {!summary && !isDrafting && (
+            <Button size="sm" onClick={handleGenerate}>
+              요약 다시 만들기
             </Button>
           )}
           {summary && !isReviewed && editing === null && (
             <>
-              <Button variant="secondary" size="sm" onClick={() => setEditing(text)}>
+              <Button variant="secondary" size="md" onClick={() => setEditing(text)}>
                 <Icon name="edit" size={14} /> 문장 고치기
               </Button>
               <Button
-                size="sm"
+                size="md"
                 isLoading={setStatus.isPending}
                 onClick={() => setStatus.mutate({ month: report.month, status: 'reviewed' })}
               >
@@ -92,17 +85,11 @@ export function SummaryCard({ report }: { report: CouncilReport }) {
             </>
           )}
           {isReviewed && (
-            <>
-              <Button variant="secondary" size="sm" onClick={() => window.print()}>
-                <Icon name="download" size={14} /> PDF 내려받기
-              </Button>
-              <Button variant="secondary" size="sm" onClick={handleDownloadCsv}>
-                <Icon name="download" size={14} /> 표 내려받기
-              </Button>
-              <Button size="sm" onClick={handleSend}>
-                <Icon name="mail" size={14} /> 자치회에 보내기
-              </Button>
-            </>
+            <SummaryExportButtons
+              report={report}
+              text={text}
+              onSent={() => setStatus.mutate({ month: report.month, status: 'sent' })}
+            />
           )}
         </div>
       </div>
@@ -134,7 +121,13 @@ export function SummaryCard({ report }: { report: CouncilReport }) {
           </div>
         </div>
       ) : (
-        text && <p className="mt-4 rounded-field bg-busy p-5 text-[15px] leading-7">{text}</p>
+        <p className="mt-4 min-h-[76px] rounded-field bg-busy px-4 py-4 text-sm leading-7">
+          {isDrafting ? (
+            <span className="text-muted">집계 숫자로 요약 문장을 만들고 있어요…</span>
+          ) : (
+            text
+          )}
+        </p>
       )}
       {!isReviewed && (
         <p className="mt-3 flex items-center gap-1 text-[13px] text-muted">
