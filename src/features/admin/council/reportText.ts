@@ -2,6 +2,12 @@ import type { CouncilReport, HeatCell } from './api';
 
 export const DOW_LABELS = ['', '월', '화', '수', '목', '금', '토', '일'] as const;
 
+/** 한가한 주민이 10명 미만인 칸은 수요 보기에서 숨긴다 (구역 비중과 같은 기준) */
+export const MIN_PEOPLE = 10;
+
+export const isHiddenCell = (cell: HeatCell, mode: 'supply' | 'demand') =>
+  mode === 'demand' && cell.free_people > 0 && cell.free_people < MIN_PEOPLE;
+
 /** 공급(열린 딜)은 적은데 수요(한가한 주민)가 많은 칸 — 상위 몇 개를 "격차 큼"으로 표시 */
 export function gapScore(cell: HeatCell): number {
   return cell.free_people - cell.supply * 10;
@@ -22,7 +28,7 @@ export function templateSummary(report: CouncilReport): string {
   const prev = report.kpis.used.prev ?? 0;
   const change =
     prev > 0
-      ? `(지난달보다 ${Math.round(((used - prev) / prev) * 100)}% ${used >= prev ? '증가' : '감소'})`
+      ? `(지난달보다 ${Math.abs(Math.round(((used - prev) / prev) * 100))}% ${used >= prev ? '증가' : '감소'})`
       : '';
   const gap = [...report.heatmap].sort((a, b) => gapScore(b) - gapScore(a))[0];
   const gapText =
