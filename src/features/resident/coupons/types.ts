@@ -1,6 +1,7 @@
 import type { Category } from '@/shared/constants/domain';
 
-export type CouponStatus = 'issued' | 'used' | 'expired';
+/** canceled = 딜이 사장님·운영자 종료 등으로 닫혀 서버가 취소한 쿠폰 */
+export type CouponStatus = 'issued' | 'used' | 'expired' | 'canceled';
 
 export interface MyCoupon {
   id: string;

@@ -30,9 +30,9 @@ export type Database = {
       Relationships: [{ foreignKeyName: "council_report_summaries_reviewed_by_fkey", columns: ["reviewed_by"], isOneToOne: false, referencedRelation: "profiles", referencedColumns: ["id"] }]
     }
     "coupons": {
-      Row: { "created_at": string, "deal_id": string, "expires_at": string, "id": string, "issued_at": string, "status": string, "used_at": string | null, "user_id": string }
-      Insert: { "created_at"?: string, "deal_id": string, "expires_at": string, "id"?: string, "issued_at"?: string, "status"?: string, "used_at"?: string | null, "user_id": string }
-      Update: { "created_at"?: string, "deal_id"?: string, "expires_at"?: string, "id"?: string, "issued_at"?: string, "status"?: string, "used_at"?: string | null, "user_id"?: string }
+      Row: { "canceled_at": string | null, "created_at": string, "deal_id": string, "expires_at": string, "id": string, "issued_at": string, "status": string, "used_at": string | null, "user_id": string }
+      Insert: { "canceled_at"?: string | null, "created_at"?: string, "deal_id": string, "expires_at": string, "id"?: string, "issued_at"?: string, "status"?: string, "used_at"?: string | null, "user_id": string }
+      Update: { "canceled_at"?: string | null, "created_at"?: string, "deal_id"?: string, "expires_at"?: string, "id"?: string, "issued_at"?: string, "status"?: string, "used_at"?: string | null, "user_id"?: string }
       Relationships: [{ foreignKeyName: "coupons_deal_id_fkey", columns: ["deal_id"], isOneToOne: false, referencedRelation: "deals", referencedColumns: ["id"] }, { foreignKeyName: "coupons_user_id_fkey", columns: ["user_id"], isOneToOne: false, referencedRelation: "profiles", referencedColumns: ["id"] }]
     }
     "deal_events": {
@@ -164,6 +164,7 @@ export type Database = {
     "generate_weekly_deals": { Args: Record<PropertyKey, never>; Returns: undefined }
     "get_alert_times": { Args: { "p_user_id": string, "p_day": string }; Returns: { "slot": string, "at_time": string, "label": string }[] }
     "get_council_report": { Args: { "p_month": string }; Returns: Json }
+    "get_deal_open_coupon_count": { Args: { "p_deal_id": string }; Returns: number }
     "get_my_alert_preview": { Args: { "p_from"?: string }; Returns: Json }
     "get_my_daily_usage": { Args: Record<PropertyKey, never>; Returns: Json }
     "get_my_free_times": { Args: { "p_from"?: string }; Returns: Json }

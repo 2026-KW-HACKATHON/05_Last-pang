@@ -10,6 +10,7 @@ import { PageHeader } from '@/shared/ui/PageHeader';
 import { CouponActions } from '../components/CouponActions';
 import { CouponDealCard } from '../components/CouponDealCard';
 import { CouponExpired } from '../components/CouponExpired';
+import { CouponCanceled } from '../components/CouponCanceled';
 import { CouponSoldOut } from '../components/CouponSoldOut';
 import { CouponTimerBox } from '../components/CouponTimerBox';
 import { RedeemPanel } from '../components/RedeemPanel';
@@ -80,6 +81,7 @@ export function CouponPage() {
         )}
         {status === 'expired' && <CouponExpired coupon={coupon.data} />}
         {status === 'soldOut' && <CouponSoldOut coupon={coupon.data} />}
+        {status === 'canceled' && <CouponCanceled coupon={coupon.data} />}
       </div>
       <CouponActions status={status} dealId={coupon.data.dealId} />
     </main>

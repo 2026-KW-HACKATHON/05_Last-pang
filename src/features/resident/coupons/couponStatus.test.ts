@@ -59,4 +59,14 @@ describe('toDisplayStatus', () => {
     expect(toDisplayStatus(closed, at('2026-10-07T05:10:00Z'))).toBe('soldOut');
     expect(toDisplayStatus({ ...closed, status: 'used' }, at('2026-10-07T05:10:00Z'))).toBe('used');
   });
+  it('딜 종료로 취소된 쿠폰은 canceled, 지난 쿠폰으로 간다', () => {
+    const canceled = {
+      ...coupon,
+      status: 'canceled' as const,
+      dealStatus: 'closed',
+      dealCloseReason: 'owner',
+    };
+    expect(toDisplayStatus(canceled, at('2026-10-07T05:10:00Z'))).toBe('canceled');
+    expect(splitCoupons([canceled], at('2026-10-07T05:10:00Z')).past).toHaveLength(1);
+  });
 });

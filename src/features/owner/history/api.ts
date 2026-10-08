@@ -104,7 +104,7 @@ export async function fetchOwnerDeal(dealId: string): Promise<HistoryDeal | null
 export interface DealCouponRow {
   id: string;
   confirmNumber: string; // 손님 화면의 확인번호 (쿠폰 id 끝 4자리)
-  status: 'issued' | 'used' | 'expired';
+  status: 'issued' | 'used' | 'expired' | 'canceled';
   usedAt: string | null;
 }
 
@@ -119,7 +119,10 @@ export async function fetchDealCoupons(dealId: string): Promise<DealCouponRow[]>
   return data.map((row) => ({
     id: row.id,
     confirmNumber: row.id.slice(-4).toUpperCase(),
-    status: row.status === 'used' || row.status === 'expired' ? row.status : 'issued',
+    status:
+      row.status === 'used' || row.status === 'expired' || row.status === 'canceled'
+        ? row.status
+        : 'issued',
     usedAt: row.used_at,
   }));
 }

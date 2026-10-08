@@ -6,6 +6,7 @@ import { useNow } from '@/shared/hooks/useNow';
 import { formatPrice } from '@/shared/lib/format';
 import { ErrorState } from '@/shared/ui/ErrorState';
 import { LoadingState } from '@/shared/ui/LoadingState';
+import { CloseDealCouponNote } from '@/features/owner/deals/components/CloseDealCouponNote';
 
 import { Icon } from '../../components/Icon';
 import { Button } from '../../components/ui/Button';
@@ -123,9 +124,7 @@ function OwnerDealDetail({ deal }: { deal: HistoryDeal }) {
         <ConfirmDialog
           icon="timerOff"
           title="딜을 지금 종료할까요?"
-          body={
-            '이미 받은 쿠폰은 유효시간까지 쓸 수 있어요.\n진행 중인 타임딜 노출이 즉시 중단됩니다.'
-          }
+          body={<CloseDealCouponNote dealId={deal.id} />}
           confirmLabel="종료하기"
           isPending={closeDeal.isPending}
           onConfirm={() => closeDeal.mutate(deal.id, { onSettled: () => setIsConfirming(false) })}
