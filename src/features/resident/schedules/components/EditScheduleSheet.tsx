@@ -49,7 +49,7 @@ export function EditScheduleSheet({
   return (
     <BottomSheet title={schedule.name} onClose={onClose}>
       <div className="max-h-[70dvh] space-y-5 overflow-y-auto pb-1">
-        <p className="-mt-3 flex items-center gap-1.5 text-sm text-muted">
+        <p className="flex items-center gap-1.5 text-sm text-muted">
           <span className={`size-3 rounded-[3px] ${COLOR_STYLES[draft.color].block}`} />
           {formatDays(schedule.days)} {formatRange(schedule.startMin, schedule.endMin)}
         </p>
