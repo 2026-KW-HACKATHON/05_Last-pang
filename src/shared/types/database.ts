@@ -131,6 +131,7 @@ export type Database = {
     "admin_close_deal": { Args: { "p_deal_id": string }; Returns: Json }
     "admin_create_deal": { Args: { "p_store_id": string, "p_title": string, "p_original_price": number, "p_deal_price": number, "p_duration_min": number, "p_total_qty": number, "p_coupon_ttl_min": number, "p_starts_at"?: string }; Returns: Json }
     "admin_create_store": { Args: { "p_name": string, "p_category": string, "p_address": string, "p_lat": number, "p_lng": number, "p_description"?: string, "p_representative_name"?: string, "p_business_no"?: string, "p_phone"?: string }; Returns: Json }
+    "admin_deal_push_status": { Args: { "p_deal_id": string }; Returns: Json }
     "admin_delete_store": { Args: { "p_store_id": string }; Returns: Json }
     "admin_get_report_detail": { Args: { "p_deal_id": string }; Returns: Json }
     "admin_get_store": { Args: { "p_store_id": string }; Returns: Json }
@@ -138,8 +139,12 @@ export type Database = {
     "admin_list_applications": { Args: { "p_status"?: string }; Returns: Json }
     "admin_list_report_groups": { Args: { "p_status"?: string }; Returns: Json }
     "admin_list_stores": { Args: { "p_filter"?: string, "p_query"?: string }; Returns: Json }
+    "admin_push_funnel": { Args: { "p_store_id": string }; Returns: Json }
+    "admin_push_readiness": { Args: Record<PropertyKey, never>; Returns: Json }
     "admin_resolve_reports": { Args: { "p_deal_id": string, "p_confirm": boolean }; Returns: Json }
     "admin_rotate_store_code": { Args: { "p_store_id": string }; Returns: Json }
+    "admin_send_deal_push_now": { Args: { "p_deal_id": string }; Returns: Json }
+    "admin_send_test_push": { Args: { "p_deal_id": string }; Returns: Json }
     "admin_suspend_store": { Args: { "p_store_id": string, "p_code": string, "p_note"?: string }; Returns: Json }
     "admin_unsuspend_store": { Args: { "p_store_id": string }; Returns: Json }
     "admin_update_store": { Args: { "p_store_id": string, "p_name": string, "p_category": string, "p_address": string, "p_lat": number, "p_lng": number, "p_description"?: string, "p_representative_name"?: string, "p_business_no"?: string, "p_phone"?: string }; Returns: Json }
