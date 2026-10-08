@@ -201,9 +201,10 @@ describe('createAdminStore', () => {
 describe('fetchPushTargetEstimate', () => {
   it('숫자를 그대로 돌려준다', async () => {
     rpc.mockResolvedValue({ data: 84, error: null });
-    await expect(fetchPushTargetEstimate(new Date('2026-10-05T05:00:00Z'))).resolves.toBe(84);
+    await expect(fetchPushTargetEstimate(new Date('2026-10-05T05:00:00Z'), 120)).resolves.toBe(84);
     expect(rpc).toHaveBeenCalledWith('estimate_push_targets', {
       p_starts_at: '2026-10-05T05:00:00.000Z',
+      p_duration_min: 120,
     });
   });
 });

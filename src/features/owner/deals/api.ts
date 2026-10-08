@@ -154,9 +154,13 @@ export async function closeDeal(dealId: string): Promise<void> {
 }
 
 /** 딜 등록 화면의 "근처 주민 N명에게 알림" — 읽기 RPC는 결과 그대로 (컨벤션 8장) */
-export async function fetchPushTargetEstimate(startsAt: Date): Promise<number> {
+export async function fetchPushTargetEstimate(
+  startsAt: Date,
+  durationMin: number,
+): Promise<number> {
   const { data, error } = await supabase.rpc('estimate_push_targets', {
     p_starts_at: startsAt.toISOString(),
+    p_duration_min: durationMin,
   });
   if (error) throw toAppError(error);
   return z.number().int().nonnegative().parse(data);

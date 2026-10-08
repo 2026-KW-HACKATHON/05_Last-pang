@@ -42,7 +42,7 @@ import { ConsentPage } from '@/features/resident/onboarding/pages/ConsentPage';
 import { ProfilePage } from '@/features/resident/onboarding/pages/ProfilePage';
 import { BaseLocationPage } from '@/features/resident/preferences/pages/BaseLocationPage';
 import { PreferencesPage } from '@/features/resident/preferences/pages/PreferencesPage';
-import { AlertTimesPage } from '@/features/resident/schedules/pages/AlertTimesPage';
+import { FreeTimesPage } from '@/features/resident/schedules/pages/FreeTimesPage';
 import { SchedulesPage } from '@/features/resident/schedules/pages/SchedulesPage';
 
 import { HelpPage } from './HelpPage';
@@ -81,7 +81,7 @@ export const router = createBrowserRouter([
           { path: '/me/preferences', element: <PreferencesPage /> },
           { path: '/me/location', element: <BaseLocationPage /> },
           { path: '/me/schedules', element: <SchedulesPage /> },
-          { path: '/me/schedules/alerts', element: <AlertTimesPage /> },
+          { path: '/me/schedules/alerts', element: <FreeTimesPage /> },
           { path: '/me/withdraw', element: <WithdrawPage /> },
           { path: '/help', element: <HelpPage /> },
           // O0~O1-4: 주민도 들어와 신청한다 (승인 대기·거절은 /owner의 상태 화면, 합의 2-8)

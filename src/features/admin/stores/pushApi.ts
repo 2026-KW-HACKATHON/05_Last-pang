@@ -20,6 +20,7 @@ const funnelSchema = z.object({
   alerts_on: z.number(),
   in_range: z.number(),
   category_ok: z.number(),
+  free_ok: z.number(),
   inbox_targets: z.number(),
   push_targets: z.number(),
 });

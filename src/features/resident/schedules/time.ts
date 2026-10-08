@@ -1,6 +1,6 @@
-import { DAY_LABELS, LEAD_OPTIONS, WEEK_DAYS } from './constants';
+import { DAY_LABELS, WEEK_DAYS } from './constants';
 
-import type { Schedule } from './types';
+import type { FreeRange, FreeTimeItem, Schedule } from './types';
 
 const SEOUL = 'Asia/Seoul';
 
@@ -38,10 +38,6 @@ export function dayLabel(dow: number): string {
   return DAY_LABELS[dow] ?? '';
 }
 
-export function leadLabel(leadMin: number): string {
-  return LEAD_OPTIONS.find((option) => option.value === leadMin)?.label ?? `${leadMin}분`;
-}
-
 export function formatRange(startMin: number, endMin: number): string {
   return `${toHHMM(startMin)} – ${toHHMM(endMin)}`;
 }
@@ -65,18 +61,15 @@ export function findOverlap(
   return null;
 }
 
-/** 이 일정이 그날 첫 일정(첫 외출)이 되는 요일들 */
-export function firstOutingDays(
-  schedules: Schedule[],
-  draft: Pick<Schedule, 'days' | 'startMin'>,
-  excludeId?: string,
-): number[] {
-  return draft.days.filter((dow) =>
-    schedules.every(
-      (schedule) =>
-        schedule.id === excludeId ||
-        !schedule.days.includes(dow) ||
-        schedule.startMin > draft.startMin,
-    ),
-  );
+/** 서버의 비는 시간 → 시간표에 칠할 범위 ('00:00'으로 끝나면 자정) */
+export function toFreeRanges(items: FreeTimeItem[]): FreeRange[] {
+  return items.map((item) => ({
+    dow: dowOf(item.day),
+    startMin: toMinutes(item.from),
+    endMin: item.to === '00:00' ? 24 * 60 : toMinutes(item.to),
+  }));
+}
+
+export function formatFreeTime(item: Pick<FreeTimeItem, 'from' | 'to'>): string {
+  return `${item.from}~${item.to === '00:00' ? '24:00' : item.to}`;
 }

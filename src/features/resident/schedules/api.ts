@@ -2,23 +2,10 @@ import { fetchCurrentUserId } from '@/shared/lib/currentUser';
 import { AppError, toAppError } from '@/shared/lib/errors';
 import { supabase } from '@/shared/lib/supabase';
 
-import {
-  alertPreviewSchema,
-  alertSettingsRowSchema,
-  scheduleDraftSchema,
-  scheduleRowSchema,
-} from './schema';
+import { freeTimesSchema, scheduleDraftSchema, scheduleRowSchema } from './schema';
 import { toHHMM, toMinutes } from './time';
 
-import type { AlertPreviewItem, AlertSettings, Schedule, ScheduleDraft } from './types';
-
-// 행이 없을 때 쓰는 값. DB 컬럼 기본값과 같다
-const DEFAULT_ALERT_SETTINGS: AlertSettings = {
-  morning: true,
-  lunch: true,
-  dinner: true,
-  leadMin: 30,
-};
+import type { FreeTimeItem, Schedule, ScheduleDraft } from './types';
 
 /** DB 트리거의 SCHEDULE_OVERLAP 예외는 TIME_OVERLAP으로 바꾼다 */
 function toScheduleError(error: unknown): AppError {
@@ -83,44 +70,11 @@ export async function deleteSchedule(id: string): Promise<void> {
   if (error) throw toAppError(error);
 }
 
-/** 오늘부터 7일 동안 보낼 알림 시각 (서버 계산) */
-export async function fetchAlertPreview(): Promise<AlertPreviewItem[]> {
-  const { data, error } = await supabase.rpc('get_my_alert_preview', {});
+/** 오늘부터 7일 동안의 비는 시간 (서버 계산, 30분 이상만) */
+export async function fetchFreeTimes(): Promise<FreeTimeItem[]> {
+  const { data, error } = await supabase.rpc('get_my_free_times', {});
   if (error) throw toAppError(error);
-  const parsed = alertPreviewSchema.safeParse(data);
+  const parsed = freeTimesSchema.safeParse(data);
   if (!parsed.success) throw new AppError('UNKNOWN');
   return parsed.data;
-}
-
-export async function fetchAlertSettings(): Promise<AlertSettings> {
-  const userId = await fetchCurrentUserId();
-  const { data, error } = await supabase
-    .from('resident_preferences')
-    .select('alert_morning, alert_lunch, alert_dinner, first_outing_lead_min')
-    .eq('user_id', userId)
-    .maybeSingle();
-  if (error) throw toAppError(error);
-  if (!data) return DEFAULT_ALERT_SETTINGS;
-  const row = alertSettingsRowSchema.safeParse(data);
-  if (!row.success) throw new AppError('UNKNOWN');
-  return {
-    morning: row.data.alert_morning,
-    lunch: row.data.alert_lunch,
-    dinner: row.data.alert_dinner,
-    leadMin: row.data.first_outing_lead_min,
-  };
-}
-
-/** 바꾼 값만 보낸다. 행이 없으면 만들고(나머지는 DB 기본값) */
-export async function updateAlertSettings(changes: Partial<AlertSettings>): Promise<void> {
-  const userId = await fetchCurrentUserId();
-  const { error } = await supabase.from('resident_preferences').upsert({
-    user_id: userId,
-    alert_morning: changes.morning,
-    alert_lunch: changes.lunch,
-    alert_dinner: changes.dinner,
-    first_outing_lead_min: changes.leadMin,
-    updated_at: new Date().toISOString(),
-  });
-  if (error) throw toAppError(error);
 }

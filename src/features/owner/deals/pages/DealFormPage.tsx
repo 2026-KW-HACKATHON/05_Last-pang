@@ -43,7 +43,6 @@ function repostOf(state: unknown): Partial<DealDraft> {
 
 function DealForm({ store }: { store: MyStore }) {
   const createDeal = useCreateInstantDeal();
-  const estimate = usePushTargetEstimate();
   const quota = useTodayDealQuota();
   const now = useNow(60_000);
   const location = useLocation();
@@ -53,6 +52,7 @@ function DealForm({ store }: { store: MyStore }) {
     ...repostOf(location.state),
   }));
 
+  const estimate = usePushTargetEstimate(draft.durationMin);
   const parsed = dealFormSchema.safeParse(draft);
   const isLimitReached =
     (quota.data && quota.data.used >= quota.data.limit) ||

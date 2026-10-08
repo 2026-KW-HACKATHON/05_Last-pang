@@ -18,7 +18,8 @@ const STEPS: Array<{ key: keyof PushFunnel; label: string }> = [
   { key: 'alerts_on', label: '딜 알림 켬' },
   { key: 'in_range', label: '걸어갈 거리 안' },
   { key: 'category_ok', label: '좋아하는 업종' },
-  { key: 'inbox_targets', label: '시간·하루 한도 통과 → 알림함' },
+  { key: 'free_ok', label: '비는 시간 30분 이상 겹침 (1시간 딜)' },
+  { key: 'inbox_targets', label: '방해 금지·하루 한도 통과 → 알림함' },
   { key: 'push_targets', label: '기기 등록 → 푸시' },
 ];
 
