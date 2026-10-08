@@ -5,6 +5,7 @@ import { Icon } from '@/shared/ui/Icon';
 import { LoadingState } from '@/shared/ui/LoadingState';
 import { shouldShowIosInstallGuide } from '@/shared/lib/platform';
 
+import { BaseLocationPrompt } from '../../../preferences/components/BaseLocationPrompt';
 import { usePushSubscription } from '../../hooks';
 import { useNotificationSettings, useUpdateNotificationSettings } from '../../settingsHooks';
 import { AlertTogglesCard } from './AlertTogglesCard';
@@ -43,6 +44,7 @@ export function SettingsTab() {
 
   return (
     <div className="space-y-3 px-5 pt-4 pb-6">
+      <BaseLocationPrompt />
       {isIosTab ? (
         <IosInstallCard />
       ) : (

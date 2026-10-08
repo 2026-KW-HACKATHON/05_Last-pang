@@ -7,6 +7,7 @@ import { useNow } from '@/shared/hooks/useNow';
 import { WOLGYE1_CENTER } from '@/shared/lib/geo';
 
 import { ResidentTabBar } from '../../navigation/components/ResidentTabBar';
+import { BaseLocationPrompt } from '../../preferences/components/BaseLocationPrompt';
 import { useMyPreferences, useUpdatePreferences } from '../../preferences/hooks';
 import { useMyProfile } from '../../profile/hooks';
 import { CategoryChips } from '../components/CategoryChips';
@@ -88,6 +89,7 @@ export function HomePage() {
               nickname={profile.data?.nickname ?? null}
               onSettingsClick={() => setOpenSheet('settings')}
             />
+            <BaseLocationPrompt className="mt-4 mb-3" />
             <CategoryChips selected={category} onSelect={setCategory} />
           </div>
           {isLocationOff && !isBaseMode ? (
